@@ -1,0 +1,160 @@
+/* 
+ * Luoxiaohei / Code Theme
+ * Version: 0.02
+ * Release Date: November 2, 2024
+ * Author: Shuakami
+ */
+
+:root {
+  /* 亮色主题变量 */
+  --code-text: #383A42;
+  --code-keyword: #aa25a8;
+  --code-type: #C18401;
+  --code-string: #50A14F;
+  --code-number: #a77a19;
+  --code-function: #4078F2;
+  --code-class: #4078F2;
+  --code-variable: #383A42;
+  --code-attr: #986801;
+  --code-comment: #A0A1A7;
+  --code-operator: #515254;
+  --code-tag: #383A42;
+  --code-tag-name: #E45649;
+  --code-tag-attr: #986801;
+}
+
+/* 修改暗色主题选择器 */
+:root[data-theme="dark"],  /* 支持 data-theme 属性 */
+:root[class~="dark"],      /* 支持 class="dark" */
+[data-theme="dark"],       /* 支持任意元素的 data-theme */
+.dark {                    /* 保留原有的 .dark */
+  --code-text: #E6E6E6;
+  --code-keyword: #C678DD;
+  --code-type: #E5C07B;
+  --code-string: #98C379;
+  --code-number: #E5C07B;
+  --code-function: #61AFEF;
+  --code-class: #E5C07B;
+  --code-variable: #ABB2BF;
+  --code-attr: #D19A66;
+  --code-comment: #7F848E;
+  --code-operator: #7A7C7F;
+  --code-tag: #ABB2BF;
+  --code-tag-name: #E06C75;
+  --code-tag-attr: #D19A66;
+}
+
+/* 添加系统暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --code-text: #E6E6E6;
+    --code-keyword: #C678DD;
+    --code-type: #E5C07B;
+    --code-string: #98C379;
+    --code-number: #E5C07B;
+    --code-function: #61AFEF;
+    --code-class: #E5C07B;
+    --code-variable: #ABB2BF;
+    --code-attr: #D19A66;
+    --code-comment: #7F848E;
+    --code-operator: #7A7C7F;
+    --code-tag: #ABB2BF;
+    --code-tag-name: #E06C75;
+    --code-tag-attr: #D19A66;
+  }
+}
+
+/* 代码块基础样式 */
+.markdown-body pre > code {
+  color: var(--code-text);
+  font-size: 0.895rem;
+  line-height: 1.75;
+  -webkit-font-smoothing: auto;
+  font-weight: 350;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', ui-monospace, 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
+  font-feature-settings: "liga" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Prism.js 语法高亮 */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: var(--code-comment);
+  font-style: italic;
+  font-weight: 350;
+}
+
+.token.keyword {
+  color: var(--code-keyword);
+  font-weight: 350;
+}
+
+.token.builtin,
+.token.class-name {
+  color: var(--code-type);
+  font-weight: 350;
+}
+
+.token.string {
+  color: var(--code-string);
+}
+
+.token.number {
+  color: var(--code-number);
+}
+
+.token.function {
+  color: var(--code-function);
+  font-weight: 350;
+}
+
+.token.property,
+.token.variable {
+  color: var(--code-variable);
+}
+
+.token.attr-name {
+  color: var(--code-attr);
+}
+
+.token.operator,
+.token.punctuation {
+  color: var(--code-operator);
+}
+
+.token.tag {
+  color: var(--code-tag);
+}
+
+.token.tag .token.tag {
+  color: var(--code-tag-name);
+}
+
+.token.tag .token.attr-name {
+  color: var(--code-tag-attr);
+}
+
+/* 其他语法元素 */
+.token.boolean,
+.token.constant {
+  color: var(--code-keyword);
+}
+
+.token.selector,
+.token.important,
+.token.atrule,
+.token.regex {
+  color: var(--code-function);
+}
+
+.token.deleted {
+  color: var(--code-tag-name);
+}
+
+.token.inserted {
+  color: var(--code-string);
+}

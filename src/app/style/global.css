@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import './markdown.css';
+
+:root {
+    --background: #F9F9F9;
+    --foreground: #000000;
+    --transition-duration: 200ms;
+    --font-geist-sans: '';
+    --font-geist-mono: '';
+    --font-noto-sans-sc: '';
+}
+
+.dark {
+    --background: #000000;
+    --foreground: #F9F9F9;
+}
+  
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .hero-content {
+    animation: fadeIn 1s ease-out;
+  }
+
+
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  .smooth-scroll {
+    @apply transition-all duration-1000;
+  }
+
+  * {
+    transition: background-color var(--transition-duration) ease,
+                border-color var(--transition-duration) ease,
+                color var(--transition-duration) ease;
+  }
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-black/10 dark:bg-white/10;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-black/20 dark:bg-white/20;
+}
+
+/* 暗色模式背景 */
+.dark body {
+  background: #000;
+}
+
+/* 亮色模式背景 */
+body {
+  background: #f5f5f5;
+}
