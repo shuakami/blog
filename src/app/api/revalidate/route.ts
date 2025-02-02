@@ -2,7 +2,6 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import { getPostBySlug, getContentIndex } from '@/utils/posts';
-import { revalidateCache } from '@/utils/cache';
 
 // 配置
 const REVALIDATE_TOKEN = process.env.REVALIDATE_TOKEN;
@@ -30,10 +29,8 @@ export async function POST(req: NextRequest) {
       // 重新验证所有内容
       revalidateTag('posts-index');
       revalidateTag('posts');
-      await revalidateCache('posts-index'); // 清除本地缓存
-      await revalidateCache('posts');
       revalidatePath('/');
-      await getContentIndex('content', true);
+      await getContentIndex('content', 1);
       console.log('[Revalidate API] Successfully revalidated all content');
 
       return NextResponse.json({ 
@@ -47,7 +44,7 @@ export async function POST(req: NextRequest) {
       console.log(`[Revalidate API] Revalidating posts: ${slugs.join(', ')}`);
       // 重新验证特定文章
       revalidateTag('posts-index'); // 先重新验证索引
-      await getContentIndex('content', true); // 强制更新索引
+      await getContentIndex('content', 1); // 强制更新索引
 
       // 检查是否包含待重新验证的文章
       const { posts } = await getContentIndex('content');
@@ -65,7 +62,6 @@ export async function POST(req: NextRequest) {
           const tag = `post-${slug}`;
           console.log(`[Revalidate API] Revalidating tag: ${tag}`);
           revalidateTag(tag);
-          await revalidateCache(tag); // 清除本地缓存
           const path = `/post/${slug}`;
           console.log(`[Revalidate API] Revalidating path: ${path}`);
           revalidatePath(path);
@@ -94,7 +90,7 @@ export async function POST(req: NextRequest) {
       if (tags.includes('index')) {
         console.log('[Revalidate API] Revalidating index path and tag');
         revalidatePath('/');
-        await getContentIndex('content', true);
+        await getContentIndex('content', 1);
         updates.push('index');
       }
 
