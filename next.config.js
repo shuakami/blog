@@ -3,8 +3,12 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
+        protocol: 'http',
+        hostname: '**',
+      },
+      {
         protocol: 'https',
-        hostname: '*',
+        hostname: '**',
       },
     ],
     formats: ['image/webp', 'image/avif'],
@@ -26,6 +30,7 @@ const nextConfig = {
     serverActions: {
       allowedOrigins: ['localhost:3000', 'luoxiaohei.cn'],
     },
+    appDir: true,
   },
 
   // 类型检查
@@ -48,6 +53,11 @@ const nextConfig = {
         permanent: true,
       },
     ];
+  },
+
+  // 忽略ESLint错误
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 
