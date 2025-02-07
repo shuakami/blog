@@ -81,7 +81,7 @@ export default function RootLayout({
             </main>
 
             {/* 桌面端右侧边栏 */}
-            <aside className="hidden md:block w-80 fixed right-0 top-0 h-screen p-6 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <aside className="hidden md:block w-80 fixed right-0 top-0 h-screen p-4 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <RightSidebar />
             </aside>
 
