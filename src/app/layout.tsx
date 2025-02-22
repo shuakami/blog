@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from "next/font/google";
 import { Noto_Sans_SC } from "next/font/google";
 import { ThemeProvider } from 'next-themes'
-import PageTransition from '@/components/PageTransition';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
 import SideNav from '@/components/SideNav';
 import Header from '@/components/Header';
@@ -75,9 +74,7 @@ export default function RootLayout({
             
             {/* 主内容区 */}
             <main className="flex-1 md:ml-80 md:mr-80 px-2 md:px-6 py-4 pt-[72px] md:pt-6 min-h-screen">
-              <PageTransition>
-                {children}
-              </PageTransition>
+              {children}
             </main>
 
             {/* 桌面端右侧边栏 */}
