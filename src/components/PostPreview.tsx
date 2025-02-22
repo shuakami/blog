@@ -25,14 +25,13 @@ export default function PostPreview({ post }: PostPreviewProps) {
   }, [post.tags]) as TagType;
 
   return (
-    <article className="group relative bg-white/40 dark:bg-black/40 rounded-xl p-6 
+    <article className="group relative bg-white/40 dark:bg-black/40 backdrop-blur-md md:rounded-xl p-4 md:p-6 
       transition-all duration-300 ease-out
       hover:bg-white/60 dark:hover:bg-black/60
       hover:-translate-y-1
-      backdrop-blur-md
-      border border-black/5 dark:border-white/10
-      shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(255,255,255,0.04)]
-      hover:shadow-[0_16px_45px_rgb(0,0,0,0.1)] dark:hover:shadow-[0_16px_45px_rgb(255,255,255,0.1)]">
+      md:border md:border-black/5 md:dark:border-white/10
+      md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] md:dark:shadow-[0_8px_30px_rgb(255,255,255,0.04)]
+      md:hover:shadow-[0_16px_45px_rgb(0,0,0,0.1)] md:dark:hover:shadow-[0_16px_45px_rgb(255,255,255,0.1)]">
       <Link 
         href={`/post/${post.slug}` as Route} 
         className="block"
@@ -50,9 +49,9 @@ export default function PostPreview({ post }: PostPreviewProps) {
           </div>
 
           {/* 底部信息栏 */}
-          <div className="flex items-center justify-between pt-4 border-t border-black/5 dark:border-white/5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 pt-4 border-t border-black/5 dark:border-white/5">
             {/* 左侧信息 */}
-            <div className="flex items-center space-x-4 text-sm">
+            <div className="flex flex-wrap items-center gap-4 text-sm">
               <time className="text-black/50 dark:text-white/50">
                 {post.date}
               </time>

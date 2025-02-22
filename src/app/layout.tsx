@@ -47,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${notoSansSC.variable} font-sans antialiased bg-gray-50 dark:bg-gray-1000`}
+        className={`${geistSans.variable} ${geistMono.variable} ${notoSansSC.variable} font-sans antialiased bg-white/40 dark:bg-black/40 md:bg-gray-50 md:dark:bg-gray-1000`}
       >
         <ThemeProvider defaultTheme="system" enableSystem>
           {/* 夜间模式背景图片 */}
@@ -74,7 +74,7 @@ export default function RootLayout({
             </div>
             
             {/* 主内容区 */}
-            <main className="flex-1 md:ml-80 md:mr-80 px-6 py-4 pt-[72px] md:pt-6 min-h-screen">
+            <main className="flex-1 md:ml-80 md:mr-80 px-2 md:px-6 py-4 pt-[72px] md:pt-6 min-h-screen">
               <PageTransition>
                 {children}
               </PageTransition>
