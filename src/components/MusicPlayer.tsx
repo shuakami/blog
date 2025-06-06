@@ -96,7 +96,7 @@ const ProgressBar = ({ progress, isPlaying, onClick }: {
 const PLAYLIST_ID = '8308939217';
 const PAGE_SIZE = 10;
 const PRELOAD_THRESHOLD = 0.8;  // 播放到80%时预加载
-const BASE_URL = 'https://musicd2-git-main-shuakamis-projects.vercel.app';
+const BASE_URL = 'http://music-api.sdjz.wiki';
 
 export default function MusicPlayer({ isMobile = false, isFixed = false }: MusicPlayerProps) {
   const [isImageLoading, setIsImageLoading] = useState(true);

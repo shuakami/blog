@@ -74,13 +74,12 @@ function WeatherSkeleton() {
 
 export default function WeatherCard() {
   const [city, setCity] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(true);
 
-  // 获取位置信息
-  const { data: locationData } = useSWR('/api/location', fetcher);
+  // 获取位置信息，并解构出 isLoading 状态
+  const { data: locationData, isLoading: isLocationLoading } = useSWR('/api/location', fetcher);
 
-  // 获取天气信息
-  const { data: weatherData, error } = useSWR(
+  // 获取天气信息，并解构出 isLoading 状态
+  const { data: weatherData, error, isLoading: isWeatherLoading } = useSWR(
     city ? `/api/weather?city=${encodeURIComponent(city)}` : null,
     fetcher,
     { refreshInterval: 1800000 } // 30分钟刷新一次
@@ -90,7 +89,6 @@ export default function WeatherCard() {
   useEffect(() => {
     if (locationData?.city) {
       setCity(locationData.city);
-      setIsLoading(false);
     }
   }, [locationData]);
 
@@ -118,6 +116,9 @@ export default function WeatherCard() {
     return `${d.getMonth() + 1}/${d.getDate()}`;
   };
 
+  // 统一的加载状态判断
+  const isLoading = isLocationLoading || (city && isWeatherLoading) || (!city && !error);
+
   if (error) return (
     <div className="text-sm text-red-500/80 dark:text-red-400/80">
       加载天气信息失败
@@ -129,6 +130,12 @@ export default function WeatherCard() {
   if (!weatherData?.data) return null;
 
   const { now, forecast } = weatherData.data;
+  
+  const cardClassName = clsx(
+    'rounded-xl overflow-hidden',
+    getWeatherGradient(now.text),
+    'shadow-lg shadow-black/10'
+  );
 
   return (
     <AnimatePresence>
@@ -137,62 +144,59 @@ export default function WeatherCard() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-        className={clsx(
-          'rounded-xl overflow-hidden',
-          getWeatherGradient(now.text),
-          'shadow-lg shadow-black/10'
-        )}
       >
-        <div className="p-4">
-          {/* 位置信息 */}
-          <div className="flex items-center space-x-2 mb-4">
-            <IoLocationSharp className="w-4 h-4 text-white/90" />
-            <span className="text-sm font-medium text-white">
-              {city}
-            </span>
-          </div>
-
-          {/* 主要天气信息 */}
-          <div className="flex flex-col items-center mb-4">
-            <div className="text-6xl font-light text-white mb-2 ml-2">
-              {now.temp}°
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-lg text-white/90">
-                {now.text}
+        <div className={cardClassName}>
+          <div className="p-4">
+            {/* 位置信息 */}
+            <div className="flex items-center space-x-2 mb-4">
+              <IoLocationSharp className="w-4 h-4 text-white/90" />
+              <span className="text-sm font-medium text-white">
+                {city}
               </span>
             </div>
-          </div>
 
-          {/* 天气指标 */}
-          <div className="flex justify-center space-x-6 mb-4">
-            <div className="flex items-center text-white/80">
-              <WiHumidity className="w-5 h-5 mr-1" />
-              <span className="text-sm">{now.humidity}%</span>
-            </div>
-            <div className="flex items-center text-white/80">
-              <WindIcon className="w-5 h-5 mr-1" />
-              <span className="text-sm">{now.windSpeed}km/h</span>
-            </div>
-          </div>
-
-          {/* 天气预报 */}
-          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/20">
-            {forecast.map((day: any) => (
-              <div key={day.fxDate} className="text-center">
-                <div className="text-xs text-white/80 mb-1">
-                  {formatDate(day.fxDate)}
-                </div>
-                <div className="text-sm font-medium text-white">
-                  {day.tempMax}° / {day.tempMin}°
-                </div>
+            {/* 主要天气信息 */}
+            <div className="flex flex-col items-center mb-4">
+              <div className="text-6xl font-light text-white mb-2 ml-2">
+                {now.temp}°
               </div>
-            ))}
-          </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-lg text-white/90">
+                  {now.text}
+                </span>
+              </div>
+            </div>
 
-          {/* 版权声明 */}
-          <div className="mt-3 text-[10px] text-white/60 text-center">
-            数据来源于和风天气
+            {/* 天气指标 */}
+            <div className="flex justify-center space-x-6 mb-4">
+              <div className="flex items-center text-white/80">
+                <WiHumidity className="w-5 h-5 mr-1" />
+                <span className="text-sm">{now.humidity}%</span>
+              </div>
+              <div className="flex items-center text-white/80">
+                <WindIcon className="w-5 h-5 mr-1" />
+                <span className="text-sm">{now.windSpeed}km/h</span>
+              </div>
+            </div>
+
+            {/* 天气预报 */}
+            <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/20">
+              {forecast.map((day: any) => (
+                <div key={day.fxDate} className="text-center">
+                  <div className="text-xs text-white/80 mb-1">
+                    {formatDate(day.fxDate)}
+                  </div>
+                  <div className="text-sm font-medium text-white">
+                    {day.tempMax}° / {day.tempMin}°
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 版权声明 */}
+            <div className="mt-3 text-[10px] text-white/60 text-center">
+              数据来源于和风天气
+            </div>
           </div>
         </div>
       </motion.div>
