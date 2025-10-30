@@ -43,6 +43,20 @@ export default async function HomePage() {
         </p>
       </div>
 
+      {/* ICP备案信息 - 固定在底部 */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-black/10 dark:border-white/10 py-2">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <a 
+            href="https://beian.miit.gov.cn/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-xs text-black/60 dark:text-white/60 hover:text-black/90 dark:hover:text-white/90 transition-colors duration-200"
+          >
+            桂ICP备2023016069号-2
+          </a>
+        </div>
+      </div>
+
       {/* 时间线文章 */}
       <div className="card bg-white/40 dark:bg-black/40 backdrop-blur-md md:rounded-xl overflow-hidden
         md:border md:border-black/5 md:dark:border-white/10
