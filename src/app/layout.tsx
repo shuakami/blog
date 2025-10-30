@@ -8,6 +8,7 @@ import SideNav from '@/components/SideNav';
 import Header from '@/components/Header';
 import RightSidebar from '@/components/RightSidebar';
 import MusicPlayer from '@/components/MusicPlayer';
+import Footer from '@/components/Footer';
 import Image from 'next/image';
 
 const geistSans = Geist({
@@ -73,8 +74,11 @@ export default function RootLayout({
             </div>
             
             {/* 主内容区 */}
-            <main className="flex-1 md:ml-80 md:mr-80 px-2 md:px-6 py-4 pt-[72px] md:pt-6 min-h-screen">
+            <main className="flex-1 md:ml-80 md:mr-80 px-2 md:px-6 py-4 pt-[72px] md:pt-6 pb-32 md:pb-6 min-h-screen">
               {children}
+              
+              {/* Footer - 显示在主内容区底部 */}
+              <Footer />
             </main>
 
             {/* 桌面端右侧边栏 */}
