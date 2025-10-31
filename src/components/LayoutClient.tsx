@@ -61,7 +61,10 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
   const handleToggleSidebar = () => {
     const newState = !isSidebarOpen
     setSidebarOpen(newState)
-    localStorage.setItem('sidebar-open', String(newState))
+    // 只在桌面端保存状态
+    if (!isMobile) {
+      localStorage.setItem('sidebar-open', String(newState))
+    }
   }
 
   const handleCloseSidebar = () => {
