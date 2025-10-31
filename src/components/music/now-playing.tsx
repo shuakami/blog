@@ -2,9 +2,17 @@
 
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import { Music, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Volume1 } from "lucide-react"
+import { Music, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Volume1, X } from "lucide-react"
 import { useMusicPlayer } from "@/hooks/use-music-player"
 import { AnimatePresence, motion, HTMLMotionProps } from "framer-motion"
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogOverlay,
+  DialogPortal,
+} from "@/components/ui/dialog"
+import * as DialogPrimitive from "@radix-ui/react-dialog"
 
 interface NowPlayingProps {
   isSidebarOpen?: boolean
@@ -26,6 +34,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
   } = useMusicPlayer()
   
   const [isHovered, setIsHovered] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
@@ -286,6 +295,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
       <div 
         className="flex items-center gap-3 text-sm text-muted-foreground cursor-pointer transition-all duration-300 ease-out"
         style={{ marginLeft: `${mainOffset}px` }}
+        onClick={() => {
+          if (isMobile) {
+            setIsModalOpen(true)
+          }
+        }}
       >
         {/* 桌面端显示音乐图标 */}
         {!isMobile && <Music className="h-4 w-4 flex-shrink-0" />}
@@ -315,9 +329,9 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
         
       </div>
 
-      {/* 优雅的Tooltip */}
+      {/* 桌面端 Tooltip - 只在非移动端显示 */}
       <AnimatePresence mode="wait">
-        {isHovered && (
+        {isHovered && !isMobile && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -634,6 +648,251 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 移动端全屏模态框 */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogPortal>
+          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-transparent data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+          <DialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 w-screen h-screen max-w-none translate-x-[-50%] translate-y-[-50%] border-0 bg-background p-0 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 sm:max-w-[95vw] sm:max-h-[85vh] sm:rounded-lg sm:border sm:p-6">
+            <DialogTitle className="sr-only">音乐播放器</DialogTitle>
+            <DialogPrimitive.Close className="absolute right-4 top-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8">
+              <X className="h-5 w-5 sm:h-4 sm:w-4 text-foreground" />
+              <span className="sr-only">Close</span>
+            </DialogPrimitive.Close>
+          
+          <div className="min-h-screen sm:min-h-0 flex flex-col justify-start sm:justify-center p-6 pt-12 sm:p-0 space-y-6 sm:space-y-6 bg-background border-0">
+            {/* 专辑封面和基础信息 */}
+            <div className="flex flex-col items-center gap-4 sm:gap-4">
+              <div className="relative w-[min(240px,70vw)] h-[min(240px,70vw)] sm:w-48 sm:h-48 rounded-2xl overflow-hidden">
+                <Image
+                  src={currentSong.coverUrl}
+                  alt={currentSong.album}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) min(240px, 70vw), 192px"
+                  priority
+                />
+              </div>
+              <div className="text-center w-full px-2">
+                <h3 className="text-foreground font-bold text-2xl sm:text-xl mb-3 sm:mb-2 line-clamp-2">
+                  {currentSong.title}
+                </h3>
+                <p className="text-muted-foreground text-lg sm:text-base mb-2 sm:mb-1">
+                  {currentSong.artist}
+                </p>
+                <p className="text-muted-foreground/80 text-base sm:text-sm">
+                  {currentSong.album}
+                </p>
+              </div>
+            </div>
+
+            {/* 滚动歌词区域 */}
+            <div className="h-36 sm:h-32 overflow-hidden relative bg-gradient-to-b from-transparent via-muted/20 to-transparent rounded-lg px-4">
+              {parsedLyrics.length > 0 ? (
+                <div className="relative h-full">
+                  <motion.div
+                    // @ts-ignore - framer-motion type issue
+                    className="absolute left-0 right-0 flex flex-col items-center"
+                    animate={{ 
+                      y: -currentLyricIndex * 40 + 72
+                    }}
+                    transition={{ 
+                      duration: 0.6, 
+                      ease: [0.25, 0.46, 0.45, 0.94]
+                    }}
+                  >
+                    {parsedLyrics.map((lyric, index) => {
+                      const distance = Math.abs(index - currentLyricIndex)
+                      const isCurrent = index === currentLyricIndex
+                      
+                      let opacity, fontSize, color
+                      
+                      if (distance === 0) {
+                        opacity = 1
+                        fontSize = 'text-lg sm:text-base'
+                        color = 'text-foreground font-semibold'
+                      } else if (distance === 1) {
+                        opacity = 0.7
+                        fontSize = 'text-base sm:text-sm'
+                        color = 'text-foreground/90'
+                      } else if (distance === 2) {
+                        opacity = 0.4
+                        fontSize = 'text-sm'
+                        color = 'text-muted-foreground'
+                      } else {
+                        opacity = 0.15
+                        fontSize = 'text-xs'
+                        color = 'text-muted-foreground/70'
+                      }
+
+                      return (
+                        <div
+                          key={index}
+                          className={`text-center leading-snug px-4 py-2 sm:py-1.5 min-h-[2.5rem] sm:min-h-[2.25rem] flex items-center justify-center ${fontSize} ${color} transition-all duration-500`}
+                          style={{ opacity }}
+                        >
+                          <div className="max-w-full break-words text-center">
+                            {lyric.text || "♪"}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </motion.div>
+                </div>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-muted-foreground text-lg sm:text-base italic">
+                    {currentSong.lyrics?.original ? "等待歌词..." : "暂无歌词"}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* 进度条 */}
+            <div className="space-y-2 px-2">
+              <div className="flex items-center gap-4">
+                <span className="text-sm sm:text-xs text-muted-foreground w-12 text-right">
+                  {formatTime(currentTime)}
+                </span>
+                <div 
+                  className="flex-1 h-2.5 sm:h-2 bg-muted rounded-full cursor-pointer"
+                  onClick={handleProgressClick}
+                >
+                  <motion.div
+                    // @ts-ignore - framer-motion type issue
+                    className="h-full bg-foreground rounded-full"
+                    style={{ width: `${progressPercentage}%` }}
+                    initial={false}
+                    animate={{ width: `${progressPercentage}%` }}
+                    transition={{ duration: 0.1 }}
+                  />
+                </div>
+                <span className="text-sm sm:text-xs text-muted-foreground w-12">
+                  {formatTime(duration)}
+                </span>
+              </div>
+            </div>
+
+            {/* 播放控制按钮 */}
+            <div className="flex items-center justify-center gap-8 sm:gap-6 py-4 sm:py-2">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                // @ts-ignore - framer-motion type issue
+                onClick={handlePrevSong}
+                className="w-14 h-14 sm:w-12 sm:h-12 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors"
+              >
+                <SkipBack className="w-6 h-6 sm:w-5 sm:h-5 text-muted-foreground" />
+              </motion.button>
+              
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                // @ts-ignore - framer-motion type issue
+                onClick={handleTogglePlay}
+                className="w-20 h-20 sm:w-16 sm:h-16 rounded-full bg-primary hover:bg-primary/90 active:bg-primary/80 flex items-center justify-center transition-colors shadow-2xl"
+              >
+                {isPlaying ? (
+                  <Pause className="w-9 h-9 sm:w-7 sm:h-7 text-primary-foreground fill-primary-foreground" />
+                ) : (
+                  <Play className="w-9 h-9 sm:w-7 sm:h-7 text-primary-foreground fill-primary-foreground translate-x-0.5" />
+                )}
+              </motion.button>
+              
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                // @ts-ignore - framer-motion type issue
+                onClick={handleNextSong}
+                className="w-14 h-14 sm:w-12 sm:h-12 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors"
+              >
+                <SkipForward className="w-6 h-6 sm:w-5 sm:h-5 text-muted-foreground" />
+              </motion.button>
+            </div>
+
+            {/* 音量控制 */}
+            <div className="flex items-center gap-4 px-6 sm:px-4">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                // @ts-ignore - framer-motion type issue
+                onClick={handleVolumeToggle}
+                className="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors flex-shrink-0"
+              >
+                <VolumeIcon className="w-5 h-5 text-muted-foreground" />
+              </motion.button>
+              
+              <div className="flex-1 flex items-center gap-4 sm:gap-3">
+                <div 
+                  className="flex-1 h-2.5 sm:h-2 bg-muted rounded-full cursor-pointer relative"
+                  onClick={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    const clickX = e.clientX - rect.left
+                    const percentage = clickX / rect.width
+                    handleVolumeChange(percentage)
+                  }}
+                >
+                  <motion.div
+                    // @ts-ignore - framer-motion type issue
+                    className="h-full bg-foreground rounded-full"
+                    style={{ width: `${volume * 100}%` }}
+                    initial={false}
+                    animate={{ width: `${volume * 100}%` }}
+                    transition={{ duration: 0.1 }}
+                  />
+                </div>
+                <span className="text-sm sm:text-xs text-muted-foreground w-12 sm:w-10 text-right">
+                  {Math.round(volume * 100)}%
+                </span>
+              </div>
+            </div>
+
+            {/* Next Up 列表 */}
+            {nextUpSongs.length > 0 && (
+              <div className="border-t border-border pt-6 sm:pt-4 mt-2">
+                <h4 className="text-foreground font-semibold text-base sm:text-sm mb-4 sm:mb-3 px-2">即将播放</h4>
+                <div className="space-y-3 sm:space-y-2">
+                  {nextUpSongs.slice(0, 5).map((song, index) => {
+                    const actualIndex = currentSongIndex + index + 1
+                    return (
+                      <motion.div
+                        key={song.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ 
+                          duration: 0.3, 
+                          delay: index * 0.05
+                        }}
+                        // @ts-ignore - framer-motion type issue
+                        className="flex items-center gap-4 sm:gap-3 p-3 sm:p-2 rounded-xl sm:rounded-lg bg-secondary/30 hover:bg-secondary/60 active:bg-secondary/80 cursor-pointer transition-all"
+                        onClick={() => {
+                          handleSongChange(actualIndex)
+                        }}
+                      >
+                        <div className="relative w-14 h-14 sm:w-12 sm:h-12 rounded-lg overflow-hidden shadow-sm flex-shrink-0">
+                          <Image
+                            src={song.coverUrl}
+                            alt={song.album}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 640px) 56px, 48px"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h5 className="text-foreground text-base sm:text-sm font-medium truncate">
+                            {song.title}
+                          </h5>
+                          <p className="text-muted-foreground text-sm sm:text-xs truncate">
+                            {song.artist}
+                          </p>
+                        </div>
+                        <Play className="w-5 h-5 sm:w-4 sm:h-4 text-muted-foreground fill-muted-foreground flex-shrink-0" />
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+          </DialogPrimitive.Content>
+        </DialogPortal>
+      </Dialog>
     </div>
   )
 }

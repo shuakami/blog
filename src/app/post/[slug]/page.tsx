@@ -83,25 +83,25 @@ export default async function PostPage({ params }: PageProps) {
   const readingTime = calculateReadingTime(post.content);
 
   return (
-    <article className="w-full mx-auto px-4 pt-8 pb-16">
+    <article className="w-full mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-12 sm:pb-16">
       {/* 面包屑导航 */}
-      <nav className="flex items-center justify-center gap-2 text-sm text-black/40 dark:text-white/40 mb-12 max-w-5xl mx-auto">
-        <Link href="/" className="inline-flex items-center gap-1.5 hover:text-black dark:hover:text-white transition-colors">
+      <nav className="flex items-center justify-center gap-2 text-xs sm:text-sm text-black/40 dark:text-white/40 mb-8 sm:mb-12 max-w-5xl mx-auto">
+        <Link href="/" className="inline-flex items-center gap-1 sm:gap-1.5 hover:text-black dark:hover:text-white transition-colors flex-shrink-0">
           <ArrowLeft className="w-3 h-3" />
           <span>文章</span>
         </Link>
-        <span>/</span>
-        <span className="text-black/60 dark:text-white/60 truncate max-w-md">{post.title}</span>
+        <span className="flex-shrink-0">/</span>
+        <span className="text-black/60 dark:text-white/60 truncate max-w-[200px] sm:max-w-xs md:max-w-md">{post.title}</span>
       </nav>
 
       {/* 文章头部 */}
-      <header className="mb-16 text-center max-w-4xl mx-auto">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-black dark:text-white leading-tight mb-6">
+      <header className="mb-12 sm:mb-16 text-center max-w-4xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-black dark:text-white leading-tight mb-4 sm:mb-6 px-2">
           {post.title}
         </h1>
 
         {/* 作者信息居中 */}
-        <div className="flex items-center justify-center gap-2 mb-6">
+        <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
           <Image
             src="https://uapis.cn/api/v1/avatar/gravatar?email=shuakami%40sdjz.wiki&s=80&d=mp&r=g"
             alt="Author avatar"
@@ -114,17 +114,17 @@ export default async function PostPage({ params }: PageProps) {
           </span>
         </div>
 
-        <div className="w-16 h-[2px] bg-black dark:bg-white mx-auto" />
+        <div className="w-12 sm:w-16 h-[2px] bg-black dark:bg-white mx-auto" />
       </header>
 
       {/* 文章内容区域 */}
       <div className="max-w-3xl mx-auto">
-        {/* 元信息：左右布局 */}
-        <div className="flex items-center justify-between text-sm pt-2 mb-6">
+        {/* 元信息：响应式布局 */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm pt-2 mb-6">
           {/* 左侧：阅读时间 + 复制链接 */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
             <div className="flex items-center gap-1.5 text-black/40 dark:text-white/40">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-black/40 dark:text-white/40">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-black/40 dark:text-white/40 sm:w-4 sm:h-4 flex-shrink-0">
                 <path
                   fillRule="evenodd"
                   clipRule="evenodd"
@@ -132,13 +132,13 @@ export default async function PostPage({ params }: PageProps) {
                   fill="currentColor"
                 />
               </svg>
-              <span>{readingTime} 分钟阅读</span>
+              <span className="whitespace-nowrap">{readingTime} 分钟阅读</span>
             </div>
             <CopyUrlButton />
           </div>
 
           {/* 右侧：日期 */}
-          <time className="text-black/40 dark:text-white/40">{formatDate(post.date)}</time>
+          <time className="text-black/40 dark:text-white/40 whitespace-nowrap">{formatDate(post.date)}</time>
         </div>
 
         {/* 文章内容 */}

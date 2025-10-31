@@ -66,7 +66,17 @@ export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
   const prepared = useMemo(() => {
     return posts.map((p) => {
       const year = new Date(p.date).getFullYear();
-      const wc = p.wordCount ?? p.wc ?? wordsFromHtml(p.content) ?? estimateWordsFromExcerpt(p.excerpt);
+      // 优先使用 wordCount/wc 字段，都不存在时才尝试计算
+      let wc = p.wordCount ?? p.wc;
+      if (wc == null || wc === 0) {
+        // content 如果为空，使用 excerpt 估算
+        if (p.content && p.content.trim().length > 0) {
+          wc = wordsFromHtml(p.content);
+        }
+        if (!wc || wc === 0) {
+          wc = estimateWordsFromExcerpt(p.excerpt);
+        }
+      }
       return { ...p, __year: year, __wc: wc };
     });
   }, [posts]);

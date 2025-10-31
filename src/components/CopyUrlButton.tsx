@@ -18,22 +18,22 @@ export function CopyUrlButton() {
   return (
     <button
       onClick={handleCopy}
-      className="relative inline-flex items-center gap-1 text-sm text-black/40 dark:text-white/40 hover:text-black/60 dark:hover:text-white/60 transition-colors cursor-pointer"
+      className="relative inline-flex items-center gap-1 text-xs sm:text-sm text-black/40 dark:text-white/40 hover:text-black/60 dark:hover:text-white/60 transition-colors cursor-pointer active:scale-95"
       type="button"
     >
       {!copied ? (
         <div className="flex items-center gap-1">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="shrink-0">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" className="shrink-0 sm:w-3 sm:h-3">
             <path fillRule="evenodd" clipRule="evenodd" d="M8.46968 1.46968C10.1433 -0.203925 12.8567 -0.203923 14.5303 1.46968C16.2039 3.14329 16.2039 5.85674 14.5303 7.53034L12.0303 10.0303L10.9697 8.96968L13.4697 6.46968C14.5575 5.38186 14.5575 3.61816 13.4697 2.53034C12.3819 1.44252 10.6182 1.44252 9.53034 2.53034L7.03034 5.03034L5.96968 3.96968L8.46968 1.46968ZM11.5303 5.53034L5.53034 11.5303L4.46968 10.4697L10.4697 4.46968L11.5303 5.53034ZM1.46968 14.5303C3.14329 16.2039 5.85673 16.204 7.53034 14.5303L10.0303 12.0303L8.96968 10.9697L6.46968 13.4697C5.38186 14.5575 3.61816 14.5575 2.53034 13.4697C1.44252 12.3819 1.44252 10.6182 2.53034 9.53034L5.03034 7.03034L3.96968 5.96968L1.46968 8.46968C-0.203923 10.1433 -0.203925 12.8567 1.46968 14.5303Z" fill="currentColor"/>
           </svg>
-          <span>复制链接</span>
+          <span className="whitespace-nowrap">复制链接</span>
         </div>
       ) : (
         <div className="flex items-center gap-1">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="shrink-0">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" className="shrink-0 sm:w-3 sm:h-3">
             <path fillRule="evenodd" clipRule="evenodd" d="M13.7803 3.46967L6.53033 10.7197L2.78033 6.96967L1.71967 8.03033L6.53033 12.841L14.841 4.53033L13.7803 3.46967Z" fill="currentColor"/>
           </svg>
-          <span>已复制</span>
+          <span className="whitespace-nowrap">已复制</span>
         </div>
       )}
     </button>
