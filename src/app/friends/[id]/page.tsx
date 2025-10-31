@@ -4,12 +4,12 @@ import Footer from '@/components/Footer';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// 模拟数据
+// 数据
 const developers = {
   'shuakami': {
     name: 'Shuakami',
     role: '全栈开发者',
-    avatar: '/developers/assets/avatars/shuakami.jpg',
+    avatar: '/friends/assets/avatars/shuakami.jpg',
     bio: '热爱技术，热爱生活。专注于Web开发和用户体验设计。',
     tags: ['TypeScript', 'React', 'Node.js', 'UI/UX'],
     location: '中国，上海',
@@ -50,14 +50,17 @@ const developers = {
       }
     ]
   },
-  // 可以添加更多开发者数据
 };
 
 export async function generateMetadata({ params }): Promise<Metadata> {
   const developer = developers[params.id];
   return {
-    title: `${developer?.name || '开发者'} - Luoxiaohei`,
-    description: developer?.bio || '开发者详情页'
+    title: `${developer?.name || '好兄弟'} - Shuakami`,
+    description: developer?.bio || '认识一下这位好兄弟',
+    openGraph: {
+      title: `${developer?.name || '好兄弟'} - Shuakami`,
+      description: developer?.bio || '认识一下这位好兄弟',
+    },
   };
 }
 
@@ -70,7 +73,7 @@ export default function DeveloperPage({ params }) {
         <Header />
         <main className="max-w-4xl mx-auto px-6 pt-32 pb-24">
           <h1 className="text-3xl font-medium text-black dark:text-white">
-            开发者不存在
+            好兄弟不存在
           </h1>
         </main>
         <Footer />

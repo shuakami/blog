@@ -9,11 +9,11 @@ export default function BackButton() {
   return (
     <button
       onClick={() => router.back()}
-      className="inline-flex items-center gap-1 py-1.5 text-sm text-black/60 dark:text-white/60 hover:text-black/80 dark:hover:text-white/80 rounded-lg transition-colors"
+      className="inline-flex items-center gap-2 text-sm text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors"
       aria-label="返回上一页"
     >
       <ArrowLeft className="w-4 h-4" />
-      返回
+      <span>返回</span>
     </button>
   );
 } 

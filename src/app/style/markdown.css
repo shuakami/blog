@@ -1,12 +1,11 @@
 /* src/styles/markdown.css */
 
-
 @import './luoxiaohei.css';
 
 .markdown-body {
-    /* Base */
-    @apply text-base leading-relaxed tracking-normal max-w-[75ch] mx-auto;
-    @apply text-black/90 dark:text-white/90;
+  /* Base typography */
+  @apply text-[17px] leading-[1.7] text-black/80 dark:text-white/80;
+  @apply tracking-normal;
   }
   
   /* Headings */
@@ -16,55 +15,62 @@
   .markdown-body h4,
   .markdown-body h5,
   .markdown-body h6 {
-    @apply font-medium text-black/80 dark:text-white/80 mt-8 mb-4;
+  @apply font-medium text-black dark:text-white tracking-tight;
+  @apply mt-12 mb-6 leading-tight;
   }
   
-  .markdown-body h1 { @apply text-2xl; }
-  .markdown-body h2 { @apply text-xl; }
-  .markdown-body h3 { @apply text-lg; }
-  .markdown-body h4 { @apply text-base; }
+.markdown-body h1 { @apply text-2xl md:text-3xl; }
+.markdown-body h2 { @apply text-xl md:text-2xl; }
+.markdown-body h3 { @apply text-lg md:text-xl; }
+.markdown-body h4 { @apply text-base md:text-lg; }
+.markdown-body h5 { @apply text-base; }
+.markdown-body h6 { @apply text-sm; }
   
   /* Paragraphs */
   .markdown-body p {
-    @apply mb-4 leading-7 text-black/70 dark:text-white/70;
+  @apply mb-6 leading-[1.8];
   }
   
   .markdown-body strong {
-    @apply font-semibold;
-    @apply text-black dark:text-white;
+  @apply font-semibold text-black dark:text-white;
   }
   
   .markdown-body em {
     @apply italic;
-    @apply text-black/95 dark:text-white/95;
   }
   
   /* Lists */
   .markdown-body ul, 
   .markdown-body ol {
-    @apply pl-6;
-    @apply text-black/90 dark:text-white/90;
+  @apply mb-6 pl-6 space-y-2;
   }
   
   .markdown-body ul { @apply list-disc; }
   .markdown-body ol { @apply list-decimal; }
   
   .markdown-body li {
-    @apply pl-1.5 leading-7;
+  @apply pl-2;
   }
   
   .markdown-body li > ul,
   .markdown-body li > ol {
-    @apply my-2 ml-4;
+  @apply mt-2 mb-0;
   }
   
   /* Code */
   .markdown-body :not(pre) > code {
-    @apply font-mono text-sm bg-black/5 dark:bg-white/5 px-1.5 py-0.5 rounded;
+  @apply font-mono text-[13px];
+  @apply bg-black/[0.04] dark:bg-white/[0.06];
+  @apply px-1.5 py-0.5 rounded;
+  @apply text-black/90 dark:text-white/90;
   }
   
   .markdown-body pre {
-    @apply p-4 my-4 bg-black/5 dark:bg-white/5 rounded-lg overflow-x-auto;
+  @apply my-8 p-5;
+  @apply bg-black/[0.03] dark:bg-white/[0.03];
+  @apply border border-black/[0.06] dark:border-white/[0.06];
+  @apply rounded-lg overflow-x-auto;
+  @apply text-[14px];
   }
   
   .markdown-body pre > code {
@@ -73,39 +79,64 @@
   
   /* Blockquotes */
   .markdown-body blockquote {
-    @apply pl-4 border-l-4 border-black/10 dark:border-white/10 my-4 italic;
+  @apply my-8 pl-4 py-0;
+  @apply border-l-2 border-black/20 dark:border-white/20;
+  @apply text-black/60 dark:text-white/60;
+}
+
+.markdown-body blockquote p {
+  @apply mb-0;
   }
   
   /* Links */
   .markdown-body a {
-    @apply text-blue-600 dark:text-blue-400 hover:underline;
-  }
-  
-  .markdown-body li a {
-    @apply text-blue-600 dark:text-blue-400;
+  @apply text-black dark:text-white underline underline-offset-4;
+  @apply decoration-black/30 dark:decoration-white/30;
+  @apply hover:decoration-black dark:hover:decoration-white;
+  @apply transition-colors;
   }
   
   /* Tables */
   .markdown-body table {
-    @apply w-full my-4 border-collapse;
+  @apply w-full my-8;
+  @apply text-[15px];
+  @apply border-collapse;
   }
   
-  .markdown-body th,
-  .markdown-body td {
-    @apply border border-black/10 dark:border-white/10 px-4 py-2;
+.markdown-body thead {
+  @apply border-b-2 border-black/[0.1] dark:border-white/[0.1];
   }
   
   .markdown-body th {
-    @apply bg-black/5 dark:bg-white/5;
+  @apply px-4 py-3 text-left;
+  @apply font-medium text-black/80 dark:text-white/80;
+  @apply bg-transparent;
+}
+
+.markdown-body td {
+  @apply px-4 py-3 text-left;
+  @apply text-black/70 dark:text-white/70;
+  @apply border-b border-black/[0.06] dark:border-white/[0.06];
+}
+
+.markdown-body tbody tr:last-child td {
+  @apply border-b-0;
+}
+
+.markdown-body tbody tr {
+  @apply transition-colors;
+  @apply hover:bg-black/[0.02] dark:hover:bg-white/[0.02];
   }
   
   /* Horizontal Rule */
   .markdown-body hr {
-    @apply my-8 border-black/10 dark:border-white/10;
+  @apply my-12 border-0 h-[1px];
+  @apply bg-black/[0.08] dark:bg-white/[0.08];
   }
   
   /* Images */
   .markdown-body img {
-    @apply max-w-full h-auto rounded-lg my-4;
+  @apply max-w-full h-auto my-8;
+  @apply rounded-lg;
+  @apply border border-black/[0.06] dark:border-white/[0.06];
   }
-  

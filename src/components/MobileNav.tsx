@@ -18,14 +18,14 @@ export default function MobileNav() {
           <Link href="/" className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full overflow-hidden bg-black/5 dark:bg-white/5">
               <Image
-                src="/developers/assets/avatars/shuakami.jpg"
+                src="/friends/assets/avatars/shuakami.jpg"
                 alt="Shuakami"
                 width={40}
                 height={40}
                 className="object-cover"
               />
             </div>
-            <span className="font-medium text-black dark:text-white">Luoxiaohei</span>
+            <span className="font-medium text-black dark:text-white">Shuakami</span>
           </Link>
 
           {/* 菜单按钮 */}

@@ -1,20 +1,16 @@
 // src/app/post/[slug]/page.tsx
 import { getBlogPosts, getPostBySlug } from '@/utils/posts';
-import { formatDate } from '@/utils/date';
+import { calculateReadingTime } from '@/utils/readingTime';
 import { notFound } from 'next/navigation';
-import BackButton from '@/components/BackButton';
+import Link from 'next/link';
+import Image from 'next/image';
+import { ArrowLeft } from 'lucide-react';
+import { CodeCopyButton } from '@/components/CodeCopyButton';
+import { CopyUrlButton } from '@/components/CopyUrlButton';
 import type { Metadata } from 'next';
 import type { Viewport } from 'next';
 
-// 样式常量
-const CARD_STYLES = {
-  base: "bg-white/40 dark:bg-black/40 backdrop-blur-md md:rounded-xl md:border md:border-black/5 md:dark:border-white/10 md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] md:dark:shadow-[0_8px_30px_rgb(255,255,255,0.04)]",
-  ring: "md:ring-1 md:ring-black/[0.03] md:dark:ring-white/[0.03]"
-};
-
-const cn = (...classes: string[]) => classes.filter(Boolean).join(" ");
-
-export const revalidate = 60;
+export const revalidate = 30; // 更强时效性（保留 ISR）
 
 interface PageProps {
   params: Promise<{
@@ -22,20 +18,53 @@ interface PageProps {
   }>;
 }
 
+/**
+ * 格式化日期 - 相对时间显示（保持原文案）
+ */
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const currentYear = now.getFullYear();
+
+  if (diffDays === 0) return '撰写于今天';
+  if (diffDays === 1) return '撰写于昨天';
+  if (diffDays < 7) return `撰写于${diffDays}天前`;
+
+  if (year === currentYear) return `撰写于${month}月${day}日`;
+  if (year === currentYear - 1) return `撰写于去年${month}月${day}日`;
+  return `撰写于${year}年${month}月${day}日`;
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const resolvedParams = await params;
-  const post = await getPostBySlug(resolvedParams.slug, 'content');
-  
+  const resolved = await params;
+  const post = await getPostBySlug(resolved.slug, 'content');
   if (!post) {
     return {
-      title: '文章未找到',
-      description: '请检查链接是否正确'
+      title: '文章未找到 - Shuakami',
+      description: '这篇文章好像不见了',
     };
   }
-
   return {
-    title: `${post.title} - Luoxiaohei`,
-    description: post.excerpt
+    title: `${post.title} - Shuakami`,
+    description: post.excerpt || '一篇关于技术和思考的文章',
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || '一篇关于技术和思考的文章',
+      type: 'article',
+      publishedTime: post.date,
+      authors: ['Shuakami'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt || '一篇关于技术和思考的文章',
+    },
   };
 }
 
@@ -46,28 +75,75 @@ export const viewport: Viewport = {
 export default async function PostPage({ params }: PageProps) {
   const resolvedParams = await params;
   const post = await getPostBySlug(resolvedParams.slug, 'content');
-  
+
   if (!post) {
     notFound();
   }
 
+  const readingTime = calculateReadingTime(post.content);
+
   return (
-    <article className={cn(CARD_STYLES.base, CARD_STYLES.ring, "overflow-hidden")}>
-      <header className="px-4 md:px-6 py-4 md:py-6 border-b border-black/5 dark:border-white/5">
-        <BackButton />
-        <time className="text-sm text-black/50 dark:text-white/50 mt-4 mb-2 block">
-          {formatDate(post.date)}
-        </time>
-        <h1 className="text-2xl font-medium text-black/80 dark:text-white/80">
+    <article className="w-full mx-auto px-4 pt-8 pb-16">
+      {/* 面包屑导航 */}
+      <nav className="flex items-center justify-center gap-2 text-sm text-black/40 dark:text-white/40 mb-12 max-w-5xl mx-auto">
+        <Link href="/" className="inline-flex items-center gap-1.5 hover:text-black dark:hover:text-white transition-colors">
+          <ArrowLeft className="w-3 h-3" />
+          <span>文章</span>
+        </Link>
+        <span>/</span>
+        <span className="text-black/60 dark:text-white/60 truncate max-w-md">{post.title}</span>
+      </nav>
+
+      {/* 文章头部 */}
+      <header className="mb-16 text-center max-w-4xl mx-auto">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-black dark:text-white leading-tight mb-6">
           {post.title}
         </h1>
+
+        {/* 作者信息居中 */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <Image
+            src="https://uapis.cn/api/v1/avatar/gravatar?email=shuakami%40sdjz.wiki&s=80&d=mp&r=g"
+            alt="Author avatar"
+            width={20}
+            height={20}
+            className="rounded-full"
+          />
+          <span className="text-sm text-black/50 dark:text-white/50">
+            {'author' in post && post.author ? post.author : 'Shuakami'}
+          </span>
+        </div>
+
+        <div className="w-16 h-[2px] bg-black dark:bg-white mx-auto" />
       </header>
 
-      <div className="p-4 md:p-6">
-        <div 
-          className="prose dark:prose-invert max-w-none markdown-body"
-          dangerouslySetInnerHTML={{ __html: post.content }} 
-        />
+      {/* 文章内容区域 */}
+      <div className="max-w-3xl mx-auto">
+        {/* 元信息：左右布局 */}
+        <div className="flex items-center justify-between text-sm pt-2 mb-6">
+          {/* 左侧：阅读时间 + 复制链接 */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5 text-black/40 dark:text-white/40">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-black/40 dark:text-white/40">
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M5.35066 2.06247C5.96369 1.78847 6.62701 1.60666 7.32351 1.53473L7.16943 0.0426636C6.31208 0.1312 5.49436 0.355227 4.73858 0.693033L5.35066 2.06247ZM8.67651 1.53473C11.9481 1.87258 14.5 4.63876 14.5 8.00001C14.5 11.5899 11.5899 14.5 8.00001 14.5C4.63901 14.5 1.87298 11.9485 1.5348 8.67722L0.0427551 8.83147C0.459163 12.8594 3.86234 16 8.00001 16C12.4183 16 16 12.4183 16 8.00001C16 3.86204 12.8589 0.458666 8.83059 0.0426636L8.67651 1.53473ZM2.73972 4.18084C3.14144 3.62861 3.62803 3.14195 4.18021 2.74018L3.29768 1.52727C2.61875 2.02128 2.02064 2.61945 1.52671 3.29845L2.73972 4.18084ZM1.5348 7.32279C1.60678 6.62656 1.78856 5.96348 2.06247 5.35066L0.693033 4.73858C0.355343 5.4941 0.131354 6.31152 0.0427551 7.16854L1.5348 7.32279ZM8.75001 4.75V4H7.25001V4.75V7.875C7.25001 8.18976 7.3982 8.48615 7.65001 8.675L9.55001 10.1L10.15 10.55L11.05 9.35L10.45 8.9L8.75001 7.625V4.75Z"
+                  fill="currentColor"
+                />
+              </svg>
+              <span>{readingTime} 分钟阅读</span>
+            </div>
+            <CopyUrlButton />
+          </div>
+
+          {/* 右侧：日期 */}
+          <time className="text-black/40 dark:text-white/40">{formatDate(post.date)}</time>
+        </div>
+
+        {/* 文章内容 */}
+        <div className="prose dark:prose-invert max-w-none markdown-body" dangerouslySetInnerHTML={{ __html: post.content }} />
+        <CodeCopyButton />
       </div>
     </article>
   );
@@ -78,4 +154,4 @@ export async function generateStaticParams() {
   return posts.map((post) => ({
     slug: post.slug,
   }));
-} 
+}

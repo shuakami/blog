@@ -275,5 +275,5 @@ export default {
   	}
   },
   plugins: [require("tailwindcss-animate")],
-  darkMode: ['class', '[data-theme="dark"]', "class"],
+  darkMode: 'class',
 } satisfies Config;

@@ -17,6 +17,7 @@ interface BaseContent {
   content: string;
   excerpt?: string;
   coverImage?: string | null;
+  author?: string;
 }
 
 // 博客文章类型
@@ -43,6 +44,7 @@ export interface MatterResult extends GrayMatterFile<string> {
     coverImage?: string;
     category?: string;
     tags?: string[];
+    author?: string;
   };
 }
 

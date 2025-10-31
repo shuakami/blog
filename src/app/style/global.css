@@ -60,15 +60,6 @@
   @apply bg-black/20 dark:bg-white/20;
 }
 
-/* 暗色模式背景 */
-.dark body {
-  background: #000;
-}
-
-/* 亮色模式背景 */
-body {
-  background: #f5f5f5;
-}
 @layer base {
   :root {
         --background: 0 0% 100%;

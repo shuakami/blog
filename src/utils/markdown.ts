@@ -1,3 +1,4 @@
+// src/utils/markdown.ts
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
@@ -17,18 +18,37 @@ interface CodeNode extends Node {
   children: CodeNode[];
 }
 
-// 添加HTML缓存
+
 const htmlCache = new LRUCache<string, string>({
-  max: 500, // 最多缓存500篇文章
-  ttl: 1000 * 60 * 60 // 1小时过期
+  max: 800,
+  ttl: 1000 * 60 * 60, // 1h
+  updateAgeOnGet: true,
+  updateAgeOnHas: true,
 });
 
-// 处理未知语言，将其转换为text
+
+// FNV-1a 32-bit
+function fnv1a(str: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  }
+  // 返回 8 字节十六进制字符串
+  return ('0000000' + h.toString(16)).slice(-8);
+}
+
+// 快速判断是否有代码块/内联代码（决定是否启用 Prism）
+function hasCode(markdown: string): boolean {
+  // ```、~~~、<pre>、<code> 四种快速信号
+  return /```|~~~|<pre[\s>]|<code[\s>]/.test(markdown);
+}
+
 function handleUnknownLanguage() {
   return (tree: Node) => {
     visit(tree, 'element', (node: CodeNode) => {
       if (node.tagName === 'pre') {
-        const codeNode = node.children.find(n => n.tagName === 'code');
+        const codeNode = node.children.find((n) => (n as any).tagName === 'code');
         if (codeNode && codeNode.properties.className) {
           const lang = codeNode.properties.className[0]?.split('-')[1];
           if (lang === 'prompt') {
@@ -40,24 +60,24 @@ function handleUnknownLanguage() {
   };
 }
 
-// 预编译处理器
-const processor = unified()
-  .use(remarkParse)
-  .use(remarkGfm)
-  .use(remarkRehype, { allowDangerousHtml: true })
-  .use(rehypeRaw)
-  .use(rehypePrism)
-  .use(handleUnknownLanguage)
-  .use(rehypeStringify);
 
-export async function markdownToHtml(markdown: string) {
-  const cacheKey = markdown;
-  const cached = htmlCache.get(cacheKey);
+const base = () =>
+  unified().use(remarkParse).use(remarkGfm).use(remarkRehype, { allowDangerousHtml: true }).use(rehypeRaw);
+
+const processorWithPrism = base().use(rehypePrism).use(handleUnknownLanguage).use(rehypeStringify);
+const processorLight = base().use(handleUnknownLanguage).use(rehypeStringify);
+
+
+export async function markdownToHtml(markdown: string): Promise<string> {
+  // 以哈希作为缓存键，避免长字符串占用大量键空间
+  const key = fnv1a(markdown);
+  const cached = htmlCache.get(key);
   if (cached) return cached;
 
-  const result = await processor.process(markdown);
+  const usePrism = hasCode(markdown);
+  const result = await (usePrism ? processorWithPrism : processorLight).process(markdown);
   const html = result.toString();
-  
-  htmlCache.set(cacheKey, html);
+
+  htmlCache.set(key, html);
   return html;
 }

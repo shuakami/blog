@@ -28,7 +28,7 @@ export default function Header() {
       <header className={HEADER_CLASS}>
         <div className="mx-0 px-6 h-16 flex items-center justify-between relative z-50">
           <Link href="/" className={LINK_CLASS} prefetch={true}>
-            Luoxiaohei 主页
+            Shuakami
           </Link>
 
           {/* 移动端菜单按钮 */}

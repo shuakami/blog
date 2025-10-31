@@ -6,11 +6,11 @@ export async function GET() {
   const site_url = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
   const feed = new RSS({
-    title: 'Luoxiaohei',
-    description: 'Personal blog and archive',
+    title: 'Shuakami',
+    description: '编程、创作、生活。Ciallo～(∠・ω< )⌒★',
     site_url,
     feed_url: `${site_url}/rss`,
-    language: 'en',
+    language: 'zh-CN',
     pubDate: new Date(),
   });
 
@@ -21,7 +21,7 @@ export async function GET() {
       url: `${site_url}/post/${post.slug}`,
       date: new Date(post.date),
       categories: post.tags || [],
-      author: 'Luoxiaohei',
+      author: 'Shuakami',
     });
   });
 

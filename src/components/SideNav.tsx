@@ -7,7 +7,7 @@ export const NAV_ITEMS = [
   { name: '归档', path: '/archive' },
   { name: '作品', path: '/works' },
   { name: '关于', path: '/about' },
-  { name: '开发者', path: '/developers' },
+  { name: '好兄弟们', path: '/friends' },
 ];
 
 export default function SideNav() {
@@ -21,14 +21,14 @@ export default function SideNav() {
         <div className="flex flex-col items-center text-center">
           <div className="w-24 h-24 rounded-full overflow-hidden mb-4 bg-black/5 dark:bg-white/5">
             <Image
-              src="/developers/assets/avatars/shuakami.jpg"
+              src="/friends/assets/avatars/shuakami.jpg"
               alt="Shuakami"
               width={96}
               height={96}
               className="object-cover"
             />
           </div>
-          <h1 className="text-xl font-medium mb-2 text-black dark:text-white">Luoxiaohei</h1>
+          <h1 className="text-xl font-medium mb-2 text-black dark:text-white">Shuakami</h1>
           <p className="text-sm text-black/60 dark:text-white/60 mb-4">Full-stack developer & designer</p>
           
           {/* 社交链接 */}

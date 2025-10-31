@@ -60,9 +60,9 @@ async function getLocationByIp(ip: string) {
 export async function GET(request: Request) {
   try {
     // 获取用户真实IP
-    const headersList = headers();
-    const forwardedFor = headersList.get('x-forwarded-for');
-    const realIp = headersList.get('x-real-ip');
+    const headersList = await headers();
+    const forwardedFor = headersList.get('x-forwarded-for') ?? '';
+    const realIp = headersList.get('x-real-ip') ?? '';
     
     // 优先使用x-forwarded-for
     const ip = forwardedFor?.split(',')[0] || realIp || '127.0.0.1';

@@ -1,99 +1,73 @@
+// src/app/page.tsx
+import Link from 'next/link';
 import { getBlogPosts } from '@/utils/posts';
-import { formatDate } from '@/utils/date';
-import InfiniteTimeline from '@/components/InfiniteTimeline';
-import { Suspense } from 'react';
+import type { Post } from '@/types/post';
 
-export const revalidate = 60;
+export const revalidate = 30;
 
-// 加载更多文章的服务器action
-async function loadMorePosts(page: number) {
-  'use server';
-  
-  const { posts } = await getBlogPosts(page);
-  return posts.map(post => ({
-    ...post,
-    displayDate: formatDate(post.date),
-    coverImage: post.coverImage || null,
-    excerpt: post.excerpt || '暂无描述'
-  }));
+/**
+ * 格式化日期为年月
+ */
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${year}.${month}`;
 }
 
-export default async function HomePage() {
-  const { posts, total } = await getBlogPosts(1);
-  
-  // 格式化初始文章数据
-  const formattedPosts = posts.map(post => ({
-    ...post,
-    displayDate: formatDate(post.date),
-    coverImage: post.coverImage || null,
-    excerpt: post.excerpt || '暂无描述'
-  }));
+/**
+ * 文章条目 - 极简主义
+ */
+function PostItem({ post }: { post: Post }) {
+  const formattedDate = formatDate(post.date);
 
   return (
-    <div className="space-y-8">
-      {/* 欢迎卡片 */}
-      <div className="card bg-white/40 dark:bg-black/40 backdrop-blur-md md:rounded-xl p-4 md:p-8
-        md:border md:border-black/5 md:dark:border-white/10
-        md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] md:dark:shadow-[0_8px_30px_rgb(255,255,255,0.04)]">
-        <h1 className="text-3xl md:text-4xl font-medium mb-4 bg-gradient-to-r from-black to-black/60 dark:from-white dark:to-white/60 bg-clip-text text-transparent">
-         最近动态 | Luoxiaohei
-        </h1>
-        <p className="text-base md:text-lg text-black/60 dark:text-white/60 leading-relaxed">
-         好诗配好酒，闲话配茶香
-        </p>
+    <Link
+      href={`/post/${post.slug}`}
+      className="group grid grid-cols-[80px_1fr] md:grid-cols-[120px_1fr] gap-8 md:gap-12 py-10 border-b border-black/5 dark:border-white/5 last:border-0 hover:bg-black/[0.01] dark:hover:bg-white/[0.01] -mx-4 px-4 transition-colors"
+    >
+      {/* 日期 */}
+      <time className="text-sm font-mono text-black/40 dark:text-white/40 pt-1">{formattedDate}</time>
+
+      {/* 标题和摘要 */}
+      <div className="min-w-0">
+        <h2 className="text-2xl md:text-3xl font-medium text-black dark:text-white mb-3 group-hover:text-black/60 dark:group-hover:text-white/60 transition-colors leading-tight">
+          {post.title}
+        </h2>
+
+        {post.excerpt && <p className="text-base text-black/50 dark:text-white/50 leading-relaxed line-clamp-2">{post.excerpt}</p>}
+      </div>
+    </Link>
+  );
+}
+
+export default async function Page() {
+  const { posts } = await getBlogPosts(1);
+  const displayPosts = posts.slice(0, 10);
+
+  return (
+    <div className="max-w-4xl mx-auto py-16 md:py-24">
+      {/* 标题区域 */}
+      <header className="mb-20 md:mb-32">
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium tracking-tight text-black dark:text-white mb-6">文章</h1>
+        <div className="w-16 h-[2px] bg-black dark:bg-white" />
+      </header>
+
+      {/* 文章列表 */}
+      <div>
+        {displayPosts.map((post) => (
+          <PostItem key={post.slug} post={post as unknown as Post} />
+        ))}
       </div>
 
-      {/* ICP备案信息 - 固定在底部 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-black/10 dark:border-white/10 py-2">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <a 
-            href="https://beian.miit.gov.cn/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-xs text-black/60 dark:text-white/60 hover:text-black/90 dark:hover:text-white/90 transition-colors duration-200"
-          >
-            桂ICP备2023016069号-2
-          </a>
+      {/* 查看更多 */}
+      {posts.length > 10 && (
+        <div className="mt-16 pt-16 border-t border-black/5 dark:border-white/5">
+          <Link href="/archive" className="inline-flex text-base text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors">
+            查看全部 →
+          </Link>
         </div>
-      </div>
-
-      {/* 时间线文章 */}
-      <div className="card bg-white/40 dark:bg-black/40 backdrop-blur-md md:rounded-xl overflow-hidden
-        md:border md:border-black/5 md:dark:border-white/10
-        md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] md:dark:shadow-[0_8px_30px_rgb(255,255,255,0.04)]">
-        <div className="p-4 md:p-8 pb-4 md:pb-6 border-b border-black/5 dark:border-white/5">
-          <h2 className="text-lg md:text-xl font-medium text-black/80 dark:text-white/80">最近动态</h2>
-        </div>
-        <div className="p-4 md:p-8">
-          <Suspense fallback={
-            <div className="animate-pulse space-y-6 md:space-y-8">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="pl-10 md:pl-14 relative">
-                  {/* 时间点骨架 */}
-                  <div className="absolute left-0 top-2 w-5 md:w-6 h-5 md:h-6 bg-black/[0.03] dark:bg-white/[0.03] rounded-full" />
-                  
-                  {/* 内容骨架 */}
-                  <div className="space-y-3 md:space-y-4">
-                    <div className="h-3 md:h-4 w-20 md:w-24 bg-black/[0.03] dark:bg-white/[0.03] rounded" />
-                    <div className="h-6 md:h-8 w-3/4 bg-black/[0.03] dark:bg-white/[0.03] rounded" />
-                    <div className="h-3 md:h-4 w-14 md:w-16 bg-black/[0.03] dark:bg-white/[0.03] rounded" />
-                    <div className="space-y-2">
-                      <div className="h-3 md:h-4 w-full bg-black/[0.03] dark:bg-white/[0.03] rounded" />
-                      <div className="h-3 md:h-4 w-2/3 bg-black/[0.03] dark:bg-white/[0.03] rounded" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          }>
-            <InfiniteTimeline
-              initialPosts={formattedPosts}
-              total={total}
-              onLoadMore={loadMorePosts}
-            />
-          </Suspense>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
