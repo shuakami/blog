@@ -16,7 +16,7 @@ interface LayoutClientProps {
 }
 
 export function LayoutClient({ children, navItems, siteName = "Shuakami" }: LayoutClientProps) {
-  const [isSidebarOpen, setSidebarOpen] = useState(true)
+  const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
   const pathname = usePathname()
