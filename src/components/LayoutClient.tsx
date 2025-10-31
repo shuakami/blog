@@ -28,10 +28,8 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
     const mobile = window.innerWidth < 768
     setIsMobile(mobile)
     
-    // 移动端始终默认关闭，桌面端从 localStorage 读取
-    if (mobile) {
-      setSidebarOpen(false)
-    } else {
+    // 移动端始终默认关闭，不使用 localStorage
+    if (!mobile) {
       const savedState = localStorage.getItem('sidebar-open')
       if (savedState !== null) {
         setSidebarOpen(savedState === 'true')
@@ -68,7 +66,10 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
 
   const handleCloseSidebar = () => {
     setSidebarOpen(false)
-    localStorage.setItem('sidebar-open', 'false')
+    // 只在桌面端保存状态
+    if (!isMobile) {
+      localStorage.setItem('sidebar-open', 'false')
+    }
   }
 
   // 某些页面可能不需要显示侧边栏
