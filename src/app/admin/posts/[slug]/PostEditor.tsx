@@ -24,6 +24,8 @@ import {
   ArrowLeft,
   Save,
   Eye,
+  Trash2,
+  MoreVertical,
 } from "lucide-react"
 
 // 引入 markdown 样式
@@ -489,22 +491,27 @@ const PrettyPopover = {
 interface PostEditorProps {
   slug: string
   initialContent: string
+  isNewPost?: boolean
 }
 
 /* =======================================================================================
  * 主编辑器组件 —— 性能强化 + VSCode 风格 Diff Gutter（不改变 UI/业务）
  * =======================================================================================
  */
-export default function PostEditor({ slug, initialContent }: PostEditorProps) {
+export default function PostEditor({ slug: initialSlug, initialContent, isNewPost: initialIsNewPost = false }: PostEditorProps) {
   const router = useRouter()
   const parsed = matter(initialContent)
 
+  const [slug, setSlug] = useState(initialSlug)
+  const [isNewPost, setIsNewPost] = useState(initialIsNewPost)
   const [title, setTitle] = useState(parsed.data.title || "")
   const [category, setCategory] = useState(parsed.data.category || "")
   const [tags, setTags] = useState((parsed.data.tags || []).join(", "))
   const [isSaving, setIsSaving] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
+  const [hasChanges, setHasChanges] = useState(initialIsNewPost) // 新文章默认有变更
   const [isContentLoaded, setIsContentLoaded] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // 统计展示
   const [wordCount, setWordCount] = useState(0)
@@ -643,6 +650,34 @@ export default function PostEditor({ slug, initialContent }: PostEditorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title, category, tags, isContentLoaded])
 
+  /* ---------------------------------- 删除逻辑 ---------------------------------- */
+  const handleDelete = useCallback(async () => {
+    if (isNewPost) {
+      // 新文章直接返回
+      router.push('/admin')
+      return
+    }
+
+    setIsDeleting(true)
+    try {
+      const response = await fetch("/api/admin/delete-post", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug }),
+      })
+
+      if (!response.ok) throw new Error("Failed to delete")
+      
+      // 带上刷新标志通知管理页面
+      router.push('/admin?refresh=true')
+    } catch (error) {
+      console.error("Delete error:", error)
+      toast.error(`删除失败：${error instanceof Error ? error.message : "未知错误"}`)
+      setIsDeleting(false)
+      setShowDeleteConfirm(false)
+    }
+  }, [slug, isNewPost, router])
+
   /* ---------------------------------- 保存逻辑 ---------------------------------- */
   const handleSave = useCallback(async () => {
     if (!hasChanges) return
@@ -666,6 +701,60 @@ export default function PostEditor({ slug, initialContent }: PostEditorProps) {
 
       const content = matter.stringify(markdown, frontmatter)
 
+      // 如果是新文章，需要先创建
+      if (isNewPost && slug === "new") {
+        // 从标题生成 slug（只保留英文、数字、连字符）
+        let generatedSlug = title
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/^-+|-+$/g, "")
+          .replace(/-+/g, "-")
+        
+        // 如果 slug 为空或不符合格式，使用时间戳
+        if (!generatedSlug || !/^[a-z0-9-]+$/.test(generatedSlug)) {
+          generatedSlug = `post-${Date.now()}`
+        }
+
+        const createResponse = await fetch("/api/admin/create-post", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug: generatedSlug, content }),
+        })
+
+        if (!createResponse.ok) {
+          const error = await createResponse.json()
+          throw new Error(error.error || "Failed to create")
+        }
+
+        // 创建成功，更新状态继续编辑（不跳转，因为创建是异步的）
+        setSlug(generatedSlug)
+        setIsNewPost(false)
+        
+        // 更新元数据基线
+        initialState.current.title = title
+        initialState.current.category = category
+        initialState.current.tags = tags
+        
+        // 更新 block 基线
+        const newBaseline = new Map<string, { text: string; hash: number }>()
+        for (const b of editor.document as any[]) {
+          const txt = extractBlockPlainText(b)
+          newBaseline.set(b.id, { text: txt, hash: hash32(txt) })
+        }
+        baselineBlockTextByIdRef.current = newBaseline
+        
+        setChangedBlockIds([])
+        setHasChanges(false)
+        
+        // 更新 URL 但不刷新页面
+        window.history.replaceState(null, '', `/admin/posts/${generatedSlug}`)
+        
+        toast.success("文章创建成功。您可以继续编辑。")
+        return
+      }
+
+      // 更新已有文章
       const response = await fetch("/api/admin/save-post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -707,6 +796,8 @@ export default function PostEditor({ slug, initialContent }: PostEditorProps) {
     parsed.data.excerpt,
     parsed.data.coverImage,
     hasChanges,
+    isNewPost,
+    router,
   ])
 
   /* ---------------------------------- 渲染 ---------------------------------- */
@@ -727,16 +818,28 @@ export default function PostEditor({ slug, initialContent }: PostEditorProps) {
             </Link>
 
             <div className="flex items-center gap-3">
-              <Link
-                href={`/post/${slug}`}
-                target="_blank"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-              >
-                <Eye className="w-4 h-4" />
-                <span>预览</span>
-              </Link>
+              {!isNewPost && (
+                <>
+                  <Link
+                    href={`/post/${slug}`}
+                    target="_blank"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>预览</span>
+                  </Link>
 
-              <div className="w-px h-5 bg-black/10 dark:bg-white/10" />
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 rounded-full hover:bg-red-50 dark:hover:bg-red-950/50 transition-all"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>删除</span>
+                  </button>
+
+                  <div className="w-px h-5 bg-black/10 dark:bg-white/10" />
+                </>
+              )}
 
               <button
                 className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:bg-black/80 dark:hover:bg-white/80 active:bg-black/70 dark:active:bg-white/70 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow"
@@ -769,7 +872,12 @@ export default function PostEditor({ slug, initialContent }: PostEditorProps) {
                 ) : (
                   <Save className="w-4 h-4" />
                 )}
-                <span>{isSaving ? "保存中..." : hasChanges ? "保存" : "已保存"}</span>
+                <span>
+                  {isSaving 
+                    ? (isNewPost ? "创建中..." : "保存中...") 
+                    : (isNewPost ? "创建文章" : (hasChanges ? "保存" : "已保存"))
+                  }
+                </span>
               </button>
             </div>
           </div>
@@ -1322,6 +1430,74 @@ export default function PostEditor({ slug, initialContent }: PostEditorProps) {
         }
       `}</style>
       </div>
+
+      {/* 删除确认对话框 */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+          {/* 背景遮罩 */}
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => !isDeleting && setShowDeleteConfirm(false)}
+          />
+          
+          {/* 对话框 */}
+          <div className="relative bg-background border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4 animate-in fade-in-0 zoom-in-95 duration-200">
+            <h3 className="text-lg font-semibold text-black dark:text-white mb-2">
+              确认删除文章？
+            </h3>
+            <p className="text-sm text-black/60 dark:text-white/60 mb-6">
+              此操作无法撤销。文章 "<span className="font-medium">{title}</span>" 将被永久删除。
+            </p>
+            
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-red-600 text-white hover:bg-red-700 active:bg-red-800 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="inline-flex animate-spin items-center justify-center">
+                      <svg height="14" strokeLinejoin="round" viewBox="0 0 16 16" width="14">
+                        <g clipPath="url(#clip0_delete)">
+                          <path d="M8 0V4" stroke="currentColor" strokeWidth="1.5"></path>
+                          <path d="M8 16V12" opacity="0.5" stroke="currentColor" strokeWidth="1.5"></path>
+                          <path d="M3.29773 1.52783L5.64887 4.7639" opacity="0.9" stroke="currentColor" strokeWidth="1.5"></path>
+                          <path d="M12.7023 1.52783L10.3511 4.7639" opacity="0.1" stroke="currentColor" strokeWidth="1.5"></path>
+                          <path d="M12.7023 14.472L10.3511 11.236" opacity="0.4" stroke="currentColor" strokeWidth="1.5"></path>
+                          <path d="M3.29773 14.472L5.64887 11.236" opacity="0.6" stroke="currentColor" strokeWidth="1.5"></path>
+                          <path d="M15.6085 5.52783L11.8043 6.7639" opacity="0.2" stroke="currentColor" strokeWidth="1.5"></path>
+                          <path d="M0.391602 10.472L4.19583 9.23598" opacity="0.7" stroke="currentColor" strokeWidth="1.5"></path>
+                          <path d="M15.6085 10.4722L11.8043 9.2361" opacity="0.3" stroke="currentColor" strokeWidth="1.5"></path>
+                          <path d="M0.391602 5.52783L4.19583 6.7639" opacity="0.8" stroke="currentColor" strokeWidth="1.5"></path>
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_delete">
+                            <rect fill="white" height="16" width="16"></rect>
+                          </clipPath>
+                        </defs>
+                      </svg>
+                    </div>
+                    <span>删除中...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>确认删除</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

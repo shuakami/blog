@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import PostsNavigator from '@/components/PostsNavigator'
 import { SimpleDropdown, SimpleDropdownItem } from '@/components/ui/simple-dropdown'
@@ -18,8 +19,21 @@ interface AdminPostListProps {
 }
 
 export default function AdminPostList({ posts }: AdminPostListProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [selectedTag, setSelectedTag] = useState<string>('全部')
   const [selectedMonth, setSelectedMonth] = useState<string>('全部')
+
+  // 监听刷新标志
+  useEffect(() => {
+    const shouldRefresh = searchParams.get('refresh')
+    if (shouldRefresh === 'true') {
+      // 刷新页面数据
+      router.refresh()
+      // 清除 URL 参数
+      router.replace('/admin')
+    }
+  }, [searchParams, router])
 
   // 提取所有唯一标签（不包含"全部"）
   const allTags = useMemo(() => {
