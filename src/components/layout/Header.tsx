@@ -6,6 +6,7 @@ import { PanelLeftClose, PanelLeftOpen, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { NowPlaying } from "@/components/music/now-playing"
+import AppearanceSettings from "@/components/AppearanceSettings"
 
 interface HeaderProps {
   isSidebarOpen: boolean
@@ -68,6 +69,9 @@ export function Header({ isSidebarOpen, onToggleSidebar, title, showSidebarToggl
               <Search className="h-5 w-5" />
             </Button>
           </Link>
+          
+          {/* 外观设置 */}
+          <AppearanceSettings />
         </div>
       </div>
     </header>

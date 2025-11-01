@@ -125,13 +125,66 @@
     @apply text-foreground;
     position: relative;
     background-color: #ffffff;
-    background-image: url('/friends/assets/avatars/background_character_2.png');
     background-size: auto 100%;
     background-position: center top;
     background-repeat: no-repeat;
     background-attachment: fixed;
+    transition: background-image 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
   
+  .dark body {
+    background-color: #121212;
+    }
+  
+  /* 防止布局闪烁 - 加载时隐藏内容 */
+  body.appearance-loading > * {
+    opacity: 0 !important;
+    }
+  
+  /* 布局准备完成后渐显内容 */
+  body.appearance-ready > * {
+    transition: opacity 0.2s ease-out;
+    }
+  
+  /* 角色背景 - 使用 body 自身 */
+  body.background-character {
+    background-image: url('/friends/assets/avatars/background_character_2.png');
+    }
+  
+  .dark body.background-character {
+    background-image: url('/friends/assets/avatars/background_character_dark.png');
+    }
+  
+  /* 纯净模式 - 清除背景图片 */
+  body:not(.background-character):not(.background-luoxiaohei) {
+    background-image: none;
+    }
+  
+  /* 彩绘背景层 - 使用 ::after 实现交叉渐变 */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/friends/assets/avatars/luoxiaohei_background.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    opacity: 0;
+    z-index: -2;
+    pointer-events: none;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  
+  /* 显示彩绘背景 */
+  body.background-luoxiaohei::after {
+    opacity: 1;
+    }
+  
+  /* 遮罩层 */
   body::before {
     content: '';
     position: fixed;
@@ -140,13 +193,9 @@
     width: 100%;
     height: 100%;
     background-color: rgba(255, 255, 255, 0.88);
-    z-index: 0;
+    z-index: -1;
     pointer-events: none;
-    }
-  
-  .dark body {
-    background-color: #121212;
-    background-image: url('/friends/assets/avatars/background_character_dark.png');
+    transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
   
   .dark body::before {
@@ -156,5 +205,65 @@
   body > * {
     position: relative;
     z-index: 1;
+    }
+  
+  /* 彩绘背景的遮罩更不透明 */
+  body.background-luoxiaohei::before {
+    background-color: rgba(255, 255, 255, 0.93) !important;
+    }
+  
+  .dark body.background-luoxiaohei::before {
+    background-color: rgba(18, 18, 18, 0.93) !important;
+    }
+  
+  /* 暗色模式下彩绘背景时，header和sidebar完全透明 */
+  .dark body.background-luoxiaohei header {
+    background-color: transparent !important;
+    backdrop-filter: blur(20px) !important;
+    }
+  
+  .dark body.background-luoxiaohei aside {
+    background-color: transparent !important;
+    backdrop-filter: blur(20px) !important;
+    }
+  
+  /* 页面布局模式 */
+  main > div,
+  .article-content-width {
+    transition: max-width 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+  
+  /* 默认布局（服务端渲染使用） */
+  main > div {
+    max-width: 1280px;
+    }
+  
+  body.layout-compact main > div {
+    max-width: 960px !important;
+    }
+  
+  body.layout-default main > div {
+    max-width: 1280px !important;
+    }
+  
+  body.layout-wide main > div {
+    max-width: 1536px !important;
+    }
+  
+  /* 文章内容宽度 */
+  .article-content-width {
+    max-width: 48rem;
+    }
+  
+  body.layout-compact .article-content-width {
+    max-width: 42rem !important;
+    }
+  
+  body.layout-default .article-content-width {
+    max-width: 48rem !important;
+    }
+  
+  body.layout-wide .article-content-width {
+    max-width: 56rem !important;
     }
 }

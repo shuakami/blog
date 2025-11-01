@@ -42,14 +42,14 @@ const ProgressBar = ({ progress, isPlaying, onClick }: {
       {/* 背景轨道 */}
       <div className={clsx(
         "absolute inset-0 rounded-full",
-        isDark ? "bg-white/10" : "bg-black/10"
+        isDark ? "bg-white/20" : "bg-black/10"
       )} />
       
       {/* 进度条 */}
       <div 
         className={clsx(
           "absolute inset-y-0 left-0 rounded-full transition-all",
-          isDark ? "bg-white/30" : "bg-black/30"
+          isDark ? "bg-white/60" : "bg-black/30"
         )}
         style={{ width: `${progress}%` }}
       />

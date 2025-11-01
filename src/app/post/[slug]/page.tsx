@@ -121,7 +121,7 @@ export default async function PostPage({ params }: PageProps) {
       </header>
 
       {/* 文章内容区域 */}
-      <div className="max-w-3xl mx-auto">
+      <div className="article-content-width mx-auto">
         {/* 元信息：响应式布局 */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm pt-2 mb-6">
           {/* 左侧：阅读时间 + 复制链接 */}

@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils"
 import { Header } from "@/components/layout/Header"
 import { Sidebar } from "@/components/Sidebar"
 import Footer from "@/components/Footer"
-import ThemeSwitcher from "@/components/ThemeSwitcher"
 import type { NavItem } from "@/lib/types"
 
 interface LayoutClientProps {
@@ -138,8 +137,6 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
           <Footer />
         </footer>
       )}
-      
-      <ThemeSwitcher />
     </div>
   )
 }

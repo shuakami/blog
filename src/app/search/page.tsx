@@ -113,7 +113,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-6 py-16 md:py-24">
+    <div className="mx-auto px-4 md:px-6 py-16 md:py-24 article-content-width">
       {/* 标题区域 */}
       <header className="mb-16 md:mb-20">
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium tracking-tight text-black dark:text-white mb-6">
@@ -122,7 +122,7 @@ export default function SearchPage() {
         <div className="w-16 h-[2px] bg-black dark:bg-white mb-12" />
         
         {/* 搜索框 */}
-        <div className="relative max-w-2xl">
+        <div className="relative">
           <Search className={`absolute left-0 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
             loading ? 'text-black/60 dark:text-white/60 animate-pulse' : 'text-black/30 dark:text-white/30'
           }`} />

@@ -29,7 +29,7 @@ export default function ThemeSwitcher() {
   `;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 md:block hidden">
+    <div className="md:block hidden">
       <div className="flex items-center gap-2 p-2 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-md border border-black/10 dark:border-white/10 shadow-sm">
         {/* 系统主题 */}
         <button
