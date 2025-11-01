@@ -18,6 +18,7 @@ interface SidebarProps {
 export function Sidebar({ isOpen, width = 192, navItems, onClose }: SidebarProps) {
   const [isAnimating, setIsAnimating] = useState(false)
   const [shouldRender, setShouldRender] = useState(isOpen)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   useEffect(() => {
     if (isOpen) {
@@ -25,6 +26,16 @@ export function Sidebar({ isOpen, width = 192, navItems, onClose }: SidebarProps
       setIsAnimating(false)
     }
   }, [isOpen])
+  
+  // 首次加载完成后禁用初始化动画
+  useEffect(() => {
+    if (isInitialLoad) {
+      const timer = setTimeout(() => {
+        setIsInitialLoad(false)
+      }, 400) // 动画持续时间
+      return () => clearTimeout(timer)
+    }
+  }, [isInitialLoad])
 
   const handleClose = () => {
     setIsAnimating(true)
@@ -48,6 +59,8 @@ export function Sidebar({ isOpen, width = 192, navItems, onClose }: SidebarProps
           "bg-gray-50 dark:bg-[#121212]",
           "transition-transform duration-300 ease-out will-change-transform",
           isOpen ? "translate-x-0" : "-translate-x-full",
+          // 初始加载时的淡入动画
+          isInitialLoad && isOpen && "animate-in fade-in slide-in-from-left-4 duration-400",
         )}
         style={{ width }}
         aria-label="侧边导航"

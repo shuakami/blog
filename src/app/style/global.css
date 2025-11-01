@@ -140,20 +140,11 @@
     background-color: #121212;
     }
   
-  /* Sidebar 初始化期间禁用 padding transition */
+  /* Sidebar 初始化期间的动画处理 */
   html.sidebar-initializing main,
   html.sidebar-initializing footer {
-    transition: none !important;
-    }
-  
-  /* 防止布局闪烁 - 加载时隐藏内容 */
-  body.appearance-loading > * {
-    opacity: 0 !important;
-    }
-  
-  /* 布局准备完成后渐显内容 */
-  body.appearance-ready > * {
-    transition: opacity 0.2s ease-out;
+    padding-left: 24px !important;
+    transition: padding-left 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
   
   /* 角色背景 - 使用 body 自身 */

@@ -39,53 +39,17 @@ export default function AppearanceSettings() {
   const shouldForceDefaultLayout = FORCE_DEFAULT_LAYOUT_PAGES.some(page => pathname.startsWith(page));
 
   useEffect(() => {
-    // 立即同步读取配置并应用，避免 SSR/客户端不一致
+    // 读取配置并设置状态（背景和布局已在 inline script 中应用）
     const saved = localStorage.getItem("appearance-config");
-    let initialConfig: AppearanceConfig = {
-      backgroundStyle: "character",
-      layoutMode: "default",
-    };
-    
     if (saved) {
       try {
-        initialConfig = JSON.parse(saved);
-        setConfig(initialConfig);
+        setConfig(JSON.parse(saved));
       } catch (e) {
         console.error("Failed to parse appearance config:", e);
       }
     }
     
-    // 立即同步应用布局类，不等 React 重新渲染
-    const currentPath = window.location.pathname;
-    const shouldDisableBg = NO_BACKGROUND_PAGES.some(page => currentPath.startsWith(page));
-    const shouldForceLayout = FORCE_DEFAULT_LAYOUT_PAGES.some(page => currentPath.startsWith(page));
-    
-    // 应用背景
-    document.body.classList.remove("background-character", "background-luoxiaohei");
-    if (!shouldDisableBg && initialConfig.backgroundStyle !== "none") {
-      if (initialConfig.backgroundStyle === "luoxiaohei") {
-        document.body.classList.add("background-luoxiaohei");
-      } else if (initialConfig.backgroundStyle === "character") {
-        document.body.classList.add("background-character");
-      }
-    }
-    
-    // 应用布局（同时应用到 html 和 body，确保与 inline script 一致）
-    document.documentElement.classList.remove("layout-default", "layout-wide", "layout-compact");
-    document.body.classList.remove("layout-default", "layout-wide", "layout-compact");
-    const layoutToApply = shouldForceLayout ? "wide" : initialConfig.layoutMode;
-    document.documentElement.classList.add(`layout-${layoutToApply}`);
-    document.body.classList.add(`layout-${layoutToApply}`);
-    
     setMounted(true);
-    
-    // 使用两次 RAF 确保布局已完全应用并渲染，然后移除 loading 状态
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        document.body.classList.remove("appearance-loading");
-        document.body.classList.add("appearance-ready");
-      });
-    });
   }, []);
 
   useEffect(() => {
@@ -142,10 +106,10 @@ export default function AppearanceSettings() {
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-9 h-9 rounded-full flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+        className="w-8 h-8 rounded-full flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
         aria-label="外观设置"
       >
-        <Settings className="h-5 w-5" />
+        <Settings className="h-4 w-4" />
       </button>
 
       <AnimatePresence>

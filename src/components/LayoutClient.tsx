@@ -40,10 +40,10 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
     
     setIsInitialized(true)
     
-    // 初始化完成后，移除 sidebar-initializing 类，启用 transition
-    requestAnimationFrame(() => {
+    // 延迟启用 transition，让初始动画有时间播放
+    setTimeout(() => {
       document.documentElement.classList.remove('sidebar-initializing')
-    })
+    }, 400) // 与 Sidebar 动画时间一致
   }, [])
 
   // 更新 CSS 变量以控制 padding

@@ -25,10 +25,10 @@ export function Header({ isSidebarOpen, onToggleSidebar, title, showSidebarToggl
       )}
       aria-label="全局顶部导航"
     >
-      <div className="mx-auto flex h-16 items-center gap-3 px-6">
+      <div className="mx-auto flex h-16 items-center gap-2 md:gap-3 px-4 md:px-6">
         {/* 左侧区域 - 固定宽度 */}
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <Link href="/" className="font-semibold tracking-tight text-black dark:text-white">
+        <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+          <Link href="/" className="font-semibold tracking-tight text-black dark:text-white text-sm md:text-base">
             {title}
           </Link>
 
@@ -37,13 +37,12 @@ export function Header({ isSidebarOpen, onToggleSidebar, title, showSidebarToggl
               aria-label={isSidebarOpen ? "关闭侧边栏" : "打开侧边栏"}
               onClick={onToggleSidebar}
               variant="ghost"
-              size="icon"
-              className="rounded-md text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"
+              className="rounded-md text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white h-8 w-8 md:h-8 md:w-8"
             >
               {isSidebarOpen ? (
-                <PanelLeftClose className="h-5 w-5" />
+                <PanelLeftClose className="h-4 w-4 md:h-4 md:w-4" />
               ) : (
-                <PanelLeftOpen className="h-5 w-5" />
+                <PanelLeftOpen className="h-4 w-4 md:h-4 md:w-4" />
               )}
             </Button>
           )}
@@ -57,16 +56,15 @@ export function Header({ isSidebarOpen, onToggleSidebar, title, showSidebarToggl
         </div>
 
         {/* 右侧区域 - 固定宽度 */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
           {/* 搜索按钮 */}
           <Link href="/search">
             <Button
               variant="ghost"
-              size="icon"
               aria-label="搜索"
-              className="rounded-full text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white"
+              className="rounded-full text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white h-8 w-8 md:h-8 md:w-8"
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-4 w-4 md:h-4 md:w-4" />
             </Button>
           </Link>
           

@@ -80,18 +80,25 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  // 立即读取并应用布局配置，避免闪烁
+                  const path = window.location.pathname;
+                  
+                  // 立即读取并应用布局和背景配置，避免闪烁
                   const config = localStorage.getItem('appearance-config');
                   if (config) {
-                    const { layoutMode } = JSON.parse(config);
-                    const path = window.location.pathname;
+                    const { layoutMode, backgroundStyle } = JSON.parse(config);
                     
-                    // 音乐页面强制宽屏布局
+                    // 应用布局类
                     const shouldForceWide = path.startsWith('/music');
                     const layout = shouldForceWide ? 'wide' : (layoutMode || 'default');
-                    
-                    // 立即应用布局类
                     document.documentElement.classList.add('layout-' + layout);
+                    
+                    // 应用背景类
+                    const NO_BG_PAGES = ['/music', '/works', '/friends'];
+                    const shouldDisableBg = NO_BG_PAGES.some(page => path.startsWith(page));
+                    
+                    if (!shouldDisableBg && backgroundStyle && backgroundStyle !== 'none') {
+                      document.body.classList.add('background-' + backgroundStyle);
+                    }
                   } else {
                     // 默认布局
                     document.documentElement.classList.add('layout-default');
@@ -120,7 +127,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${notoSansSC.variable} font-sans antialiased appearance-loading`}
+        className={`${geistSans.variable} ${geistMono.variable} ${notoSansSC.variable} font-sans antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <MusicPlayerProvider>
