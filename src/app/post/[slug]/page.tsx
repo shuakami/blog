@@ -1,12 +1,14 @@
 // src/app/post/[slug]/page.tsx
 import { getBlogPosts, getPostBySlug } from '@/utils/posts';
 import { calculateReadingTime } from '@/utils/readingTime';
+import { extractHeadings } from '@/utils/markdown';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { CodeCopyButton } from '@/components/CodeCopyButton';
 import { CopyUrlButton } from '@/components/CopyUrlButton';
+import PostNavigator from '@/components/PostNavigator';
 import type { Metadata } from 'next';
 import type { Viewport } from 'next';
 
@@ -81,6 +83,7 @@ export default async function PostPage({ params }: PageProps) {
   }
 
   const readingTime = calculateReadingTime(post.content);
+  const headings = extractHeadings(post.content);
 
   return (
     <article className="w-full mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-12 sm:pb-16">
@@ -145,6 +148,9 @@ export default async function PostPage({ params }: PageProps) {
         <div className="prose dark:prose-invert max-w-none markdown-body" dangerouslySetInnerHTML={{ __html: post.content }} />
         <CodeCopyButton />
       </div>
+
+      {/* 文章目录导航 */}
+      <PostNavigator headings={headings} />
     </article>
   );
 }

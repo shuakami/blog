@@ -61,12 +61,55 @@ function handleUnknownLanguage() {
 }
 
 
+// 添加标题 ID 的插件
+function rehypeAddHeadingIds() {
+  return (tree: Node) => {
+    let headingCounter = 0;
+    visit(tree, 'element', (node: any) => {
+      if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(node.tagName)) {
+        if (!node.properties) {
+          node.properties = {};
+        }
+        if (!node.properties.id) {
+          // 提取文本内容作为 ID
+          let text = '';
+          visit(node, 'text', (textNode: any) => {
+            text += textNode.value;
+          });
+          
+          // 生成 ID：移除特殊字符，转换为小写，用连字符连接
+          const id = text
+            .trim()
+            .toLowerCase()
+            .replace(/[^\w\u4e00-\u9fa5\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '') || `heading-${++headingCounter}`;
+          
+          node.properties.id = id;
+        }
+      }
+    });
+  };
+}
+
 const base = () =>
-  unified().use(remarkParse).use(remarkGfm).use(remarkRehype, { allowDangerousHtml: true }).use(rehypeRaw);
+  unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeRaw)
+    .use(rehypeAddHeadingIds);
 
 const processorWithPrism = base().use(rehypePrism).use(handleUnknownLanguage).use(rehypeStringify);
 const processorLight = base().use(handleUnknownLanguage).use(rehypeStringify);
 
+
+export interface Heading {
+  id: string;
+  text: string;
+  level: number;
+}
 
 export async function markdownToHtml(markdown: string): Promise<string> {
   // 以哈希作为缓存键，避免长字符串占用大量键空间
@@ -80,4 +123,30 @@ export async function markdownToHtml(markdown: string): Promise<string> {
 
   htmlCache.set(key, html);
   return html;
+}
+
+// 提取文章标题
+export function extractHeadings(html: string): Heading[] {
+  const headings: Heading[] = [];
+  const headingRegex = /<h([1-6])[^>]*id="([^"]*)"[^>]*>(.*?)<\/h\1>/gi;
+  
+  let match;
+  while ((match = headingRegex.exec(html)) !== null) {
+    const level = parseInt(match[1]);
+    const id = match[2];
+    const text = match[3]
+      .replace(/<[^>]*>/g, '') // 移除 HTML 标签
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .trim();
+    
+    if (text && level <= 3) { // 只提取 h1, h2, h3
+      headings.push({ id, text, level });
+    }
+  }
+  
+  return headings;
 }

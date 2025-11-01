@@ -63,6 +63,10 @@
   @apply bg-black/[0.04] dark:bg-white/[0.06];
   @apply px-1.5 py-0.5 rounded;
   @apply text-black/90 dark:text-white/90;
+  @apply break-words;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
   }
   
   .markdown-body pre {
