@@ -14,7 +14,7 @@ const developers = {
     tags: ['TypeScript', 'React', 'Node.js', 'UI/UX'],
     location: '中国，上海',
     company: 'Freelancer',
-    website: 'https://luoxiaohei.cn',
+    website: 'https://sdjz.wiki',
     github: 'https://github.com/shuakami',
     twitter: 'https://twitter.com/shuakami',
     projects: [

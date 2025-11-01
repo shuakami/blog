@@ -32,7 +32,7 @@ const nextConfig = {
   experimental: {
     scrollRestoration: true,
     serverActions: {
-      allowedOrigins: ['localhost:3000', 'luoxiaohei.cn'],
+      allowedOrigins: ['localhost:3000', 'sdjz.wiki'],
     },
   },
 
