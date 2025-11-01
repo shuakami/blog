@@ -560,8 +560,8 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
       {/* 移动端全屏模态框（保持原有） */}
       <DialogPrimitive.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 dark:bg-black/70 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-300 ease-out" />
-          <DialogPrimitive.Content className="fixed z-50 w-full border-0 bg-white dark:bg-black p-0 data-[state=open]:animate-in data-[state=closed]:animate-out inset-x-0 bottom-0 h-[95vh] max-h-[95vh] rounded-t-3xl data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-300 ease-out sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border sm:p-6 sm:bg-background sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%] sm:duration-200">
+          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 dark:bg-black/70 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-500" style={{ animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }} />
+          <DialogPrimitive.Content className="fixed z-50 w-full border-0 bg-white dark:bg-black p-0 data-[state=open]:animate-in data-[state=closed]:animate-out inset-x-0 bottom-0 h-[95vh] max-h-[95vh] rounded-t-3xl data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-700 sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border sm:p-6 sm:bg-background sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%] sm:duration-200" style={{ animationTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)' }}>
             <DialogPrimitive.Title className="sr-only">音乐播放器</DialogPrimitive.Title>
 
             {/* 顶部拖动指示器 - 仅移动端显示 */}
@@ -704,7 +704,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
                         whileTap={{ scale: 0.97 }}
                         onClick={() => setIsVolumeExpanded(true)}
                         className="w-full h-11 sm:h-10 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center gap-2 transition-colors"
@@ -720,13 +720,13 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                         initial={{ opacity: 0, scale: 0.95, y: -10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                        transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
                         className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/50 overflow-hidden"
                       >
                         <motion.button
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.1, duration: 0.2 }}
+                          transition={{ delay: 0.15, duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
                           whileTap={{ scale: 0.9 }}
                           onClick={handleVolumeToggle}
                           className="w-9 h-9 rounded-full bg-background hover:bg-background/80 active:bg-background/70 flex items-center justify-center transition-colors flex-shrink-0"
@@ -737,7 +737,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                         <motion.div
                           initial={{ opacity: 0, scaleX: 0.8 }}
                           animate={{ opacity: 1, scaleX: 1 }}
-                          transition={{ delay: 0.15, duration: 0.2 }}
+                          transition={{ delay: 0.2, duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
                           className="flex-1 flex items-center gap-3"
                         >
                           <div 
@@ -765,7 +765,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                         <motion.button
                           initial={{ opacity: 0, x: 10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.1, duration: 0.2 }}
+                          transition={{ delay: 0.15, duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
                           whileTap={{ scale: 0.9 }}
                           onClick={() => setIsVolumeExpanded(false)}
                           className="w-9 h-9 rounded-full bg-background hover:bg-background/80 active:bg-background/70 flex items-center justify-center transition-colors flex-shrink-0"
@@ -789,7 +789,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                             key={song.id}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                            transition={{ duration: 0.5, delay: index * 0.08, ease: [0.32, 0.72, 0, 1] }}
                             className="flex items-center gap-4 sm:gap-3 p-3 sm:p-2 rounded-xl sm:rounded-lg bg-secondary/30 hover:bg-secondary/60 active:bg-secondary/80 cursor-pointer transition-all"
                             onClick={() => { handleSongChange(actualIndex) }}
                           >
