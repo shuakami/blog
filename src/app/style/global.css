@@ -146,6 +146,7 @@
   
   .dark body {
     background-color: #000000;
+    background-image: url('/friends/assets/avatars/background_character_dark.png');
     }
   
   .dark body::before {
