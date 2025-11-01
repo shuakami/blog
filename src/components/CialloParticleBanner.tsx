@@ -123,7 +123,7 @@ export default function CialloParticleBanner() {
   };
 
   return (
-    <div className="relative w-full aspect-[2/1] rounded-xl overflow-hidden bg-white dark:bg-black">
+    <div className="relative w-full aspect-[16/9] sm:aspect-[2/1] rounded-lg md:rounded-xl overflow-hidden bg-white dark:bg-black">
       {/* 粒子背景 */}
       <canvas
         ref={canvasRef}
@@ -136,17 +136,17 @@ export default function CialloParticleBanner() {
       
       {/* 查看演示按钮 */}
       {!isDemoActive && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center p-4">
           <button
             onClick={handleStart}
-            className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/15 text-black dark:text-white text-sm font-medium transition-all hover:bg-white/20 dark:hover:bg-black/30 hover:scale-105 cursor-pointer"
+            className="flex items-center gap-1.5 sm:gap-2 px-4 py-2.5 sm:px-5 sm:py-3 md:px-6 md:py-3 rounded-full bg-white/10 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/15 text-black dark:text-white text-xs sm:text-sm font-medium transition-all hover:bg-white/20 dark:hover:bg-black/30 hover:scale-105 active:scale-95 cursor-pointer"
             style={{
               opacity: isTransitioning ? 0 : 1,
               transform: isTransitioning ? 'scale(0.9)' : 'scale(1)',
               transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="sm:w-4 sm:h-4">
               <circle cx="12" cy="12" r="10"/>
               <polygon points="10 8 16 12 10 16 10 8"/>
             </svg>

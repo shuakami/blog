@@ -255,16 +255,16 @@ function getSocialifyUrl(repo: string) {
 
 export default function WorksPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-6 py-16 md:py-24">
+    <div className="max-w-4xl mx-auto px-6 sm:px-8 md:px-6 py-12 sm:py-16 md:py-24">
       {/* 页面标题 */}
-      <header>
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-black dark:text-white mb-4">
+      <header className="mb-12 sm:mb-16">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-black dark:text-white mb-3 sm:mb-4">
           作品
         </h1>
-        <p className="text-lg text-black/50 dark:text-white/50 mb-8">
+        <p className="text-base sm:text-lg text-black/50 dark:text-white/50 mb-6 sm:mb-8 leading-relaxed">
           我一共获得了 476 颗星标，做的项目已经有 7,000+ 位用户在使用，过去一年贡献了 2,132 次代码
         </p>
-        <div className="w-16 h-[2px] bg-black dark:bg-white" />
+        <div className="w-12 sm:w-16 h-[2px] bg-black dark:bg-white" />
       </header>
 
       {/* 作品列表 */}
@@ -273,12 +273,12 @@ export default function WorksPage() {
               <article 
                 key={index} 
                 data-work-index={index}
-            className="group py-12 md:py-16 border-b border-black/[0.06] dark:border-white/[0.06] last:border-0"
+                className="group py-8 sm:py-12 md:py-16 border-b border-black/[0.06] dark:border-white/[0.06] last:border-0"
               >
-            {/* 项目预览图 - 比文字区域更宽 */}
+            {/* 项目预览图 */}
             {work.customBanner ? (
               // 使用自定义渐变背景Banner（不包裹链接）
-              <div className="relative aspect-[2/1] mb-8 -mx-4 md:-mx-8">
+              <div className="relative aspect-[16/9] sm:aspect-[2/1] mb-6 sm:mb-8 md:-mx-8">
                 {work.customBanner}
               </div>
             ) : (
@@ -286,10 +286,10 @@ export default function WorksPage() {
                 href={work.website || (work.repo ? `https://github.com/${work.repo}` : '#')}
                   target="_blank"
                   rel="noopener noreferrer"
-                className="block mb-8 -mx-4 md:-mx-8"
+                  className="block mb-6 sm:mb-8 md:-mx-8"
                 >
                 {/* 使用传统图片/轮播 */}
-                <div className="relative aspect-[2/1] rounded-lg overflow-hidden bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
+                <div className="relative aspect-[16/9] sm:aspect-[2/1] rounded-lg overflow-hidden bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
                   {work.previews && work.previews.length > 0 ? (
                     <ImageCarousel
                       images={work.previews}
@@ -301,7 +301,7 @@ export default function WorksPage() {
                       src={work.preview || (work.repo ? getSocialifyUrl(work.repo) : '/placeholder.png')}
                         alt={work.title}
                         fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1200px) 80vw, 1200px"
                         className="object-cover"
                       quality={95}
                         priority={index < 2}
@@ -313,48 +313,48 @@ export default function WorksPage() {
             )}
 
             {/* 项目信息 */}
-            <div className="space-y-5">
+            <div className="space-y-4 sm:space-y-5">
               {/* 标题和年份 */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h2 className="text-2xl md:text-3xl font-medium text-black dark:text-white mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-medium text-black dark:text-white mb-2 sm:mb-2">
                         {work.title}
                       </h2>
-                  <p className="text-base text-black/60 dark:text-white/60 leading-relaxed">
+                  <p className="text-sm sm:text-base text-black/60 dark:text-white/60 leading-relaxed">
                     {work.description}
                   </p>
                 </div>
-                <span className="text-sm text-black/40 dark:text-white/40 flex-shrink-0 mt-1">
+                <span className="text-xs sm:text-sm text-black/40 dark:text-white/40 flex-shrink-0 sm:mt-1">
                         {work.year}
                       </span>
                     </div>
                     
               {/* 项目数据统计 + 按钮 */}
               {work.stats && work.stats.length > 0 && (
-                <div className="rounded-xl bg-black/[0.02] dark:bg-white/[0.02] px-5 py-5 md:px-8 md:py-6">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                    {/* 左侧数据 */}
-                    <div className="flex flex-wrap gap-x-6 gap-y-4 md:gap-x-8 md:gap-y-6 lg:gap-x-12">
+                <div className="rounded-lg sm:rounded-xl bg-black/[0.02] dark:bg-white/[0.02] px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6">
+                  <div className="flex flex-col gap-4 sm:gap-5 md:gap-6">
+                    {/* 数据统计 */}
+                    <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 sm:gap-y-4 md:gap-x-8 lg:gap-x-12">
                       {work.stats.map((stat, i) => (
-                        <div key={i} className="space-y-1 min-w-0">
-                          <h4 className="text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">
+                        <div key={i} className="space-y-0.5 sm:space-y-1 min-w-0">
+                          <h4 className="text-xl sm:text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">
                             {stat.value}
                           </h4>
-                          <p className="text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">
+                          <p className="text-xs sm:text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">
                             {stat.label}
                           </p>
                         </div>
                       ))}
                     </div>
                     
-                    {/* 右侧主要按钮 */}
-                    <div className="flex flex-col gap-2 md:items-end md:flex-shrink-0 w-full md:w-auto">
+                    {/* 主要按钮 */}
+                    <div className="flex flex-col gap-2 w-full sm:w-auto sm:self-start md:self-auto">
                       {work.website && (
                         <a
                           href={work.website}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:bg-black/80 dark:hover:bg-white/80 transition-colors whitespace-nowrap w-full md:w-auto"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:bg-black/80 dark:hover:bg-white/80 active:bg-black/70 dark:active:bg-white/70 transition-colors whitespace-nowrap w-full sm:w-auto"
                         >
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <circle cx="12" cy="12" r="10"/>
@@ -368,7 +368,7 @@ export default function WorksPage() {
                           href={`https://github.com/${work.repo}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:bg-black/80 dark:hover:bg-white/80 transition-colors whitespace-nowrap w-full md:w-auto"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:bg-black/80 dark:hover:bg-white/80 active:bg-black/70 dark:active:bg-white/70 transition-colors whitespace-nowrap w-full sm:w-auto"
                         >
                           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                             <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
@@ -383,7 +383,7 @@ export default function WorksPage() {
 
               {/* 核心亮点 */}
               {work.highlights && work.highlights.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {work.highlights.map((highlight, i) => {
                     // 如果是第一个亮点且有排名链接，做成可点击的
                     if (i === 0 && work.ranking && highlight.includes('排名')) {
@@ -393,13 +393,13 @@ export default function WorksPage() {
                           href={work.ranking}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white font-medium hover:bg-black/[0.10] dark:hover:bg-white/[0.12] transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white font-medium hover:bg-black/[0.10] dark:hover:bg-white/[0.12] active:bg-black/[0.14] dark:active:bg-white/[0.16] transition-colors cursor-pointer"
                         >
-                          <svg width="12" height="12" viewBox="0 0 16 16" fill="#EAB308">
+                          <svg width="10" height="10" viewBox="0 0 16 16" fill="#EAB308" className="sm:w-3 sm:h-3 flex-shrink-0">
                             <path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/>
                           </svg>
-                          {highlight}
-                          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" className="opacity-50">
+                          <span className="break-all">{highlight}</span>
+                          <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" className="opacity-50 sm:w-3 sm:h-3 flex-shrink-0">
                             <path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"/>
                           </svg>
                         </a>
@@ -409,14 +409,14 @@ export default function WorksPage() {
                     return (
                       <span
                         key={i}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white font-medium"
+                        className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white font-medium"
                       >
                         {i === 0 && !work.ranking && (
-                          <svg width="12" height="12" viewBox="0 0 16 16" fill="#EAB308">
+                          <svg width="10" height="10" viewBox="0 0 16 16" fill="#EAB308" className="sm:w-3 sm:h-3 flex-shrink-0">
                             <path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/>
                           </svg>
                         )}
-                        {highlight}
+                        <span className="break-all">{highlight}</span>
                       </span>
                     )
                   })}
@@ -424,11 +424,11 @@ export default function WorksPage() {
               )}
 
               {/* 技术标签 */}
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {work.tags.map((tag) => (
                         <span
                           key={tag}
-                    className="px-2.5 py-1 text-xs rounded-md bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50"
+                          className="px-2 sm:px-2.5 py-1 text-xs rounded-md bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50"
                         >
                           {tag}
                         </span>

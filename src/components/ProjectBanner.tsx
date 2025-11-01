@@ -102,33 +102,32 @@ export default function ProjectBanner(props: ProjectBannerProps) {
     backgroundSize: '100% 100%',
     position: 'relative',
     overflow: 'hidden',
-    aspectRatio: '2 / 1',
   };
 
   return (
     <div
       style={containerStyle}
-      className={`relative flex items-center justify-center rounded-xl p-8 ${props.className || ''}`}
+      className={`relative flex items-center justify-center rounded-lg md:rounded-xl p-4 sm:p-6 md:p-8 ${props.className || ''}`}
     >
       {/* Icon | 文字 水平布局 */}
-      <div className="flex items-center gap-8">
+      <div className="flex items-center gap-3 sm:gap-5 md:gap-8">
         {/* SVG Icon */}
         {props.icon && (
-          <div className="w-20 h-20 text-white flex-shrink-0 [&>svg]:w-full [&>svg]:h-full">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 text-white flex-shrink-0 [&>svg]:w-full [&>svg]:h-full">
             {props.icon}
           </div>
         )}
 
         {/* 文字内容 */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1 sm:gap-1.5 md:gap-2">
           {/* 标题 */}
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-semibold text-white select-none">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-semibold text-white select-none leading-tight">
             {props.title}
           </h2>
 
           {/* 描述 */}
           {props.description && (
-            <p className="text-base md:text-lg text-white/80 select-none">
+            <p className="text-xs sm:text-sm md:text-base lg:text-lg text-white/80 select-none leading-relaxed">
               {props.description}
             </p>
           )}

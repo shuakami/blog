@@ -35,6 +35,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
   
   const [isHovered, setIsHovered] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isVolumeExpanded, setIsVolumeExpanded] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
@@ -652,49 +653,56 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
       {/* 移动端全屏模态框 */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogPortal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-transparent data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-          <DialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 w-screen h-screen max-w-none translate-x-[-50%] translate-y-[-50%] border-0 bg-background p-0 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 sm:max-w-[95vw] sm:max-h-[85vh] sm:rounded-lg sm:border sm:p-6">
-            <DialogTitle className="sr-only">音乐播放器</DialogTitle>
-            <DialogPrimitive.Close className="absolute right-4 top-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8">
+          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 dark:bg-black/70 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-300 ease-out" />
+          <DialogPrimitive.Content className="fixed z-50 w-full border-0 bg-white dark:bg-black p-0 data-[state=open]:animate-in data-[state=closed]:animate-out inset-x-0 bottom-0 h-[95vh] max-h-[95vh] rounded-t-3xl data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-300 ease-out sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border sm:p-6 sm:bg-background sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%] sm:duration-200">
+          <DialogTitle className="sr-only">音乐播放器</DialogTitle>
+            
+            {/* 顶部拖动指示器 - 仅移动端显示 */}
+            <div className="sm:hidden flex justify-center pt-3 pb-2 sticky top-0 bg-white dark:bg-black z-10">
+              <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+            </div>
+            
+            <DialogPrimitive.Close className="absolute right-4 top-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-black/80 backdrop-blur-sm">
               <X className="h-5 w-5 sm:h-4 sm:w-4 text-foreground" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
           
-          <div className="min-h-screen sm:min-h-0 flex flex-col justify-start sm:justify-center p-6 pt-12 sm:p-0 space-y-6 sm:space-y-6 bg-background border-0">
+          <div className="h-full overflow-y-auto overscroll-contain pb-safe">
+            <div className="flex flex-col justify-start sm:justify-center px-6 pt-2 pb-8 sm:p-0 space-y-5 sm:space-y-6">
             {/* 专辑封面和基础信息 */}
-            <div className="flex flex-col items-center gap-4 sm:gap-4">
-              <div className="relative w-[min(240px,70vw)] h-[min(240px,70vw)] sm:w-48 sm:h-48 rounded-2xl overflow-hidden">
+            <div className="flex flex-col items-center gap-3 sm:gap-4">
+              <div className="relative w-[min(220px,65vw)] h-[min(220px,65vw)] sm:w-48 sm:h-48 rounded-2xl overflow-hidden shadow-lg">
                 <Image
                   src={currentSong.coverUrl}
                   alt={currentSong.album}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 640px) min(240px, 70vw), 192px"
+                  sizes="(max-width: 640px) min(220px, 65vw), 192px"
                   priority
                 />
               </div>
               <div className="text-center w-full px-2">
-                <h3 className="text-foreground font-bold text-2xl sm:text-xl mb-3 sm:mb-2 line-clamp-2">
+                <h3 className="text-foreground font-bold text-xl sm:text-xl mb-2 sm:mb-2 line-clamp-2">
                   {currentSong.title}
                 </h3>
-                <p className="text-muted-foreground text-lg sm:text-base mb-2 sm:mb-1">
+                <p className="text-muted-foreground text-base sm:text-base mb-1 sm:mb-1">
                   {currentSong.artist}
                 </p>
-                <p className="text-muted-foreground/80 text-base sm:text-sm">
+                <p className="text-muted-foreground/80 text-sm sm:text-sm">
                   {currentSong.album}
                 </p>
               </div>
             </div>
 
             {/* 滚动歌词区域 */}
-            <div className="h-36 sm:h-32 overflow-hidden relative bg-gradient-to-b from-transparent via-muted/20 to-transparent rounded-lg px-4">
+            <div className="h-28 sm:h-32 overflow-hidden relative bg-gradient-to-b from-transparent via-muted/20 to-transparent rounded-lg px-4">
               {parsedLyrics.length > 0 ? (
                 <div className="relative h-full">
                   <motion.div
                     // @ts-ignore - framer-motion type issue
                     className="absolute left-0 right-0 flex flex-col items-center"
                     animate={{ 
-                      y: -currentLyricIndex * 40 + 72
+                      y: -currentLyricIndex * 36 + 56
                     }}
                     transition={{ 
                       duration: 0.6, 
@@ -709,11 +717,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                       
                       if (distance === 0) {
                         opacity = 1
-                        fontSize = 'text-lg sm:text-base'
+                        fontSize = 'text-base sm:text-base'
                         color = 'text-foreground font-semibold'
                       } else if (distance === 1) {
                         opacity = 0.7
-                        fontSize = 'text-base sm:text-sm'
+                        fontSize = 'text-sm sm:text-sm'
                         color = 'text-foreground/90'
                       } else if (distance === 2) {
                         opacity = 0.4
@@ -728,7 +736,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                       return (
                         <div
                           key={index}
-                          className={`text-center leading-snug px-4 py-2 sm:py-1.5 min-h-[2.5rem] sm:min-h-[2.25rem] flex items-center justify-center ${fontSize} ${color} transition-all duration-500`}
+                          className={`text-center leading-snug px-4 py-1.5 min-h-[2.25rem] flex items-center justify-center ${fontSize} ${color} transition-all duration-500`}
                           style={{ opacity }}
                         >
                           <div className="max-w-full break-words text-center">
@@ -741,7 +749,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                 </div>
               ) : (
                 <div className="h-full flex items-center justify-center">
-                  <p className="text-muted-foreground text-lg sm:text-base italic">
+                  <p className="text-muted-foreground text-base sm:text-base italic">
                     {currentSong.lyrics?.original ? "等待歌词..." : "暂无歌词"}
                   </p>
                 </div>
@@ -774,26 +782,26 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
             </div>
 
             {/* 播放控制按钮 */}
-            <div className="flex items-center justify-center gap-8 sm:gap-6 py-4 sm:py-2">
+            <div className="flex items-center justify-center gap-6 sm:gap-6 py-2">
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 // @ts-ignore - framer-motion type issue
                 onClick={handlePrevSong}
-                className="w-14 h-14 sm:w-12 sm:h-12 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors"
+                className="w-12 h-12 sm:w-12 sm:h-12 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors"
               >
-                <SkipBack className="w-6 h-6 sm:w-5 sm:h-5 text-muted-foreground" />
+                <SkipBack className="w-5 h-5 sm:w-5 sm:h-5 text-muted-foreground" />
               </motion.button>
               
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 // @ts-ignore - framer-motion type issue
                 onClick={handleTogglePlay}
-                className="w-20 h-20 sm:w-16 sm:h-16 rounded-full bg-primary hover:bg-primary/90 active:bg-primary/80 flex items-center justify-center transition-colors shadow-2xl"
+                className="w-16 h-16 sm:w-16 sm:h-16 rounded-full bg-primary hover:bg-primary/90 active:bg-primary/80 flex items-center justify-center transition-colors shadow-2xl"
               >
                 {isPlaying ? (
-                  <Pause className="w-9 h-9 sm:w-7 sm:h-7 text-primary-foreground fill-primary-foreground" />
+                  <Pause className="w-7 h-7 sm:w-7 sm:h-7 text-primary-foreground fill-primary-foreground" />
                 ) : (
-                  <Play className="w-9 h-9 sm:w-7 sm:h-7 text-primary-foreground fill-primary-foreground translate-x-0.5" />
+                  <Play className="w-7 h-7 sm:w-7 sm:h-7 text-primary-foreground fill-primary-foreground translate-x-0.5" />
                 )}
               </motion.button>
               
@@ -801,46 +809,104 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                 whileTap={{ scale: 0.9 }}
                 // @ts-ignore - framer-motion type issue
                 onClick={handleNextSong}
-                className="w-14 h-14 sm:w-12 sm:h-12 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors"
+                className="w-12 h-12 sm:w-12 sm:h-12 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors"
               >
-                <SkipForward className="w-6 h-6 sm:w-5 sm:h-5 text-muted-foreground" />
+                <SkipForward className="w-5 h-5 sm:w-5 sm:h-5 text-muted-foreground" />
               </motion.button>
             </div>
 
             {/* 音量控制 */}
-            <div className="flex items-center gap-4 px-6 sm:px-4">
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                // @ts-ignore - framer-motion type issue
-                onClick={handleVolumeToggle}
-                className="w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors flex-shrink-0"
-              >
-                <VolumeIcon className="w-5 h-5 text-muted-foreground" />
-              </motion.button>
-              
-              <div className="flex-1 flex items-center gap-4 sm:gap-3">
-                <div 
-                  className="flex-1 h-2.5 sm:h-2 bg-muted rounded-full cursor-pointer relative"
-                  onClick={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect()
-                    const clickX = e.clientX - rect.left
-                    const percentage = clickX / rect.width
-                    handleVolumeChange(percentage)
-                  }}
-                >
-                  <motion.div
+            <div className="px-6 sm:px-4">
+              <AnimatePresence mode="wait" initial={false}>
+                {!isVolumeExpanded ? (
+                  <motion.button
+                    key="volume-button"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ 
+                      duration: 0.25,
+                      ease: [0.25, 0.1, 0.25, 1]
+                    }}
+                    whileTap={{ scale: 0.97 }}
                     // @ts-ignore - framer-motion type issue
-                    className="h-full bg-foreground rounded-full"
-                    style={{ width: `${volume * 100}%` }}
-                    initial={false}
-                    animate={{ width: `${volume * 100}%` }}
-                    transition={{ duration: 0.1 }}
-                  />
-                </div>
-                <span className="text-sm sm:text-xs text-muted-foreground w-12 sm:w-10 text-right">
-                  {Math.round(volume * 100)}%
-                </span>
-              </div>
+                    onClick={() => setIsVolumeExpanded(true)}
+                    className="w-full h-11 sm:h-10 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <VolumeIcon className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground font-mono">
+                      {Math.round(volume * 100)}%
+                    </span>
+                  </motion.button>
+                ) : (
+                  <motion.div
+                    key="volume-controls"
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    transition={{ 
+                      duration: 0.25,
+                      ease: [0.25, 0.1, 0.25, 1]
+                    }}
+                    // @ts-ignore - framer-motion type issue
+                    className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/50 overflow-hidden"
+                  >
+                    <motion.button
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1, duration: 0.2 }}
+                      whileTap={{ scale: 0.9 }}
+                      // @ts-ignore - framer-motion type issue
+                      onClick={handleVolumeToggle}
+                      className="w-9 h-9 rounded-full bg-background hover:bg-background/80 active:bg-background/70 flex items-center justify-center transition-colors flex-shrink-0"
+                    >
+                      <VolumeIcon className="w-4 h-4 text-muted-foreground" />
+                    </motion.button>
+                    
+                    <motion.div
+                      initial={{ opacity: 0, scaleX: 0.8 }}
+                      animate={{ opacity: 1, scaleX: 1 }}
+                      transition={{ delay: 0.15, duration: 0.2 }}
+                      // @ts-ignore - framer-motion type issue
+                      className="flex-1 flex items-center gap-3"
+                    >
+                      <div 
+                        className="flex-1 h-2 bg-muted/50 rounded-full cursor-pointer relative"
+                        onClick={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect()
+                          const clickX = e.clientX - rect.left
+                          const percentage = clickX / rect.width
+                          handleVolumeChange(percentage)
+                        }}
+                      >
+                        <motion.div
+                          // @ts-ignore - framer-motion type issue
+                          className="h-full bg-foreground rounded-full"
+                          style={{ width: `${volume * 100}%` }}
+                          initial={false}
+                          animate={{ width: `${volume * 100}%` }}
+                          transition={{ duration: 0.15, ease: "easeOut" }}
+                        />
+                      </div>
+                      <span className="text-xs text-muted-foreground w-10 text-right font-mono">
+                        {Math.round(volume * 100)}%
+                      </span>
+                    </motion.div>
+
+                    <motion.button
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1, duration: 0.2 }}
+                      whileTap={{ scale: 0.9 }}
+                      // @ts-ignore - framer-motion type issue
+                      onClick={() => setIsVolumeExpanded(false)}
+                      className="w-9 h-9 rounded-full bg-background hover:bg-background/80 active:bg-background/70 flex items-center justify-center transition-colors flex-shrink-0"
+                    >
+                      <X className="w-4 h-4 text-muted-foreground" />
+                    </motion.button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Next Up 列表 */}
@@ -889,6 +955,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                 </div>
               </div>
             )}
+            </div>
           </div>
           </DialogPrimitive.Content>
         </DialogPortal>
