@@ -88,7 +88,7 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
   }
 
   return (
-    <div className="relative min-h-dvh w-full bg-gray-50 dark:bg-[#121212] text-foreground">
+    <div className="relative min-h-dvh w-full text-foreground">
       <Header
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={handleToggleSidebar}
