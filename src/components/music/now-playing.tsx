@@ -25,14 +25,14 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
     currentSongIndex,
     audioRef
   } = useMusicPlayer()
-  
-  // ---------------- Tooltip 状态与定时器 ----------------
-  const [isHovered, setIsHovered] = useState(false) // Tooltip 是否可见
-  const [fromTrigger, setFromTrigger] = useState(false) // 是否从“歌词+桥接”触发
-  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // ---------------- Popover（点击触发）状态 ----------------
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)          // Desktop: 点击歌词行（限定 640px 宽）切换 Popover
+  const popoverRef = useRef<HTMLDivElement | null>(null)             // Popover 容器
+  const triggerRef = useRef<HTMLDivElement | null>(null)             // 触发层（仅 640px 宽范围内响应点击）
 
   // ---------------- 其它 UI 状态 ----------------
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)              // Mobile: 仍使用 Dialog
   const [isVolumeExpanded, setIsVolumeExpanded] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -44,32 +44,24 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
   const [isVolumeDragging, setIsVolumeDragging] = useState(false)
   const volumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // 主显示行（歌词+标题）用于测量高度，供触发层使用
+  // 主显示行（歌词+标题）用于测量高度，供触发层设置高度
   const displayRowRef = useRef<HTMLDivElement | null>(null)
   const [displayRowHeight, setDisplayRowHeight] = useState(0)
 
-  // 引用：三块“联合可交互区域”
-  const triggerRef = useRef<HTMLDivElement | null>(null)
-  const bridgeRef = useRef<HTMLDivElement | null>(null)
-  const tooltipRef = useRef<HTMLDivElement | null>(null)
-
-  // 常量：Tooltip 宽度与桥接高度（关键修复：像素常量）
+  // 常量（定位/尺寸）
   const TOOLTIP_WIDTH = 640
-  const GAP_PX = 8 // 视觉空隙与桥接高度采用同一像素常量
+  const GAP_PX = 8 // Popover 与歌词行之间的视觉间距（纯定位，不再需要“桥接”逻辑）
 
-  // ---------------- 实用函数：文本截断 ----------------
+  // ---------------- 文本截断 / 响应式 ----------------
   const truncateText = (text: string, maxLength: number) => {
     if (!text || text.length <= maxLength) return text
     return `${text.substring(0, maxLength)}...`
   }
-
-  // ---------------- 响应式长度限制 ----------------
   const getResponsiveConfig = () => {
     if (windowWidth < 768) return { title: 12, lyric: 30 }
     if (windowWidth < 1024) return { title: 16, lyric: 50 }
     return { title: 20, lyric: 80 }
   }
-
   const { title: maxTitleLength, lyric: maxLyricLength } = getResponsiveConfig()
   const displayTitle = truncateText(currentSong?.title || '', maxTitleLength)
 
@@ -85,20 +77,15 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
   useEffect(() => {
     const audio = audioRef?.current
     if (!audio) return
-
     const updateTime = () => {
       if (!isDragging) {
         setCurrentTime(audio.currentTime)
         setDuration(audio.duration || 0)
       }
     }
-
-    // 初始化音量
     audio.volume = volume
-
     audio.addEventListener('timeupdate', updateTime)
     audio.addEventListener('loadedmetadata', updateTime)
-    
     return () => {
       audio.removeEventListener('timeupdate', updateTime)
       audio.removeEventListener('loadedmetadata', updateTime)
@@ -109,7 +96,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth)
     handleResize()
-
     const savedVolume = localStorage.getItem('musicPlayer-volume')
     const savedPreviousVolume = localStorage.getItem('musicPlayer-previousVolume')
     if (savedVolume !== null) {
@@ -120,15 +106,13 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
       const pv = parseFloat(savedPreviousVolume)
       if (pv >= 0 && pv <= 1) setPreviousVolume(pv)
     }
-
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // ---------------- 清理所有定时器 ----------------
+  // ---------------- 清理定时器 ----------------
   useEffect(() => {
     return () => {
-      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current)
       if (volumeTimeoutRef.current) clearTimeout(volumeTimeoutRef.current)
     }
   }, [])
@@ -137,12 +121,10 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const audio = audioRef?.current
     if (!audio || !duration) return
-
     const rect = e.currentTarget.getBoundingClientRect()
     const clickX = e.clientX - rect.left
     const percentage = clickX / rect.width
     const newTime = percentage * duration
-    
     audio.currentTime = newTime
     setCurrentTime(newTime)
   }
@@ -166,7 +148,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
     localStorage.setItem('musicPlayer-volume', clamped.toString())
     if (audioRef?.current) audioRef.current.volume = clamped
   }
-
   const handleVolumeToggle = () => {
     if (volume > 0) {
       setPreviousVolume(volume)
@@ -176,8 +157,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
       handleVolumeChange(previousVolume)
     }
   }
-
-  // 垂直滑块鼠标拖拽
   const handleVolumeMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsVolumeDragging(true)
@@ -186,10 +165,8 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
     const percentage = 1 - (clickY / rect.height)
     handleVolumeChange(percentage)
   }
-
   useEffect(() => {
     if (!isVolumeDragging) return
-
     const handleMouseMove = (e: MouseEvent) => {
       const slider = document.querySelector('.volume-slider') as HTMLElement
       if (!slider) return
@@ -198,7 +175,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
       const percentage = Math.max(0, Math.min(1, 1 - (y / rect.height)))
       handleVolumeChange(percentage)
     }
-
     const handleMouseUp = () => {
       setIsVolumeDragging(false)
       setTimeout(() => {
@@ -207,7 +183,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
         }
       }, 300)
     }
-
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', handleMouseUp)
     return () => {
@@ -215,14 +190,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
       document.removeEventListener('mouseup', handleMouseUp)
     }
   }, [isVolumeDragging, isVolumeHovered])
-
-  // ---------------- 音量图标选择 ----------------
-  const getVolumeIcon = () => {
-    if (volume === 0) return VolumeX
-    if (volume < 0.5) return Volume1
-    return Volume2
-  }
-  const VolumeIcon = getVolumeIcon()
 
   // ---------------- 进度百分比 ----------------
   const progressPercentage = duration ? (currentTime / duration) * 100 : 0
@@ -244,49 +211,39 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
     return () => ro.disconnect()
   }, [displayRowRef])
 
-  // ---------------- Tooltip 显示/隐藏的统一控制 ----------------
-  const cancelHide = () => {
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current)
-      hideTimeoutRef.current = null
+  // ---------------- Popover: 点击触发 / 点击外部关闭 / ESC 关闭 ----------------
+  useEffect(() => {
+    if (!isPopoverOpen) return
+    const onDocMouseDown = (e: MouseEvent) => {
+      const t = e.target as Node | null
+      if (popoverRef.current?.contains(t)) return
+      if (triggerRef.current?.contains(t)) return
+      setIsPopoverOpen(false)
     }
-  }
-  const scheduleHide = () => {
-    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current)
-    hideTimeoutRef.current = setTimeout(() => {
-      setIsHovered(false)
-      setFromTrigger(false)
-    }, 400) // 增加延迟时间，给用户更多时间移动到 tooltip
-  }
-  const openFromTrigger = () => {
-    cancelHide()
-    setFromTrigger(true)
-    setIsHovered(true)
-  }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsPopoverOpen(false)
+    }
+    document.addEventListener("mousedown", onDocMouseDown)
+    document.addEventListener("keydown", onKeyDown)
+    return () => {
+      document.removeEventListener("mousedown", onDocMouseDown)
+      document.removeEventListener("keydown", onKeyDown)
+    }
+  }, [isPopoverOpen])
 
-  // 判断“下一站”是否仍在联合可交互区域（Trigger/Bridge/Tooltip 三者之一）
-  const isInUnifiedArea = (target: EventTarget | null) => {
-    const node = target as Node | null
-    if (!node) return false
-    return !!(
-      (triggerRef.current && triggerRef.current.contains(node)) ||
-      (bridgeRef.current && bridgeRef.current.contains(node)) ||
-      (tooltipRef.current && tooltipRef.current.contains(node))
-    )
+  // ---------------- 音量图标选择 ----------------
+  const getVolumeIcon = () => {
+    if (volume === 0) return VolumeX
+    if (volume < 0.5) return Volume1
+    return Volume2
   }
-
-  // 统一的 mouseleave 处理：只有真正离开三者时，才考虑隐藏
-  const handleAreaMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    const next = e.relatedTarget
-    if (isInUnifiedArea(next)) return
-    scheduleHide()
-  }
+  const VolumeIcon = getVolumeIcon()
 
   if (!currentSong) return null
 
   return (
     <div className="relative">
-      {/* 主显示区域（歌词行） */}
+      {/* 主显示区域（歌词行）—— Mobile 点击打开全屏 Dialog；Desktop 的点击逻辑放在触发层 */}
       <div
         ref={displayRowRef}
         className="flex items-center gap-3 text-sm text-muted-foreground cursor-pointer transition-all duration-300 ease-out"
@@ -316,65 +273,46 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
         </div>
       </div>
 
-      {/* 桌面端专属：触发层 & 桥接层 */}
-      {!isMobile && (
-        <>
-          {/* 触发层（仅 640px 宽内有效）：覆盖“主显示行”的区域 */}
-          <div
-            ref={triggerRef}
-            className="absolute z-40 left-1/2"
-            style={{
-              width: `${TOOLTIP_WIDTH}px`,
-              height: `${displayRowHeight || 24}px`,
-              top: 0,
-              transform: `translateX(calc(-50% + ${mainOffset}px))`,
-              pointerEvents: 'auto'
-            }}
-            onMouseEnter={openFromTrigger}
-            onMouseLeave={handleAreaMouseLeave}
-          />
-
-          {/* 桥接层：覆盖“主显示行”下方与 Tooltip 之间的空隙（与 Tooltip 的 8px 精准一致） */}
-          <div
-            ref={bridgeRef}
-            className="absolute z-40 left-1/2"
-            style={{
-              width: `${TOOLTIP_WIDTH}px`,
-              height: `${GAP_PX}px`,
-              top: `${displayRowHeight}px`,
-              transform: `translateX(calc(-50% + ${mainOffset}px))`,
-              pointerEvents: 'auto'
-            }}
-            onMouseEnter={openFromTrigger}
-            onMouseLeave={handleAreaMouseLeave}
-          />
-        </>
-      )}
-
-      {/* 桌面端 Tooltip（关键：不用 mt-2，直接 top: calc(100% + 8px)） */}
+      {/* Desktop 触发层：限制在 640px 宽范围内点击才会打开 Popover */}
       {!isMobile && (
         <div
-          ref={tooltipRef}
+          ref={triggerRef}
+          className="absolute z-40 left-1/2"
+          style={{
+            width: `${TOOLTIP_WIDTH}px`,
+            height: `${displayRowHeight || 24}px`,
+            top: 0,
+            transform: `translateX(calc(-50% + ${mainOffset}px))`,
+            pointerEvents: 'auto', // 可点击
+          }}
+          onClick={() => setIsPopoverOpen(prev => !prev)}
+          aria-haspopup="dialog"
+          aria-expanded={isPopoverOpen}
+          aria-controls="lyrics-popover"
+        />
+      )}
+
+      {/* Desktop Popover（点击触发）—— 隐藏时 pointer-events: none，确保“穿透” */}
+      {!isMobile && (
+        <div
+          ref={popoverRef}
+          id="lyrics-popover"
           className="absolute left-1/2 z-50 w-[640px]"
           style={{ 
             top: `calc(100% + ${GAP_PX}px)`,
             transform: `translateX(calc(-50% + ${mainOffset}px))`,
-            pointerEvents: isHovered ? 'auto' : 'none' // 隐藏时允许穿透
+            pointerEvents: isPopoverOpen ? 'auto' : 'none' // 隐藏时可穿透
           }}
-          onMouseEnter={() => {
-            // 只有从触发层/桥接层来（或本就已展示）才能保持/恢复显示
-            if (!isHovered && !fromTrigger) return
-            cancelHide()
-            setIsHovered(true)
-          }}
-          onMouseLeave={handleAreaMouseLeave}
+          role="dialog"
+          aria-hidden={!isPopoverOpen}
         >
-          <div
+          <motion.div
+            initial={false}
+            animate={isPopoverOpen ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
             style={{
-              opacity: isHovered ? 1 : 0,
-              transform: isHovered ? 'translateY(0) scale(1)' : 'translateY(0.5rem) scale(0.95)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              pointerEvents: isHovered ? 'auto' : 'none'
+              // 即使动画中也严格按 open/close 控制事件穿透
+              pointerEvents: isPopoverOpen ? 'auto' : 'none'
             }}
           >
             <div className="bg-card/95 backdrop-blur-xl border border-border rounded-2xl p-6 shadow-2xl w-[640px]">
@@ -424,7 +362,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                             return (
                               <div
                                 key={index}
-                                className={`text-center leading-snug px-2 py-1 min-h-[2rem] flex items-center justify-center ${fontSize} ${color} transition-all duration-500`}
+                                className={`text-center leading-snug px-2 py-1 min-h-[2rem] flex items-center justify-center ${fontSize} ${color} transition-all duration-500 cursor-pointer hover:opacity-100`}
                                 style={{ opacity }}
                               >
                                 <div className="max-w-full break-words text-center">
@@ -508,7 +446,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                       <p className="text-muted-foreground text-xs">即将播放</p>
                     </div>
 
-                    {/* 音量控制 */}
+                    {/* 音量控制（与原逻辑一致） */}
                     <div className="relative">
                       <motion.button
                         className="volume-button w-6 h-6 rounded-full bg-transparent hover:bg-secondary flex items-center justify-center transition-colors"
@@ -615,11 +553,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
 
-      {/* 移动端全屏模态框 */}
+      {/* 移动端全屏模态框（保持原有） */}
       <DialogPrimitive.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogPrimitive.Portal>
           <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 dark:bg-black/70 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-300 ease-out" />
@@ -627,11 +565,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
             <DialogPrimitive.Title className="sr-only">音乐播放器</DialogPrimitive.Title>
 
             {/* 顶部拖动指示器 - 仅移动端显示 */}
-            <div className="sm:hidden flex justify-center pt-3 pb-2 sticky top-0 bg-white dark:bg-black z-10">
+            <div className="sm:hidden flex justify-center pt-3 pb-2 sticky top-0 bg-white dark:bg-background z-10">
               <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
             </div>
 
-            <DialogPrimitive.Close className="absolute right-4 top-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-black/80 backdrop-blur-sm">
+            <DialogPrimitive.Close className="absolute right-4 top-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-background/80 backdrop-blur-sm">
               <X className="h-5 w-5 sm:h-4 sm:w-4 text-foreground" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
@@ -682,7 +620,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                           return (
                             <div
                               key={index}
-                              className={`text-center leading-snug px-4 py-1.5 min-h-[2.25rem] flex items-center justify-center ${fontSize} ${color} transition-all duration-500`}
+                              className={`text-center leading-snug px-4 py-1.5 min-h-[2.25rem] flex items-center justify-center ${fontSize} ${color} transition-all duration-500 cursor-pointer hover:opacity-100`}
                               style={{ opacity }}
                             >
                               <div className="max-w-full break-words text-center">
