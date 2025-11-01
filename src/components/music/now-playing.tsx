@@ -277,7 +277,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
       {!isMobile && (
         <div
           ref={triggerRef}
-          className="absolute z-40 left-1/2"
+          className="absolute z-40 left-1/2 cursor-pointer"
           style={{
             width: `${TOOLTIP_WIDTH}px`,
             height: `${displayRowHeight || 24}px`,

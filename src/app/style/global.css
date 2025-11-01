@@ -37,9 +37,10 @@
     @apply transition-all duration-1000;
   }
 
-  body::before,
-  body::after {
-    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  * {
+    transition: background-color var(--transition-duration) ease,
+                border-color var(--transition-duration) ease,
+                color var(--transition-duration) ease;
   }
 
 /* 滚动条样式 */
@@ -124,9 +125,13 @@
     @apply text-foreground;
     position: relative;
     background-color: #ffffff;
+    background-image: url('/friends/assets/avatars/background_character_2.png');
+    background-size: auto 100%;
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     }
   
-  /* 亮色背景图层（含遮罩） */
   body::before {
     content: '';
     position: fixed;
@@ -134,49 +139,18 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
-      linear-gradient(rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)),
-      url('/friends/assets/avatars/background_character_2.png');
-    background-size: 100% 100%, auto 100%;
-    background-position: center, center top;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    opacity: 1;
-    z-index: -1;
-    pointer-events: none;
-    }
-  
-  /* 暗色背景图层（含遮罩） */
-  body::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-      linear-gradient(rgba(18, 18, 18, 0.90), rgba(18, 18, 18, 0.90)),
-      url('/friends/assets/avatars/background_character_dark.png');
-    background-size: 100% 100%, auto 100%;
-    background-position: center, center top;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    opacity: 0;
-    z-index: -1;
+    background-color: rgba(255, 255, 255, 0.88);
+    z-index: 0;
     pointer-events: none;
     }
   
   .dark body {
     background-color: #121212;
+    background-image: url('/friends/assets/avatars/background_character_dark.png');
     }
   
-  /* 暗色模式：隐藏亮色背景，显示暗色背景 */
   .dark body::before {
-    opacity: 0;
-    }
-  
-  .dark body::after {
-    opacity: 1;
+    background-color: rgba(18, 18, 18, 0.90);
     }
   
   body > * {
