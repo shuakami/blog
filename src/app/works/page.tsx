@@ -332,8 +332,8 @@ export default function WorksPage() {
               {/* 项目数据统计 + 按钮 */}
               {work.stats && work.stats.length > 0 && (
                 <div className="rounded-lg sm:rounded-xl bg-black/[0.02] dark:bg-white/[0.02] px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6">
-                  <div className="flex flex-col gap-4 sm:gap-5 md:gap-6">
-                    {/* 数据统计 */}
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-5 md:gap-6">
+                    {/* 左侧数据 */}
                     <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 sm:gap-y-4 md:gap-x-8 lg:gap-x-12">
                       {work.stats.map((stat, i) => (
                         <div key={i} className="space-y-0.5 sm:space-y-1 min-w-0">
@@ -347,8 +347,8 @@ export default function WorksPage() {
                       ))}
                     </div>
                     
-                    {/* 主要按钮 */}
-                    <div className="flex flex-col gap-2 w-full sm:w-auto sm:self-start md:self-auto">
+                    {/* 右侧主要按钮 */}
+                    <div className="flex flex-col gap-2 md:items-end md:flex-shrink-0 w-full sm:w-auto md:w-auto">
                       {work.website && (
                         <a
                           href={work.website}
