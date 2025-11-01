@@ -74,6 +74,51 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  // 立即读取并应用布局配置，避免闪烁
+                  const config = localStorage.getItem('appearance-config');
+                  if (config) {
+                    const { layoutMode } = JSON.parse(config);
+                    const path = window.location.pathname;
+                    
+                    // 音乐页面强制宽屏布局
+                    const shouldForceWide = path.startsWith('/music');
+                    const layout = shouldForceWide ? 'wide' : (layoutMode || 'default');
+                    
+                    // 立即应用布局类
+                    document.documentElement.classList.add('layout-' + layout);
+                  } else {
+                    // 默认布局
+                    document.documentElement.classList.add('layout-default');
+                  }
+                  
+                  // 立即读取 sidebar 状态并应用样式变量，避免 padding 闪烁
+                  const sidebarOpen = localStorage.getItem('sidebar-open');
+                  if (sidebarOpen === 'true' && window.innerWidth >= 768) {
+                    // 桌面端 sidebar 打开时，立即设置 padding
+                    document.documentElement.style.setProperty('--sidebar-padding', '216px');
+                  } else {
+                    document.documentElement.style.setProperty('--sidebar-padding', '24px');
+                  }
+                  
+                  // 标记 sidebar 未初始化，禁用 transition
+                  document.documentElement.classList.add('sidebar-initializing');
+                } catch (e) {
+                  console.error('Failed to apply layout:', e);
+                  document.documentElement.classList.add('layout-default');
+                  document.documentElement.style.setProperty('--sidebar-padding', '24px');
+                  document.documentElement.classList.add('sidebar-initializing');
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${notoSansSC.variable} font-sans antialiased`}
       >

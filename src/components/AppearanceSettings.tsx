@@ -39,21 +39,50 @@ export default function AppearanceSettings() {
   const shouldForceDefaultLayout = FORCE_DEFAULT_LAYOUT_PAGES.some(page => pathname.startsWith(page));
 
   useEffect(() => {
-    // 先隐藏内容防止布局闪烁
-    document.body.classList.add("appearance-loading");
-    
+    // 立即同步读取配置并应用，避免 SSR/客户端不一致
     const saved = localStorage.getItem("appearance-config");
+    let initialConfig: AppearanceConfig = {
+      backgroundStyle: "character",
+      layoutMode: "default",
+    };
+    
     if (saved) {
       try {
-        setConfig(JSON.parse(saved));
+        initialConfig = JSON.parse(saved);
+        setConfig(initialConfig);
       } catch (e) {
         console.error("Failed to parse appearance config:", e);
       }
     }
     
+    // 立即同步应用布局类，不等 React 重新渲染
+    const currentPath = window.location.pathname;
+    const shouldDisableBg = NO_BACKGROUND_PAGES.some(page => currentPath.startsWith(page));
+    const shouldForceLayout = FORCE_DEFAULT_LAYOUT_PAGES.some(page => currentPath.startsWith(page));
+    
+    // 先隐藏内容
+    document.body.classList.add("appearance-loading");
+    
+    // 应用背景
+    document.body.classList.remove("background-character", "background-luoxiaohei");
+    if (!shouldDisableBg && initialConfig.backgroundStyle !== "none") {
+      if (initialConfig.backgroundStyle === "luoxiaohei") {
+        document.body.classList.add("background-luoxiaohei");
+      } else if (initialConfig.backgroundStyle === "character") {
+        document.body.classList.add("background-character");
+      }
+    }
+    
+    // 应用布局（同时应用到 html 和 body，确保与 inline script 一致）
+    document.documentElement.classList.remove("layout-default", "layout-wide", "layout-compact");
+    document.body.classList.remove("layout-default", "layout-wide", "layout-compact");
+    const layoutToApply = shouldForceLayout ? "wide" : initialConfig.layoutMode;
+    document.documentElement.classList.add(`layout-${layoutToApply}`);
+    document.body.classList.add(`layout-${layoutToApply}`);
+    
     setMounted(true);
     
-    // 延迟移除 loading 状态，确保布局已应用
+    // 使用两次 RAF 确保布局已完全应用并渲染
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         document.body.classList.remove("appearance-loading");

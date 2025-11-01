@@ -121,6 +121,10 @@
   * {
     @apply border-border;
     }
+  :root {
+    --sidebar-padding: 24px;
+    }
+  
   body {
     @apply text-foreground;
     position: relative;
@@ -134,6 +138,12 @@
   
   .dark body {
     background-color: #121212;
+    }
+  
+  /* Sidebar 初始化期间禁用 padding transition */
+  html.sidebar-initializing main,
+  html.sidebar-initializing footer {
+    transition: none !important;
     }
   
   /* 防止布局闪烁 - 加载时隐藏内容 */
@@ -233,36 +243,42 @@
     transition: max-width 0.5s cubic-bezier(0.32, 0.72, 0, 1);
     }
   
-  /* 默认布局（服务端渲染使用） */
+  /* 默认布局（服务端渲染使用） - 使用 !important 覆盖 Tailwind 类 */
   main > div {
-    max-width: 1280px;
+    max-width: 1280px !important;
     }
   
+  html.layout-compact main > div,
   body.layout-compact main > div {
     max-width: 960px !important;
     }
   
+  html.layout-default main > div,
   body.layout-default main > div {
     max-width: 1280px !important;
     }
   
+  html.layout-wide main > div,
   body.layout-wide main > div {
     max-width: 1536px !important;
     }
   
   /* 文章内容宽度 */
   .article-content-width {
-    max-width: 48rem;
+    max-width: 48rem !important;
     }
   
+  html.layout-compact .article-content-width,
   body.layout-compact .article-content-width {
     max-width: 42rem !important;
     }
   
+  html.layout-default .article-content-width,
   body.layout-default .article-content-width {
     max-width: 48rem !important;
     }
   
+  html.layout-wide .article-content-width,
   body.layout-wide .article-content-width {
     max-width: 56rem !important;
     }

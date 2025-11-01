@@ -21,6 +21,9 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
   const pathname = usePathname()
   const sidebarWidth = 192
   const gutter = 24
+  
+  // 某些页面可能不需要显示侧边栏
+  const isAuthPage = pathname === "/login" || pathname === "/setup"
 
   // 初始化：从 localStorage 读取侧边栏状态
   useEffect(() => {
@@ -34,9 +37,26 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
         setSidebarOpen(savedState === 'true')
       }
     }
+    
     setIsInitialized(true)
+    
+    // 初始化完成后，移除 sidebar-initializing 类，启用 transition
+    requestAnimationFrame(() => {
+      document.documentElement.classList.remove('sidebar-initializing')
+    })
   }, [])
 
+  // 更新 CSS 变量以控制 padding
+  useEffect(() => {
+    if (!isInitialized) return
+    
+    const paddingValue = !isMobile && !isAuthPage && isSidebarOpen 
+      ? `${sidebarWidth + gutter}px` 
+      : `${gutter}px`
+    
+    document.documentElement.style.setProperty('--sidebar-padding', paddingValue)
+  }, [isSidebarOpen, isMobile, isInitialized])
+  
   // 检测移动端
   useEffect(() => {
     if (!isInitialized) return
@@ -74,18 +94,6 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
     }
   }
 
-  // 某些页面可能不需要显示侧边栏
-  const isAuthPage = pathname === "/login" || pathname === "/setup"
-
-  // 计算 main 的 padding-left
-  const getMainPaddingLeft = () => {
-    if (isAuthPage) return 0
-    // 移动端：无 padding（侧边栏是覆盖式的）
-    if (isMobile) return 0
-    // 桌面端：根据侧边栏状态调整
-    return isSidebarOpen ? sidebarWidth + gutter : gutter
-  }
-
   return (
     <div className="relative min-h-dvh w-full text-foreground">
       <Header
@@ -110,12 +118,12 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
           isAuthPage ? "" : "pt-16",
           // 移动端：左右 padding 更小
           isAuthPage ? "" : "px-4 md:pr-6",
-          // 桌面端：左侧 padding 根据侧边栏状态变化
+          // 桌面端：使用 CSS 变量控制 padding-left
           !isAuthPage && !isMobile && "md:transition-[padding-left] md:duration-300 md:ease-out",
         )}
         style={{ 
           paddingLeft: !isMobile && !isAuthPage 
-            ? `${getMainPaddingLeft()}px` 
+            ? 'var(--sidebar-padding)' 
             : undefined 
         }}
       >
@@ -130,7 +138,7 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
           )}
           style={{ 
             paddingLeft: !isMobile && !isAuthPage 
-              ? `${getMainPaddingLeft()}px` 
+              ? 'var(--sidebar-padding)' 
               : undefined 
           }}
         >
