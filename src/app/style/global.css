@@ -42,6 +42,11 @@
                 border-color var(--transition-duration) ease,
                 color var(--transition-duration) ease;
   }
+  
+  body::before,
+  body::after {
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
 
 /* 滚动条样式 */
 ::-webkit-scrollbar {
@@ -146,7 +151,6 @@
     opacity: 1;
     z-index: -1;
     pointer-events: none;
-    transition: opacity 0.6s ease-in-out;
     }
   
   /* 暗色背景图层（含遮罩） */
@@ -167,7 +171,6 @@
     opacity: 0;
     z-index: -1;
     pointer-events: none;
-    transition: opacity 0.6s ease-in-out;
     }
   
   .dark body {
