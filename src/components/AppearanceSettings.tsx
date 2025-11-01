@@ -60,9 +60,6 @@ export default function AppearanceSettings() {
     const shouldDisableBg = NO_BACKGROUND_PAGES.some(page => currentPath.startsWith(page));
     const shouldForceLayout = FORCE_DEFAULT_LAYOUT_PAGES.some(page => currentPath.startsWith(page));
     
-    // 先隐藏内容
-    document.body.classList.add("appearance-loading");
-    
     // 应用背景
     document.body.classList.remove("background-character", "background-luoxiaohei");
     if (!shouldDisableBg && initialConfig.backgroundStyle !== "none") {
@@ -82,7 +79,7 @@ export default function AppearanceSettings() {
     
     setMounted(true);
     
-    // 使用两次 RAF 确保布局已完全应用并渲染
+    // 使用两次 RAF 确保布局已完全应用并渲染，然后移除 loading 状态
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         document.body.classList.remove("appearance-loading");
