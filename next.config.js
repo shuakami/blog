@@ -3,11 +3,11 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
+        protocol: 'https',
         hostname: '**',
       },
       {
-        protocol: 'https',
+        protocol: 'http',
         hostname: '**',
       },
     ],
@@ -17,20 +17,23 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    minimumCacheTTL: 60,
+    // 允许本地/私有IP（开发环境使用代理时需要）
+    dangerouslyAllowLocalIP: true,
   },
 
   // 优化静态生成
   output: 'standalone',
 
+  // 类型路由
+  typedRoutes: true,
+
   // 实验性功能
   experimental: {
     scrollRestoration: true,
-    // 启用新的缓存系统
-    typedRoutes: true,
     serverActions: {
       allowedOrigins: ['localhost:3000', 'luoxiaohei.cn'],
     },
-    appDir: true,
   },
 
   // 类型检查
@@ -53,11 +56,6 @@ const nextConfig = {
         permanent: true,
       },
     ];
-  },
-
-  // 忽略ESLint错误
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 };
 
