@@ -33,8 +33,6 @@ export async function GET(request: NextRequest) {
 
     // 请求播放地址 API
     const url = `${MUSIC_CONFIG.wyapiBaseUrl}/api/music/url`
-    console.log('[播放地址 API] 请求 URL:', url)
-    console.log('[播放地址 API] 请求参数:', { id, level })
     
     const response = await fetch(url, {
       method: 'POST',
@@ -44,8 +42,6 @@ export async function GET(request: NextRequest) {
       body: JSON.stringify({ id, level }),
     })
 
-    console.log('[播放地址 API] 响应状态:', response.status)
-
     if (!response.ok) {
       const errorText = await response.text()
       console.error('[播放地址 API] 错误响应:', errorText)
@@ -53,7 +49,6 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json()
-    console.log('[播放地址 API] 响应数据:', data)
 
     if (data.code !== 200 || !data.data?.[0]) {
       console.error('[播放地址 API] 业务错误:', data)

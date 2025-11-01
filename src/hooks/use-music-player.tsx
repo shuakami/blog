@@ -169,7 +169,6 @@ const useMusicPlayerStore = create<MusicPlayerState>()(
         try {
           // 根据当前播放列表长度计算offset，确保不重复加载
           const currentOffset = playlist.length
-          console.log(`[UI懒加载] 当前播放列表长度: ${currentOffset}, 请求offset: ${currentOffset}`)
           
           const newSongs = await getPlaylistSongs(20, currentOffset)
           if (newSongs.length > 0) {
@@ -178,17 +177,13 @@ const useMusicPlayerStore = create<MusicPlayerState>()(
             const uniqueNewSongs = newSongs.filter(song => !existingIds.has(song.id))
             
             if (uniqueNewSongs.length > 0) {
-              console.log(`[UI懒加载] 成功加载 ${uniqueNewSongs.length} 首新歌曲`)
               set({ 
                 playlist: [...playlist, ...uniqueNewSongs], 
                 offset: Math.max(get().offset, currentOffset + newSongs.length)
               })
               return true
-            } else {
-              console.log(`[UI懒加载] 没有新歌曲（全部重复）`)
             }
           } else {
-            console.log(`[UI懒加载] API返回空列表，设置hasMore=false`)
             set({ hasMore: false })
           }
         } catch (e) {
@@ -223,7 +218,7 @@ const useMusicPlayerStore = create<MusicPlayerState>()(
         if (!playlist.length) return
         if (isPlaying) return set({ isPlaying: false, pendingPlay: false })
         const cur = playlist[currentSongIndex]
-        set({ isPlaying: true, pendingPlay: !cur?.songUrl })
+        set({ isPlaying: true, pendingPlay: !cur?.url })
       },
 
       initializePlayer: async () => {
@@ -252,7 +247,7 @@ const useMusicPlayerStore = create<MusicPlayerState>()(
         if (!playlist.length) return
         const cur = playlist[currentSongIndex]
         const next = [...playlist]
-        next[currentSongIndex] = { ...cur, songUrl: undefined as string | undefined }
+        next[currentSongIndex] = { ...cur, url: undefined as string | undefined }
         set({ playlist: next })
       },
     }),
@@ -446,7 +441,7 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
   }, [initializePlayer])
 
   /* ---- 歌词解析 ---- */
-  const parseLyrics = useCallback((lyrics: { original: string; translated: string }) => {
+  const parseLyrics = useCallback((lyrics: { original?: string; translated?: string }) => {
     const original = lyrics?.original || ""
     const lineRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/
     const parsed: LyricLine[] = original.split("\n").map((line) => {
@@ -467,7 +462,7 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
     [playlist, currentSongIndex]
   )
   const currentSongId = currentSong?.id
-  const hasSongUrl = !!currentSong?.songUrl
+  const hasSongUrl = !!currentSong?.url
 
   useEffect(() => {
     const song = currentSong
@@ -486,10 +481,10 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
       if (inflight.current.has(currentSongId)) return
       inflight.current.add(currentSongId)
       try {
-        const [urlData, lyricData] = await Promise.all([getMusicUrl(currentSongId), getLyric(currentSongId)])
+        const [urlData, lyricData] = await Promise.all([getMusicUrl(Number(currentSongId)), getLyric(Number(currentSongId))])
         const lyrics = { original: lyricData?.lrc ?? "", translated: lyricData?.tlyric ?? "" }
         useMusicPlayerStore.setState((prev) => ({
-          playlist: prev.playlist.map((s) => (s.id === currentSongId ? { ...s, songUrl: urlData?.url, lyrics } : s)),
+          playlist: prev.playlist.map((s) => (s.id === currentSongId ? { ...s, url: urlData?.url, lyrics } : s)),
         }))
       } catch (e) {
         console.error("[FETCH] song details failed:", e)
@@ -529,13 +524,13 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
     }
 
     const song = currentSong
-    if (song?.songUrl) {
-      if (audio.src !== song.songUrl) {
+    if (song?.url) {
+      if (audio.src !== song.url) {
         // 关键顺序：任何时候设置新 src 之前，确保 crossOrigin 已存在
         if (!audio.crossOrigin) audio.crossOrigin = "anonymous" // 必须先于 src 设置。
         audio.removeEventListener("canplay", onCanPlay)
         audio.preload = "auto"
-        audio.src = song.songUrl
+        audio.src = song.url
         audio.addEventListener("canplay", onCanPlay, { once: true })
         audio.load()
       } else {

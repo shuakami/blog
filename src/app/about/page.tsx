@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import ContributionGrid from '@/components/ContributionGrid';
 import { BadgeCheck } from 'lucide-react';
 
@@ -133,8 +134,8 @@ export default async function AboutPage() {
               </span>
             </div>
 
-            {/* 技能标签 */}
-            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+            {/* 技能标签 - 仅桌面端显示 */}
+            <div className="hidden md:flex flex-wrap gap-2 md:justify-start">
               {['TypeScript', 'React', 'Next.js', 'Go', 'Python', 'Rust', 'Tailwind CSS'].map((skill) => (
                 <span
                   key={skill}
@@ -317,20 +318,18 @@ export default async function AboutPage() {
                 
                 {/* 右侧按钮 */}
                 <div className="flex flex-col gap-2 md:items-end md:flex-shrink-0 w-full md:w-auto">
-                  <a
-                    href="mailto:shuakami@sdjz.wiki"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href="/pricing"
                     className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:bg-black/80 dark:hover:bg-white/80 transition-colors whitespace-nowrap w-full md:w-auto"
                   >
                     找我做项目？
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
 
             <p className="text-base text-black/60 dark:text-white/60 leading-relaxed">
-              我在 GitHub 上维护了多个开源项目，涵盖 AI Agent、自动化工具、API 服务、聊天机器人等领域。
+              我在 GitHub 上维护了多个开源项目，涵盖 企业官网、AI Agent、自动化工具、API 服务、聊天机器人等领域。
               项目被广泛使用，获得了社区的认可和支持。同时也参与了一些商业项目的开发，
               积累了丰富的实战经验。
             </p>

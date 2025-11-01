@@ -32,8 +32,6 @@ export async function GET(request: NextRequest) {
 
     // 请求歌词 API
     const url = `${MUSIC_CONFIG.wyapiBaseUrl}/api/music/lyric`
-    console.log('[歌词 API] 请求 URL:', url)
-    console.log('[歌词 API] 请求参数:', { id })
     
     const response = await fetch(url, {
       method: 'POST',
@@ -43,8 +41,6 @@ export async function GET(request: NextRequest) {
       body: JSON.stringify({ id }),
     })
 
-    console.log('[歌词 API] 响应状态:', response.status)
-
     if (!response.ok) {
       const errorText = await response.text()
       console.error('[歌词 API] 错误响应:', errorText)
@@ -52,7 +48,6 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json()
-    console.log('[歌词 API] 响应数据:', data)
 
     if (data.code !== 200) {
       console.error('[歌词 API] 业务错误:', data)

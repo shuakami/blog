@@ -67,7 +67,6 @@ export default function CialloParticleBanner() {
         });
       }
       
-      console.log(`Created ${particles.length} particles`);
       return particles;
     };
 
