@@ -145,12 +145,12 @@
     }
   
   .dark body {
-    background-color: #000000;
+    background-color: #121212;
     background-image: url('/friends/assets/avatars/background_character_dark.png');
     }
   
   .dark body::before {
-    background-color: rgba(0, 0, 0, 0.92);
+    background-color: rgba(18, 18, 18, 0.90);
     }
   
   body > * {
