@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     // 4. 同步处理内容更新
     try {
       const { processIncrementalUpdate } = await import('@/utils/obsidian');
-      const { revalidateTag } = await import('next/cache');
+      const { revalidateTag, revalidatePath } = await import('next/cache');
       
       console.log('[Gitee Webhook] Starting content processing');
       
@@ -58,11 +58,24 @@ export async function POST(req: NextRequest) {
         removed: commit.removed || [],
       });
       
-      // 触发 revalidate
-      revalidateTag('obsidian', {});
-      revalidateTag('posts', {});
-      revalidateTag('obsidian-index', {});
+      // 触发缓存重新验证
+      console.log('[Gitee Webhook] Revalidating cache...');
       
+      // 重新验证标签
+      revalidateTag('obsidian');
+      revalidateTag('posts');
+      revalidateTag('obsidian-index');
+      
+      // 重新验证路径（关键！）
+      revalidatePath('/', 'page');           // 首页
+      revalidatePath('/archive', 'page');    // 归档页
+      
+      // 重新验证所有文章页面
+      for (const post of index.posts) {
+        revalidatePath(`/post/${post.slug}`, 'page');
+      }
+      
+      console.log('[Gitee Webhook] Cache revalidation completed');
       console.log('[Gitee Webhook] Content processing completed, updated', index.posts.length, 'posts');
     } catch (error: any) {
       console.error('[Gitee Webhook] Content processing error:', error.message);
