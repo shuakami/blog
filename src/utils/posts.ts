@@ -108,7 +108,10 @@ export const getPostBySlug = cache(async <T extends BlogPost | ArchivePost>(
   slug: string,
   _path?: string // 保留参数兼容性，但不使用
 ): Promise<T | null> => {
-  const obsidianPost = await getObsidianPost(slug);
+  // URL 解码 slug（处理中文等特殊字符）
+  const decodedSlug = decodeURIComponent(slug);
+  
+  const obsidianPost = await getObsidianPost(decodedSlug);
   if (obsidianPost) {
     return obsidianPost as T;
   }
