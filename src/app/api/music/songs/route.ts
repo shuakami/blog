@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 // 硬编码音乐配置
 const MUSIC_CONFIG = {
   playlistId: '8308939217',
@@ -64,7 +67,5 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// 设置 ISR：每小时重新生成
-export const revalidate = 3600
 
 
