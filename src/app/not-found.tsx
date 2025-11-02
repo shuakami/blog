@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowLeft, Home } from 'lucide-react';
 
@@ -52,20 +54,30 @@ export default function NotFound() {
             你可能在寻找：
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2">
-            {[
-              { href: '/archive', label: '文章归档' },
-              { href: '/works', label: '作品展示' },
-              { href: '/music', label: '音乐播放器' },
-              { href: '/about', label: '关于我' },
-            ].map((link) => (
-              <Link
-                key={link.href}
-                href={link.href as any}
-                className="px-4 py-2 text-sm rounded-full bg-black/[0.04] dark:bg-white/[0.04] text-black/60 dark:text-white/60 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white transition-all"
-              >
-                {link.label}
-              </Link>
-            ))}
+            <Link
+              href="/archive"
+              className="px-4 py-2 text-sm rounded-full bg-black/[0.04] dark:bg-white/[0.04] text-black/60 dark:text-white/60 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white transition-all"
+            >
+              文章归档
+            </Link>
+            <Link
+              href="/works"
+              className="px-4 py-2 text-sm rounded-full bg-black/[0.04] dark:bg-white/[0.04] text-black/60 dark:text-white/60 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white transition-all"
+            >
+              作品展示
+            </Link>
+            <Link
+              href="/music"
+              className="px-4 py-2 text-sm rounded-full bg-black/[0.04] dark:bg-white/[0.04] text-black/60 dark:text-white/60 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white transition-all"
+            >
+              音乐播放器
+            </Link>
+            <Link
+              href="/about"
+              className="px-4 py-2 text-sm rounded-full bg-black/[0.04] dark:bg-white/[0.04] text-black/60 dark:text-white/60 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white transition-all"
+            >
+              关于我
+            </Link>
           </div>
         </div>
       </div>
