@@ -5,7 +5,7 @@ import { processIncrementalUpdate } from '@/utils/obsidian';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300; // 5 minutes
+export const maxDuration = 60; // Hobby plan limit: 60 seconds
 
 interface ProcessRequest {
   added: string[];
