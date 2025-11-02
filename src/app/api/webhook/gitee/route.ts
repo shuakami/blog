@@ -43,33 +43,32 @@ export async function POST(req: NextRequest) {
     // 3. 立即返回响应（极速）
     const responseTimestamp = new Date().toISOString();
     
-    // 4. 异步处理内容更新（不阻塞）
-    // 获取当前域名
-    const protocol = req.headers.get('x-forwarded-proto') || 'https';
-    const host = req.headers.get('host') || req.headers.get('x-forwarded-host');
-    const baseUrl = host ? `${protocol}://${host}` : 'http://localhost:3000';
+    console.log('[Gitee Webhook] Webhook received, async processing triggered');
     
-    console.log('[Gitee Webhook] Triggering async processing to:', `${baseUrl}/api/process-obsidian`);
-
-    // 触发异步处理（包括内容更新和图片处理）
-    fetch(`${baseUrl}/api/process-obsidian`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'User-Agent': 'Gitee-Webhook-Internal'
-      },
-      body: JSON.stringify({
+    // 4. 同步处理内容更新（在函数内完成，不使用异步调用）
+    // 注意：由于 Vercel Hobby 限制 60 秒，直接在这里处理
+    try {
+      const { processIncrementalUpdate } = await import('@/utils/obsidian');
+      const { revalidateTag } = await import('next/cache');
+      
+      console.log('[Gitee Webhook] Starting content processing');
+      
+      const index = await processIncrementalUpdate({
         added: commit.added || [],
         modified: commit.modified || [],
         removed: commit.removed || [],
-      }),
-    }).then((res) => {
-      console.log('[Gitee Webhook] Async processing response:', res.status);
-    }).catch((err) => {
-      console.error('[Gitee Webhook] Failed to trigger async processing:', err);
-    });
-
-    console.log('[Gitee Webhook] Webhook received, async processing triggered');
+      });
+      
+      // 触发 revalidate
+      revalidateTag('obsidian', {});
+      revalidateTag('posts', {});
+      revalidateTag('obsidian-index', {});
+      
+      console.log('[Gitee Webhook] Content processing completed, updated', index.posts.length, 'posts');
+    } catch (error: any) {
+      console.error('[Gitee Webhook] Content processing error:', error.message);
+      // 不影响 webhook 响应
+    }
 
     // 5. 立即返回成功响应
     return NextResponse.json({
