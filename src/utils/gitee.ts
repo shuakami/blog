@@ -16,7 +16,9 @@ const giteeAxios = axios.create({
 // 获取文件内容（文本文件）
 export async function getFileContent(path: string): Promise<string> {
   try {
-    const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodeURIComponent(path)}`;
+    // 编码路径（保留斜杠，只编码特殊字符和中文）
+    const encodedPath = path.split('/').map(part => encodeURIComponent(part)).join('/');
+    const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
     const res = await giteeAxios.get(url, {
       params: { 
         access_token: GITEE_PAT, 
@@ -39,7 +41,9 @@ export async function getFileContent(path: string): Promise<string> {
 // 获取图片的 Buffer（用于上传到 OSS）
 export async function getImageBuffer(path: string): Promise<Buffer> {
   try {
-    const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodeURIComponent(path)}`;
+    // 编码路径（保留斜杠，只编码特殊字符和中文）
+    const encodedPath = path.split('/').map(part => encodeURIComponent(part)).join('/');
+    const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
     const res = await giteeAxios.get(url, {
       params: { 
         access_token: GITEE_PAT, 
