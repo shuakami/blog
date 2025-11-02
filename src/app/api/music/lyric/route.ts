@@ -76,6 +76,5 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// 移除 revalidate，因为使用 dynamic = 'force-dynamic'
 
 
