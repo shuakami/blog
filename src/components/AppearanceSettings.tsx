@@ -68,9 +68,9 @@ export default function AppearanceSettings() {
     }
     
     // 应用布局模式（音乐页面强制使用宽屏布局）
-    document.body.classList.remove("layout-default", "layout-wide", "layout-compact");
+    document.documentElement.classList.remove("layout-default", "layout-wide", "layout-compact");
     const layoutToApply = shouldForceDefaultLayout ? "wide" : config.layoutMode;
-    document.body.classList.add(`layout-${layoutToApply}`);
+    document.documentElement.classList.add(`layout-${layoutToApply}`);
   }, [config, mounted, shouldDisableBackground, shouldForceDefaultLayout]);
 
   useEffect(() => {

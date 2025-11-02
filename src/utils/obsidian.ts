@@ -126,6 +126,10 @@ export async function processIncrementalUpdate(
       const category = extractCategory(path);
       const slug = pathToSlug(path);
       
+      // 提取标题：优先使用 frontmatter，否则从文件名提取
+      const fileName = path.split('/').pop()?.replace(/\.md$/, '') || '未命名';
+      const title = parsed.data.title || fileName;
+      
       // 提前替换图片链接为 OSS URL（预知，不阻塞）
       const { replaceImagesWithOssUrls } = require('./image-replacer');
       const { updatedMarkdown } = await replaceImagesWithOssUrls(parsed.content);
@@ -146,7 +150,7 @@ export async function processIncrementalUpdate(
       // 构建文章对象
       const post: BlogPost = {
         slug,
-        title: parsed.data.title || '未命名',
+        title,
         date: parsed.data.date
           ? new Date(parsed.data.date).toISOString()
           : new Date().toISOString(),
