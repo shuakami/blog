@@ -45,8 +45,7 @@ export async function POST(req: NextRequest) {
     
     console.log('[Gitee Webhook] Webhook received, async processing triggered');
     
-    // 4. 同步处理内容更新（在函数内完成，不使用异步调用）
-    // 注意：由于 Vercel Hobby 限制 60 秒，直接在这里处理
+    // 4. 同步处理内容更新
     try {
       const { processIncrementalUpdate } = await import('@/utils/obsidian');
       const { revalidateTag } = await import('next/cache');
