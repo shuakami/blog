@@ -1,7 +1,8 @@
 // src/app/api/revalidate/route.ts
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
-import { getPostBySlug, getContentIndex } from '@/utils/posts';
+import { getPostBySlug, getBlogPosts } from '@/utils/posts';
+import { getObsidianIndex } from '@/lib/redis';
 
 // 配置
 const REVALIDATE_TOKEN = process.env.REVALIDATE_TOKEN;
@@ -27,10 +28,12 @@ export async function POST(req: NextRequest) {
     if (type === 'all') {
       console.log('[Revalidate API] Revalidating all content');
       // 重新验证所有内容
-      revalidateTag('posts-index');
-      revalidateTag('posts');
+      revalidateTag('posts-index', {});
+      revalidateTag('posts', {});
+      revalidateTag('obsidian', {});
+      revalidateTag('obsidian-index', {});
       revalidatePath('/');
-      await getContentIndex('content', 1);
+      revalidatePath('/archive');
       console.log('[Revalidate API] Successfully revalidated all content');
 
       return NextResponse.json({ 
@@ -42,30 +45,42 @@ export async function POST(req: NextRequest) {
 
     if (type === 'posts' && slugs.length > 0) {
       console.log(`[Revalidate API] Revalidating posts: ${slugs.join(', ')}`);
-      // 重新验证特定文章
-      revalidateTag('posts-index'); // 先重新验证索引
-      await getContentIndex('content', 1); // 强制更新索引
-
-      // 检查是否包含待重新验证的文章
-      const { posts } = await getContentIndex('content');
-      const missingSlugs = slugs.filter(slug => !posts.some(p => p.slug === slug));
+      
+      // 检查文章是否存在
+      const index = await getObsidianIndex();
+      const missingSlugs = slugs.filter(slug => 
+        !index?.posts.some(p => p.slug === slug)
+      );
+      
       if (missingSlugs.length > 0) {
-        console.warn(`[Revalidate API] Slugs not found in index.json: ${missingSlugs.join(', ')}`);
-        return NextResponse.json(
-          { message: `Slugs not found: ${missingSlugs.join(', ')}` },
-          { status: 400 }
-        );
+        console.warn(`[Revalidate API] Slugs not found: ${missingSlugs.join(', ')}`);
+      }
+
+      // 只处理存在的 slugs
+      const validSlugs = slugs.filter(slug => 
+        index?.posts.some(p => p.slug === slug)
+      );
+
+      if (validSlugs.length === 0) {
+        console.warn('[Revalidate API] No valid slugs to revalidate');
+        return NextResponse.json({ 
+          revalidated: false, 
+          type: 'posts',
+          message: 'No valid slugs found',
+          missingSlugs,
+          timestamp: new Date().toISOString()
+        }, { status: 400 });
       }
 
       const results = await Promise.all(
-        slugs.map(async (slug) => {
+        validSlugs.map(async (slug) => {
           const tag = `post-${slug}`;
           console.log(`[Revalidate API] Revalidating tag: ${tag}`);
-          revalidateTag(tag);
+          revalidateTag(tag, {});
           const path = `/post/${slug}`;
           console.log(`[Revalidate API] Revalidating path: ${path}`);
           revalidatePath(path);
-          const post = await getPostBySlug(slug, 'content');
+          const post = await getPostBySlug(slug);
           console.log(`[Revalidate API] Post "${slug}" fetched: ${!!post}`);
           return { slug, success: !!post };
         })
@@ -77,6 +92,7 @@ export async function POST(req: NextRequest) {
         revalidated: true, 
         type: 'posts',
         results,
+        ...(missingSlugs.length > 0 && { missingSlugs }),
         timestamp: new Date().toISOString()
       });
     }
@@ -90,8 +106,13 @@ export async function POST(req: NextRequest) {
       if (tags.includes('index')) {
         console.log('[Revalidate API] Revalidating index path and tag');
         revalidatePath('/');
-        await getContentIndex('content', 1);
+        revalidateTag('obsidian-index', {});
         updates.push('index');
+      }
+
+      if (tags.includes('obsidian')) {
+        revalidateTag('obsidian', {});
+        updates.push('obsidian');
       }
 
       console.log('[Revalidate API] Successfully revalidated specified tags');

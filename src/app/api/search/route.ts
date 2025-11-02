@@ -1,25 +1,5 @@
 import { NextResponse } from 'next/server';
-import axios from 'axios';
-import { HttpsProxyAgent } from 'https-proxy-agent';
-import matter from 'gray-matter';
-import { cache } from 'react';
-
-const GITHUB_API_URL = 'https://api.github.com/repos/shuakami/blog-content';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-
-const axiosInstance = axios.create({
-  baseURL: GITHUB_API_URL,
-  timeout: 15000,
-  headers: {
-    'Accept': 'application/vnd.github.v3.raw',
-    'Authorization': `Bearer ${GITHUB_TOKEN}`,
-  }
-});
-
-if (process.env.NODE_ENV === 'development') {
-  axiosInstance.defaults.proxy = false;
-  axiosInstance.defaults.httpsAgent = new HttpsProxyAgent('http://127.0.0.1:7890');
-}
+import { getObsidianIndex } from '@/lib/redis';
 
 // 搜索索引缓存
 let searchIndexCache: {
@@ -27,37 +7,44 @@ let searchIndexCache: {
   timestamp: number;
 } | null = null;
 
-const CACHE_DURATION = 10 * 60 * 1000; // 10分钟缓存（因为现在很快了）
+const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存（Redis 很快）
 
-// 构建搜索索引（轻量级，只用index.json的数据）
+// 构建搜索索引（从 Redis 获取 Obsidian 数据）
 async function buildSearchIndex() {
   // 检查缓存
   if (searchIndexCache && Date.now() - searchIndexCache.timestamp < CACHE_DURATION) {
-    console.log('✅ 使用缓存的搜索索引');
+    console.log('[Search] 使用缓存的搜索索引');
     return searchIndexCache.data;
   }
 
-  console.log('📥 开始构建搜索索引...');
+  console.log('[Search] 开始构建搜索索引...');
   const startTime = Date.now();
 
   try {
-    const { data: index } = await axiosInstance.get('/contents/content/index.json');
+    const obsidianIndex = await getObsidianIndex();
     
-    // 只使用index.json中的数据，不额外请求文章内容
-    const indexData = index.posts.map((post: any) => {
+    if (!obsidianIndex || !obsidianIndex.posts) {
+      console.warn('[Search] No Obsidian index found');
+      return [];
+    }
+    
+    // 处理 Obsidian 数据
+    const indexData = obsidianIndex.posts.map((post: any) => {
       return {
         slug: post.slug,
         title: (post.title || '').toLowerCase(),
         excerpt: (post.excerpt || '').toLowerCase(),
-        tags: (post.tags || []).map((t: string) => t.toLowerCase()),
-        content: (post.excerpt || '').toLowerCase(), // 用excerpt作为内容预览
+        category: (post.category || '').toLowerCase(),
+        tags: [],
+        content: (post.excerpt || '').toLowerCase(),
         date: post.date,
         // 原始数据用于返回
         original: {
           title: post.title || 'Untitled',
           excerpt: post.excerpt || '',
-          tags: post.tags || [],
-          coverImage: post.coverImage || null,
+          category: post.category || '未分类',
+          tags: [],
+          coverImage: null,
         }
       };
     }).filter(Boolean);
@@ -68,15 +55,15 @@ async function buildSearchIndex() {
       timestamp: Date.now()
     };
 
-    console.log(`✅ 搜索索引构建完成，耗时 ${Date.now() - startTime}ms，索引了 ${indexData.length} 篇文章`);
+    console.log(`[Search] 搜索索引构建完成，耗时 ${Date.now() - startTime}ms，索引了 ${indexData.length} 篇文章`);
     return indexData;
   } catch (error) {
-    console.error('❌ 构建搜索索引失败:', error);
+    console.error('[Search] 构建搜索索引失败:', error);
     throw error;
   }
 }
 
-// 计算字符串相似度（Levenshtein距离的简化版本）
+// 计算字符串相似度
 function similarity(str1: string, str2: string): number {
   const longer = str1.length > str2.length ? str1 : str2;
   const shorter = str1.length > str2.length ? str2 : str1;
@@ -166,26 +153,25 @@ function searchPosts(index: any[], query: string) {
       }
     }
 
-    // 2. 标签匹配（高权重）
-    post.tags.forEach((tag: string) => {
-      if (tag === queryLower) {
-        score += 50;
-      } else if (tag.includes(queryLower)) {
-        score += 35;
-      } else if (queryLower.includes(tag) && tag.length > 2) {
-        score += 30;
-      } else {
-        queryWords.forEach(word => {
-          if (tag.includes(word) && word.length > 1) {
-            score += 20;
-          }
-          const sim = similarity(tag, word);
-          if (sim > 0.7) {
-            score += sim * 15;
-          }
-        });
-      }
-    });
+    // 2. 分类匹配（高权重）
+    const category = post.category || '';
+    if (category === queryLower) {
+      score += 50;
+    } else if (category.includes(queryLower)) {
+      score += 35;
+    } else if (queryLower.includes(category) && category.length > 2) {
+      score += 30;
+    } else {
+      queryWords.forEach(word => {
+        if (category.includes(word) && word.length > 1) {
+          score += 20;
+        }
+        const sim = similarity(category, word);
+        if (sim > 0.7) {
+          score += sim * 15;
+        }
+      });
+    }
 
     // 3. 摘要匹配（中权重）
     if (post.excerpt.includes(queryLower)) {

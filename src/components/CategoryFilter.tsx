@@ -15,7 +15,8 @@ export function CategoryFilter({ posts, onFilterChange }: CategoryFilterProps) {
     const counts: Record<string, number> = {}
     
     posts.forEach(post => {
-      const category = post.tags?.[0]
+      // 优先使用 category，回退到 tags[0]（兼容旧数据）
+      const category = post.category || post.tags?.[0]
       if (category) {
         counts[category] = (counts[category] || 0) + 1
       }

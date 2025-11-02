@@ -35,4 +35,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
+# old content (deprecated, now using Obsidian/Redis)
+/blog-content-main

@@ -23,11 +23,15 @@ interface BaseContent {
 // 博客文章类型
 export interface BlogPost extends BaseContent {
   tags?: string[];
+  category?: string;       // 新增：从路径提取的分类
+  source?: 'github' | 'obsidian';  // 新增：来源标识
 }
 
 // 归档文章类型
 export interface ArchivePost extends BaseContent {
   category?: string;
+  tags?: string[];
+  source?: 'github' | 'obsidian';
 }
 
 // 索引类型

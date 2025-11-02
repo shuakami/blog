@@ -84,7 +84,11 @@ export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
   // 筛选文章
   const filteredPosts = useMemo(() => {
     if (!selectedCategory) return prepared;
-    return prepared.filter((post) => post.tags?.[0] === selectedCategory);
+    return prepared.filter((post) => {
+      // 优先使用 category，回退到 tags[0]（兼容旧数据）
+      const category = post.category || post.tags?.[0];
+      return category === selectedCategory;
+    });
   }, [prepared, selectedCategory]);
 
   const groupedPosts = useMemo(() => groupPostsByYear(filteredPosts), [filteredPosts]);
@@ -133,7 +137,8 @@ export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
               {/* 该年份的文章 */}
               <div className="space-y-0">
                 {yearPosts.map((post: any) => {
-                  const category = post.tags?.[0];
+                  // 优先使用 category，回退到 tags[0]（兼容旧数据）
+                  const category = post.category || post.tags?.[0];
                   const formattedDate = formatDate(post.date);
 
                   return (
