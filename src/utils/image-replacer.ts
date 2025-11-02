@@ -12,20 +12,37 @@ import { getImageBuffer } from './gitee';
 function extractImageRefs(markdown: string): Array<{ match: string; path: string }> {
   const refs: Array<{ match: string; path: string }> = [];
   
-  // Obsidian 格式: ![[Assets/Images/xxx.png]]
+  // Obsidian 格式: ![[xxx.png]] 或 ![[Assets/Images/xxx.png]]
   const obsidianMatches = Array.from(markdown.matchAll(/!\[\[([^\]]+)\]\]/g));
   for (const match of obsidianMatches) {
-    refs.push({ match: match[0], path: match[1] });
+    let path = match[1];
+    
+    // 如果是纯文件名（不含路径），自动补全为 Assets/Images/
+    if (!path.includes('/')) {
+      path = `Assets/Images/${path}`;
+      console.log(`[Image Replacer] Auto-prefixed Obsidian image: ${match[1]} -> ${path}`);
+    }
+    // 如果路径不以 Assets/ 开头，提取文件名并补全
+    else if (!path.startsWith('Assets/')) {
+      const fileName = path.split('/').pop()!;
+      path = `Assets/Images/${fileName}`;
+      console.log(`[Image Replacer] Normalized Obsidian path: ${match[1]} -> ${path}`);
+    }
+    
+    refs.push({ match: match[0], path });
   }
   
   // Markdown 格式: ![](Assets/Images/xxx.png) 或 ![alt](Assets/Images/xxx.png)
   const markdownMatches = Array.from(markdown.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g));
   for (const match of markdownMatches) {
-    refs.push({ match: match[0], path: match[2] });
+    const path = match[2];
+    // 只处理 Assets/ 开头的路径
+    if (path.startsWith('Assets/')) {
+      refs.push({ match: match[0], path });
+    }
   }
   
-  // 只保留 Assets/ 开头的图片
-  return refs.filter(ref => ref.path.startsWith('Assets/'));
+  return refs;
 }
 
 // 替换单个图片引用
