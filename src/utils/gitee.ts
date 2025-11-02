@@ -19,6 +19,11 @@ export async function getFileContent(path: string): Promise<string> {
     // 编码路径（保留斜杠，只编码特殊字符和中文）
     const encodedPath = path.split('/').map(part => encodeURIComponent(part)).join('/');
     const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
+    
+    console.log(`[Gitee API] Requesting: ${url}`);
+    console.log(`[Gitee API] Original path: ${path}`);
+    console.log(`[Gitee API] Encoded path: ${encodedPath}`);
+    
     const res = await giteeAxios.get(url, {
       params: { 
         access_token: GITEE_PAT, 
@@ -32,8 +37,10 @@ export async function getFileContent(path: string): Promise<string> {
     }
 
     throw new Error(`No content found for ${path}`);
-  } catch (error) {
-    console.error(`Error getting file content for ${path}:`, error);
+  } catch (error: any) {
+    console.error(`[Gitee API] Error for ${path}:`, error.message);
+    console.error(`[Gitee API] Status:`, error.response?.status);
+    console.error(`[Gitee API] URL:`, error.config?.url);
     throw error;
   }
 }
