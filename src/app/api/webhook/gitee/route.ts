@@ -44,21 +44,27 @@ export async function POST(req: NextRequest) {
     const responseTimestamp = new Date().toISOString();
     
     // 4. 异步处理内容更新（不阻塞）
-    // Vercel 提供的完整 URL（优先使用），或手动拼接
-    const baseUrl = 
-      process.env.NEXT_PUBLIC_SITE_URL ||  // 自定义域名
-      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-      'http://localhost:3000';
+    // 获取当前域名
+    const protocol = req.headers.get('x-forwarded-proto') || 'https';
+    const host = req.headers.get('host') || req.headers.get('x-forwarded-host');
+    const baseUrl = host ? `${protocol}://${host}` : 'http://localhost:3000';
+    
+    console.log('[Gitee Webhook] Triggering async processing to:', `${baseUrl}/api/process-obsidian`);
 
     // 触发异步处理（包括内容更新和图片处理）
     fetch(`${baseUrl}/api/process-obsidian`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'User-Agent': 'Gitee-Webhook-Internal'
+      },
       body: JSON.stringify({
         added: commit.added || [],
         modified: commit.modified || [],
         removed: commit.removed || [],
       }),
+    }).then((res) => {
+      console.log('[Gitee Webhook] Async processing response:', res.status);
     }).catch((err) => {
       console.error('[Gitee Webhook] Failed to trigger async processing:', err);
     });
