@@ -9,6 +9,7 @@ import rehypeRaw from 'rehype-raw';
 import { LRUCache } from 'lru-cache';
 import { visit } from 'unist-util-visit';
 import type { Node } from 'unist';
+import { parseProjectCard, renderProjectCard } from './project-card';
 
 interface CodeNode extends Node {
   tagName: string;
@@ -71,13 +72,11 @@ function rehypeAddHeadingIds() {
           node.properties = {};
         }
         if (!node.properties.id) {
-          // 提取文本内容作为 ID
           let text = '';
           visit(node, 'text', (textNode: any) => {
             text += textNode.value;
           });
           
-          // 生成 ID：移除特殊字符，转换为小写，用连字符连接
           const id = text
             .trim()
             .toLowerCase()
@@ -93,13 +92,34 @@ function rehypeAddHeadingIds() {
   };
 }
 
+function rehypeProjectCards() {
+  return (tree: Node) => {
+    visit(tree, 'comment', (node: any, index, parent) => {
+      if (!node.value || !parent || index === null) return;
+      
+      const trimmed = node.value.trim();
+      if (trimmed.startsWith('ProjectCard')) {
+        const cardData = parseProjectCard(trimmed);
+        if (cardData) {
+          const html = renderProjectCard(cardData);
+          parent.children[index] = {
+            type: 'raw',
+            value: html,
+          };
+        }
+      }
+    });
+  };
+}
+
 const base = () =>
   unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
-    .use(rehypeAddHeadingIds);
+    .use(rehypeAddHeadingIds)
+    .use(rehypeProjectCards);
 
 const processorWithPrism = base().use(rehypePrism).use(handleUnknownLanguage).use(rehypeStringify);
 const processorLight = base().use(handleUnknownLanguage).use(rehypeStringify);

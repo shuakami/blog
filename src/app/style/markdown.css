@@ -144,3 +144,55 @@
   @apply rounded-lg;
   @apply border border-black/[0.06] dark:border-white/[0.06];
   }
+
+  /* Project Card */
+  .markdown-body .project-card-link {
+    @apply block my-8 no-underline;
+    @apply transition-all duration-200;
+  }
+
+  .markdown-body .project-card {
+    @apply rounded-xl border border-black/[0.06] dark:border-white/[0.06];
+    @apply bg-black/[0.02] dark:bg-white/[0.02];
+    @apply hover:bg-black/[0.04] dark:hover:bg-white/[0.04];
+    @apply hover:border-black/[0.10] dark:hover:border-white/[0.10];
+    @apply transition-all duration-200;
+  }
+
+  .markdown-body .project-card-content {
+    @apply px-5 py-5 sm:px-8 sm:py-6;
+    @apply flex flex-col sm:flex-row;
+    @apply items-start sm:items-center;
+    @apply gap-4 sm:gap-6;
+  }
+
+  .markdown-body .project-card-text {
+    @apply flex-1 flex flex-col gap-2;
+  }
+
+  .markdown-body .project-card-title {
+    @apply text-base sm:text-lg font-medium text-black dark:text-white;
+    @apply m-0 leading-tight;
+  }
+
+  .markdown-body .project-card-description {
+    @apply text-sm sm:text-base text-black/60 dark:text-white/60;
+    @apply m-0 leading-relaxed;
+  }
+
+  .markdown-body .project-card-action {
+    @apply flex-shrink-0;
+  }
+
+  .markdown-body .project-card-button {
+    @apply inline-flex items-center gap-2;
+    @apply px-4 py-2 rounded-full;
+    @apply bg-black dark:bg-white;
+    @apply text-white dark:text-black;
+    @apply text-sm font-medium;
+    @apply transition-all duration-200;
+  }
+
+  .markdown-body .project-card-link:hover .project-card-button {
+    @apply bg-black/80 dark:bg-white/80;
+  }
