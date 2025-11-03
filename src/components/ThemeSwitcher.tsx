@@ -2,6 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 
 export default function ThemeSwitcher() {
   const [mounted, setMounted] = useState(false);
@@ -33,7 +34,10 @@ export default function ThemeSwitcher() {
       <div className="flex items-center gap-2 p-2 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-md border border-black/10 dark:border-white/10 shadow-sm">
         {/* 系统主题 */}
         <button
-          onClick={() => setTheme("system")}
+          onClick={() => {
+            triggerHaptic(HapticFeedback.Light)
+            setTheme("system")
+          }}
           className={buttonClass("system")}
           aria-label="跟随系统主题"
         >
@@ -54,7 +58,10 @@ export default function ThemeSwitcher() {
 
         {/* 亮色主题 */}
         <button
-          onClick={() => setTheme("light")}
+          onClick={() => {
+            triggerHaptic(HapticFeedback.Light)
+            setTheme("light")
+          }}
           className={buttonClass("light")}
           aria-label="切换亮色主题"
         >
@@ -81,7 +88,10 @@ export default function ThemeSwitcher() {
 
         {/* 暗色主题 */}
         <button
-          onClick={() => setTheme("dark")}
+          onClick={() => {
+            triggerHaptic(HapticFeedback.Light)
+            setTheme("dark")
+          }}
           className={buttonClass("dark")}
           aria-label="切换暗色主题"
         >

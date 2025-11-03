@@ -9,6 +9,7 @@ import axios from 'axios';
 import { useMusicPlayer } from '@/hooks/useMusicPlayer';
 import { PlaylistModal } from './PlaylistModal';
 import { usePlayerStore } from '@/hooks/usePlayerStore';
+import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 
 // 歌曲信息类型
 interface Song {
@@ -130,6 +131,7 @@ export default function MusicPlayer({ isMobile = false, isFixed = false }: Music
       const rect = e.currentTarget.getBoundingClientRect();
       const percent = (e.clientX - rect.left) / rect.width;
       audioElement.currentTime = percent * duration;
+      triggerHaptic(HapticFeedback.Light);
     }
   };
 
@@ -196,9 +198,12 @@ export default function MusicPlayer({ isMobile = false, isFixed = false }: Music
 
             <div className="h-20 flex items-center px-4 pt-2">
               <div className="flex items-center flex-1 gap-3">
-                <div 
+                <div
                   className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer"
-                  onClick={() => setPlaylistOpen(true)}
+                  onClick={() => {
+                    triggerHaptic(HapticFeedback.Light)
+                    setPlaylistOpen(true)
+                  }}
                 >
                   <Image
                     src={`${currentTrack.cover.split('?')[0]}?param=60y60`}
@@ -223,13 +228,19 @@ export default function MusicPlayer({ isMobile = false, isFixed = false }: Music
                 <div className="flex items-center gap-2">
                   <button 
                     className="p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
-                    onClick={playPrevious}
+                    onClick={() => {
+                      triggerHaptic(HapticFeedback.Heavy)
+                      playPrevious()
+                    }}
                   >
                     <SkipBack className="w-4 h-4 text-black/60 dark:text-white/60" />
                   </button>
                   <button 
                     className="p-2 bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 rounded-full transition-colors"
-                    onClick={togglePlay}
+                    onClick={() => {
+                      triggerHaptic(HapticFeedback.Success)
+                      togglePlay()
+                    }}
                   >
                     {isPlaying ? (
                       <Pause className="w-5 h-5 text-black/80 dark:text-white/80" />
@@ -239,7 +250,10 @@ export default function MusicPlayer({ isMobile = false, isFixed = false }: Music
                   </button>
                   <button 
                     className="p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
-                    onClick={playNext}
+                    onClick={() => {
+                      triggerHaptic(HapticFeedback.Heavy)
+                      playNext()
+                    }}
                   >
                     <SkipForward className="w-4 h-4 text-black/60 dark:text-white/60" />
                   </button>
@@ -253,7 +267,10 @@ export default function MusicPlayer({ isMobile = false, isFixed = false }: Music
             {/* 封面图片 */}
             <div 
               className="relative aspect-square w-32 mx-auto rounded-lg overflow-hidden shadow-lg cursor-pointer"
-              onClick={() => setPlaylistOpen(true)}
+              onClick={() => {
+                triggerHaptic(HapticFeedback.Light)
+                setPlaylistOpen(true)
+              }}
             >
               <div className={clsx(
                 'absolute inset-0 bg-black/5 dark:bg-white/5',
@@ -300,14 +317,20 @@ export default function MusicPlayer({ isMobile = false, isFixed = false }: Music
             <div className="flex items-center justify-center gap-6">
               <button 
                 className="p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
-                onClick={playPrevious}
+                onClick={() => {
+                  triggerHaptic(HapticFeedback.Heavy)
+                  playPrevious()
+                }}
               >
                 <SkipBack className="w-4 h-4 text-black/60 dark:text-white/60" />
               </button>
               
               <button 
                 className="p-2 bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20 rounded-full transition-colors"
-                onClick={togglePlay}
+                onClick={() => {
+                  triggerHaptic(HapticFeedback.Success)
+                  togglePlay()
+                }}
               >
                 {isPlaying ? (
                   <Pause className="w-5 h-5 text-black/80 dark:text-white/80" />
@@ -318,7 +341,10 @@ export default function MusicPlayer({ isMobile = false, isFixed = false }: Music
               
               <button 
                 className="p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
-                onClick={playNext}
+                onClick={() => {
+                  triggerHaptic(HapticFeedback.Heavy)
+                  playNext()
+                }}
               >
                 <SkipForward className="w-4 h-4 text-black/60 dark:text-white/60" />
               </button>

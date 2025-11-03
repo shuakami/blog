@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Route } from 'next';
 import { NAV_ITEMS } from './SideNav';
+import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,7 +31,10 @@ export default function MobileNav() {
 
           {/* 菜单按钮 */}
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => {
+              triggerHaptic(HapticFeedback.Medium)
+              setIsOpen(!isOpen)
+            }}
             className="w-10 h-10 flex items-center justify-center text-black/60 dark:text-white/60"
             aria-label={isOpen ? "关闭菜单" : "打开菜单"}
             aria-expanded={isOpen}
@@ -76,7 +80,10 @@ export default function MobileNav() {
               <Link
                 key={item.path}
                 href={item.path as Route}
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  triggerHaptic(HapticFeedback.Light)
+                  setIsOpen(false)
+                }}
                 className="block px-4 py-3 rounded-lg text-black/80 dark:text-white/80
                   hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
               >

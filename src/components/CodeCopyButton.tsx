@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { triggerHaptic, HapticFeedback } from '@/utils/haptics'
 
 export function CodeCopyButton() {
   useEffect(() => {
@@ -26,6 +27,8 @@ export function CodeCopyButton() {
         
         try {
           await navigator.clipboard.writeText(code.textContent || '')
+          
+          triggerHaptic(HapticFeedback.Success)
           
           // 显示成功图标（不再用绿色，用黑色）
           button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-black/60 dark:text-white/60"><polyline points="20 6 9 17 4 12"></polyline></svg>'

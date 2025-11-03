@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 import clsx from 'clsx';
 import { useTheme } from 'next-themes';
+import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 
 interface PlaylistModalProps {
   isOpen: boolean;
@@ -173,7 +174,10 @@ export function PlaylistModal({
               <ProgressBar 
                 progress={progressPercent}
                 isPlaying={isPlaying}
-                onClick={onProgressChange}
+                onClick={(e) => {
+                  triggerHaptic(HapticFeedback.Light)
+                  onProgressChange(e)
+                }}
               />
               <div className={clsx(
                 "flex justify-between text-xs px-1 font-medium tracking-wider",
@@ -191,7 +195,10 @@ export function PlaylistModal({
                   "group relative p-1.5 rounded-full transition-all duration-200",
                   "hover:scale-105 active:scale-95"
                 )}
-                onClick={onPlayPrevious}
+                onClick={() => {
+                  triggerHaptic(HapticFeedback.Heavy)
+                  onPlayPrevious()
+                }}
               >
                 <div className={clsx(
                   "absolute inset-0 rounded-full transition-all",
@@ -212,7 +219,10 @@ export function PlaylistModal({
                   "group relative p-4 rounded-full transition-all duration-200",
                   "hover:scale-105 active:scale-95"
                 )}
-                onClick={onTogglePlay}
+                onClick={() => {
+                  triggerHaptic(HapticFeedback.Success)
+                  onTogglePlay()
+                }}
               >
                 <div className={clsx(
                   "absolute inset-0 rounded-full transition-all",
@@ -238,7 +248,10 @@ export function PlaylistModal({
                   "group relative p-1.5 rounded-full transition-all duration-200",
                   "hover:scale-105 active:scale-95"
                 )}
-                onClick={onPlayNext}
+                onClick={() => {
+                  triggerHaptic(HapticFeedback.Heavy)
+                  onPlayNext()
+                }}
               >
                 <div className={clsx(
                   "absolute inset-0 rounded-full transition-all",
@@ -290,7 +303,10 @@ export function PlaylistModal({
                             currentTrackIndex === index && 'bg-black/[0.08]'
                           ]
                     )}
-                    onClick={() => onTrackSelect(index)}
+                    onClick={() => {
+                      triggerHaptic(HapticFeedback.Heavy)
+                      onTrackSelect(index)
+                    }}
                   >
                     {/* 封面 */}
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 transition-transform duration-200 group-hover:scale-105">

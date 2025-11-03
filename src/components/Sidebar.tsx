@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 import type { NavItem } from "@/lib/types"
+import { triggerHaptic, HapticFeedback } from '@/utils/haptics'
 
 interface SidebarProps {
   isOpen: boolean
@@ -38,6 +39,7 @@ export function Sidebar({ isOpen, width = 192, navItems, onClose }: SidebarProps
   }, [isInitialLoad])
 
   const handleClose = () => {
+    triggerHaptic(HapticFeedback.Medium)
     setIsAnimating(true)
   }
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { triggerHaptic, HapticFeedback } from '@/utils/haptics'
 
 export function CopyUrlButton() {
   const [copied, setCopied] = useState(false)
@@ -8,6 +9,7 @@ export function CopyUrlButton() {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href)
+      triggerHaptic(HapticFeedback.Success)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
