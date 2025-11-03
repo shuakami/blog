@@ -76,17 +76,17 @@ const ProgressBar = ({ progress, isPlaying, onClick }: {
       onClick={onClick}
     >
       {/* 背景轨道 */}
-      <div className="absolute inset-0 bg-black/10 dark:bg-white/20 rounded-full" />
+      <div className="absolute inset-0 bg-black/10 dark:bg-white/30 rounded-full" />
       
       {/* 进度条 */}
       <div 
-        className="absolute inset-y-0 left-0 bg-black/30 dark:bg-white/60 rounded-full transition-all"
+        className="absolute inset-y-0 left-0 bg-black/30 dark:bg-white/90 rounded-full transition-all"
         style={{ width: `${progress}%` }}
       />
 
       {/* 指示器 */}
       <div 
-        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-black/30 dark:bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-black/30 dark:bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
         style={{ left: `${progress}%` }}
       />
     </div>
