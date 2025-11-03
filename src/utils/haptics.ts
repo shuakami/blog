@@ -96,66 +96,60 @@ export function createVolumeHaptic(): (volume: number, velocity?: number) => voi
   let lastVolume = -1
   let lastTriggerTime = 0
   
-  // 性能约束：最小触发间隔 16ms（60fps）
-  const MIN_INTERVAL = 16
+  // 提升触发频率上限：12ms
+  const MIN_INTERVAL = 12
   
   return (volume: number, velocity: number = 0) => {
     const now = performance.now()
     
-    // 性能约束：防止过度触发
+    // 性能约束
     if (now - lastTriggerTime < MIN_INTERVAL) {
       return
     }
     
-    // 计算当前刻度（50 个刻度，每 2%）
-    const fineStep = Math.floor(volume * 50)
-    const coarseStep = Math.floor(volume * 10) // 每 10%
+    // 计算当前刻度（100 个刻度，每 1%）
+    const step = Math.floor(volume * 100)
     
-    // 速度自适应：快速滑动时降低灵敏度
-    const isFastSwipe = Math.abs(velocity) > 0.5 // 速度阈值
+    // 速度感知：快速滑动增强反馈
+    const isFastSwipe = Math.abs(velocity) > 0.8  // 速度阈值
+    const isSuperFastSwipe = Math.abs(velocity) > 2.0
     
-    // 边界增强（0% 和 100%）
+    // === 边界碰撞（0% 和 100%）===
     if ((volume === 0 || volume === 1) && lastVolume !== volume) {
-      triggerHaptic(HapticFeedback.Medium)
+      // 边界时触发最强震动
+      triggerHaptic(isSuperFastSwipe ? HapticFeedback.Warning : HapticFeedback.Heavy)
       lastTriggerTime = now
       lastVolume = volume
-      lastStep = fineStep
+      lastStep = step
       return
     }
     
-    // 中点提示（50% ± 1%）
-    if (Math.abs(volume - 0.5) < 0.01 && Math.abs(lastVolume - 0.5) >= 0.01) {
-      triggerHaptic(HapticFeedback.Light)
+    // === 中点共鸣（50%）===
+    if (step === 50 && lastStep !== 50) {
+      // 50% 触发成功反馈（双脉冲）
+      triggerHaptic(HapticFeedback.Success)
       lastTriggerTime = now
       lastVolume = volume
-      lastStep = fineStep
+      lastStep = step
       return
     }
     
-    // 刻度反馈
-    if (fineStep !== lastStep) {
-      // 快速滑动：只在每 10% 触发
-      if (isFastSwipe) {
-        if (coarseStep !== Math.floor(lastVolume * 10)) {
-          triggerHaptic(HapticFeedback.Light)
-          lastTriggerTime = now
-        }
+    // === 连续刻度反馈 ===
+    if (step !== lastStep) {
+      // 每 5% 的大刻度（0, 5, 10, 15...）
+      if (step % 5 === 0) {
+        // 快速滑动时强化反馈
+        triggerHaptic(isFastSwipe ? HapticFeedback.Heavy : HapticFeedback.Medium)
+        lastTriggerTime = now
       }
-      // 慢速滑动：细腻反馈
+      // 每 1% 的小刻度（清晰的连续感）
       else {
-        // 每 10% 触发 Light
-        if (fineStep % 5 === 0) {
-          triggerHaptic(HapticFeedback.Light)
-          lastTriggerTime = now
-        }
-        // 其他位置触发 Selection（极轻）
-        else {
-          triggerHaptic(HapticFeedback.Selection)
-          lastTriggerTime = now
-        }
+        // 快速滑动时也用 Medium
+        triggerHaptic(isFastSwipe ? HapticFeedback.Medium : HapticFeedback.Light)
+        lastTriggerTime = now
       }
       
-      lastStep = fineStep
+      lastStep = step
       lastVolume = volume
     }
   }

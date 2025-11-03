@@ -447,7 +447,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                   <div className="flex items-center justify-center gap-4">
                     <motion.button
                       whileTap={{ scale: 0.95 }}
-                      onClick={handlePrevSong}
+                      onClick={() => {
+                        const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+                        triggerHaptic(HapticFeedback.Light)
+                        handlePrevSong()
+                      }}
                       className="w-8 h-8 rounded-full bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors"
                     >
                       <SkipBack className="w-4 h-4 text-muted-foreground" />
@@ -455,7 +459,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                     
                     <motion.button
                       whileTap={{ scale: 0.95 }}
-                      onClick={handleTogglePlay}
+                      onClick={() => {
+                        const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+                        triggerHaptic(HapticFeedback.Medium)
+                        handleTogglePlay()
+                      }}
                       className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors shadow-lg"
                     >
                       {isPlaying ? (
@@ -467,7 +475,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                     
                     <motion.button
                       whileTap={{ scale: 0.95 }}
-                      onClick={handleNextSong}
+                      onClick={() => {
+                        const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+                        triggerHaptic(HapticFeedback.Light)
+                        handleNextSong()
+                      }}
                       className="w-8 h-8 rounded-full bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors"
                     >
                       <SkipForward className="w-4 h-4 text-muted-foreground" />
@@ -555,7 +567,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.4, delay: index * 0.05, ease: "easeOut" }}
                             className="group flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/50 cursor-pointer transition-all duration-300 ease-out"
-                            onClick={() => handleSongChange(actualIndex)}
+                            onClick={() => {
+                              const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+                              triggerHaptic(HapticFeedback.Light)
+                              handleSongChange(actualIndex)
+                            }}
                           >
                             <div className="relative w-10 h-10 rounded-lg overflow-hidden shadow-sm">
                               <Image
@@ -732,7 +748,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                 <div className="flex items-center justify-center gap-6 sm:gap-6 py-2">
                   <motion.button
                     whileTap={{ scale: 0.9 }}
-                    onClick={handlePrevSong}
+                    onClick={() => {
+                      const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+                      triggerHaptic(HapticFeedback.Light)
+                      handlePrevSong()
+                    }}
                     className="w-12 h-12 sm:w-12 sm:h-12 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors"
                   >
                     <SkipBack className="w-5 h-5 sm:w-5 sm:h-5 text-muted-foreground" />
@@ -740,7 +760,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                   
                   <motion.button
                     whileTap={{ scale: 0.95 }}
-                    onClick={handleTogglePlay}
+                    onClick={() => {
+                      const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+                      triggerHaptic(HapticFeedback.Medium)
+                      handleTogglePlay()
+                    }}
                     className="w-16 h-16 sm:w-16 sm:h-16 rounded-full bg-primary hover:bg-primary/90 active:bg-primary/80 flex items-center justify-center transition-colors shadow-2xl"
                   >
                     {isPlaying ? (
@@ -752,7 +776,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                   
                   <motion.button
                     whileTap={{ scale: 0.9 }}
-                    onClick={handleNextSong}
+                    onClick={() => {
+                      const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+                      triggerHaptic(HapticFeedback.Light)
+                      handleNextSong()
+                    }}
                     className="w-12 h-12 sm:w-12 sm:h-12 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors"
                   >
                     <SkipForward className="w-5 h-5 sm:w-5 sm:h-5 text-muted-foreground" />
@@ -828,7 +856,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5, delay: index * 0.08, ease: [0.32, 0.72, 0, 1] }}
                             className="flex items-center gap-4 sm:gap-3 p-3 sm:p-2 rounded-xl sm:rounded-lg bg-secondary/30 hover:bg-secondary/60 active:bg-secondary/80 cursor-pointer transition-all"
-                            onClick={() => { handleSongChange(actualIndex) }}
+                            onClick={() => {
+                              const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+                              triggerHaptic(HapticFeedback.Light)
+                              handleSongChange(actualIndex)
+                            }}
                           >
                             <div className="relative w-14 h-14 sm:w-12 sm:h-12 rounded-lg overflow-hidden shadow-sm flex-shrink-0">
                               <Image
