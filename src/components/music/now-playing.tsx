@@ -557,25 +557,40 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
         </div>
       )}
 
-      {/* 移动端全屏模态框（保持原有） */}
+      {/* 移动端全屏模态框（小屏适配） */}
       <DialogPrimitive.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogPrimitive.Portal>
           <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 dark:bg-black/70 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-500" style={{ animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }} />
-          <DialogPrimitive.Content className="fixed z-50 w-full border-0 bg-white dark:bg-black p-0 data-[state=open]:animate-in data-[state=closed]:animate-out inset-x-0 bottom-0 h-[95vh] max-h-[95vh] rounded-t-3xl data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-700 sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border sm:p-6 sm:bg-background sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%] sm:duration-200" style={{ animationTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)' }}>
+          <DialogPrimitive.Content 
+            className="fixed z-50 w-full border-0 bg-white dark:bg-black p-0 data-[state=open]:animate-in data-[state=closed]:animate-out inset-x-0 bottom-0 max-h-[100dvh] rounded-t-3xl data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-700 sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border sm:p-6 sm:bg-background sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%] sm:duration-200" 
+            style={{ 
+              animationTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)',
+              // 使用 CSS 变量处理安全区域
+              paddingTop: 'max(env(safe-area-inset-top), 0.75rem)',
+              height: 'calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))'
+            }}
+          >
             <DialogPrimitive.Title className="sr-only">音乐播放器</DialogPrimitive.Title>
 
             {/* 顶部拖动指示器 - 仅移动端显示 */}
-            <div className="sm:hidden flex justify-center pt-3 pb-2 sticky top-0 bg-white dark:bg-background z-10">
+            <div className="sm:hidden flex justify-center pt-2 pb-2 sticky top-0 bg-white dark:bg-background z-10">
               <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
             </div>
 
-            <DialogPrimitive.Close className="absolute right-4 top-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-background/80 backdrop-blur-sm">
+            {/* 关闭按钮 - 调整位置确保在安全区域内 */}
+            <DialogPrimitive.Close 
+              className="absolute right-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-background/80 backdrop-blur-sm shadow-lg"
+              style={{
+                // 确保按钮在安全区域内，使用动态计算
+                top: 'max(env(safe-area-inset-top, 0px) + 1rem, 1rem)'
+              }}
+            >
               <X className="h-5 w-5 sm:h-4 sm:w-4 text-foreground" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
 
             <div className="h-full overflow-y-auto overscroll-contain pb-safe">
-              <div className="flex flex-col justify-start sm:justify-center px-6 pt-2 pb-8 sm:p-0 space-y-5 sm:space-y-6">
+              <div className="flex flex-col justify-start sm:justify-center px-6 pt-0 pb-8 sm:p-0 space-y-5 sm:space-y-6">
                 {/* 专辑封面和基础信息 */}
                 <div className="flex flex-col items-center gap-3 sm:gap-4">
                   <div className="relative w-[min(220px,65vw)] h-[min(220px,65vw)] sm:w-48 sm:h-48 rounded-2xl overflow-hidden shadow-lg">
