@@ -423,8 +423,11 @@ export function createVolumeHaptic(): (volume: number, velocity?: number) => voi
     const minInterval = speed > 1.5 ? 4 : speed > 0.8 ? 6 : speed > 0.3 ? 8 : 10;
     if (now - lastTriggerTime < minInterval) return;
 
-    // 边界：0% 或 100%
-    if ((v === 0 || v === 1) && lastVolume !== v) {
+    // 边界：0% 或 100% (更宽松的检测范围)
+    const isAtMin = v <= 0.01; // 0-1%
+    const isAtMax = v >= 0.99; // 99-100%
+    
+    if ((isAtMin && lastStep > 2) || (isAtMax && lastStep < 198)) {
       triggerHaptic(speed > 2.0 ? HapticFeedback.Warning : HapticFeedback.Heavy);
       lastTriggerTime = now;
       lastVolume = v;
