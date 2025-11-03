@@ -92,37 +92,17 @@ function rehypeAddHeadingIds() {
   };
 }
 
-function rehypeProjectCards() {
+function remarkProjectCards() {
   return (tree: Node) => {
-    visit(tree, (node: any, index, parent) => {
-      if (node.type === 'comment' && node.value && parent && index !== null) {
-        const trimmed = node.value.trim();
-        if (trimmed.startsWith('ProjectCard')) {
-          const cardData = parseProjectCard(trimmed);
-          if (cardData) {
-            const html = renderProjectCard(cardData);
-            parent.children[index] = {
-              type: 'html',
-              value: html,
-            };
-          }
-        }
-      }
+    visit(tree, 'html', (node: any, index, parent) => {
+      if (!node.value || !parent || index === null) return;
       
-      if (node.type === 'element' && node.tagName === 'p' && node.children && node.children.length > 0) {
-        const child = node.children[0];
-        if (child.type === 'text' && child.value && child.value.trim().startsWith('<!--') && child.value.includes('ProjectCard')) {
-          const commentMatch = child.value.match(/<!--\s*(ProjectCard[^>]+)-->/);
-          if (commentMatch) {
-            const cardData = parseProjectCard(commentMatch[1]);
-            if (cardData && parent && index !== null) {
-              const html = renderProjectCard(cardData);
-              parent.children[index] = {
-                type: 'raw',
-                value: html,
-              };
-            }
-          }
+      const commentMatch = node.value.match(/<!--\s*(ProjectCard[^>]+)-->/);
+      if (commentMatch) {
+        const cardData = parseProjectCard(commentMatch[1]);
+        if (cardData) {
+          const html = renderProjectCard(cardData);
+          node.value = html;
         }
       }
     });
@@ -133,10 +113,10 @@ const base = () =>
   unified()
     .use(remarkParse)
     .use(remarkGfm)
+    .use(remarkProjectCards)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
-    .use(rehypeAddHeadingIds)
-    .use(rehypeProjectCards);
+    .use(rehypeAddHeadingIds);
 
 const processorWithPrism = base().use(rehypePrism).use(handleUnknownLanguage).use(rehypeStringify);
 const processorLight = base().use(handleUnknownLanguage).use(rehypeStringify);
