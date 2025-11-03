@@ -139,7 +139,14 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
 
   // ---------------- 音量控制 ----------------
   // 创建音量滑动触觉反馈
-  const volumeHapticRef = useRef<((volume: number) => void) | null>(null)
+  const volumeHapticRef = useRef<((volume: number, velocity?: number) => void) | null>(null)
+  
+  // 滑动速度追踪（用于速度自适应触觉反馈）
+  const volumeVelocityRef = useRef({
+    lastVolume: 0,
+    lastTime: 0,
+    velocity: 0
+  })
   
   useEffect(() => {
     const { createVolumeHaptic } = require('@/utils/haptics')
@@ -148,6 +155,21 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
   
   const handleVolumeChange = (newVolume: number) => {
     const clamped = Math.max(0, Math.min(1, newVolume))
+    
+    // 计算滑动速度（音量变化率）
+    const now = performance.now()
+    const timeDelta = now - volumeVelocityRef.current.lastTime
+    const volumeDelta = Math.abs(clamped - volumeVelocityRef.current.lastVolume)
+    
+    // 速度 = 音量变化 / 时间（归一化到每秒）
+    const velocity = timeDelta > 0 ? (volumeDelta / timeDelta) * 1000 : 0
+    
+    volumeVelocityRef.current = {
+      lastVolume: clamped,
+      lastTime: now,
+      velocity
+    }
+    
     setVolume(clamped)
     if (clamped > 0) {
       setPreviousVolume(clamped)
@@ -156,8 +178,8 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
     localStorage.setItem('musicPlayer-volume', clamped.toString())
     if (audioRef?.current) audioRef.current.volume = clamped
     
-    // 触发触觉反馈
-    volumeHapticRef.current?.(clamped)
+    // 触发触觉反馈（带速度感知）
+    volumeHapticRef.current?.(clamped, velocity)
   }
   const handleVolumeToggle = () => {
     // 静音/取消静音触发中等震动

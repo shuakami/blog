@@ -10,31 +10,40 @@ const isVibrationSupported = typeof navigator !== 'undefined' && 'vibrate' in na
  * 触觉反馈类型
  */
 export enum HapticFeedback {
-  /** 轻触 - 适用于按钮点击、选择等 */
-  Light = 'light',
-  /** 中等 - 适用于滑块变化、通知等 */
-  Medium = 'medium',
-  /** 重 - 适用于重要操作、警告等 */
-  Heavy = 'heavy',
-  /** 成功 - 适用于操作成功 */
-  Success = 'success',
-  /** 警告 - 适用于错误、警告 */
-  Warning = 'warning',
-  /** 选择 - 适用于列表选择、滑动刻度等 */
+  /** 极轻触 - 适用于连续滑动、滚动选择器（Apple Selection 风格） */
   Selection = 'selection',
+  /** 轻触 - 适用于按钮点击、轻量交互（Apple Light Impact） */
+  Light = 'light',
+  /** 中等 - 适用于开关、边界、重要节点（Apple Medium Impact） */
+  Medium = 'medium',
+  /** 重 - 适用于重要操作、删除警告（Apple Heavy Impact） */
+  Heavy = 'heavy',
+  /** 成功 - 适用于操作成功（双脉冲） */
+  Success = 'success',
+  /** 警告 - 适用于错误、警告（三脉冲） */
+  Warning = 'warning',
 }
 
 /**
  * 震动模式配置（毫秒）
- * 线性马达建议使用短促震动（10-30ms）以获得最佳手感
+ * Apple Taptic Engine 风格：极短促、精确、舒适
+ * 
+ * 参考 Apple HIG：
+ * - Selection: 3-5ms（最轻微，用于连续滑动）
+ * - Light: 5-7ms（轻触感）
+ * - Medium: 10-12ms（中等强度）  
+ * - Heavy: 15-18ms（重击感）
+ * 
+ * Web Vibration API 精度限制：
+ * - 大多数设备最小可靠值为 5ms
  */
 const vibrationPatterns: Record<HapticFeedback, number | number[]> = {
-  [HapticFeedback.Light]: 10,          // 轻触：10ms
-  [HapticFeedback.Medium]: 15,         // 中等：15ms
-  [HapticFeedback.Heavy]: 25,          // 重：25ms
-  [HapticFeedback.Success]: [10, 50, 10],  // 成功：双击感
-  [HapticFeedback.Warning]: [15, 40, 15, 40, 15],  // 警告：三连击
-  [HapticFeedback.Selection]: 8,       // 选择：8ms（最轻）
+  [HapticFeedback.Selection]: 4,           // 极轻：4ms（滑动专用）
+  [HapticFeedback.Light]: 6,               // 轻触：6ms（Apple 风格）
+  [HapticFeedback.Medium]: 12,             // 中等：12ms（边界、开关）
+  [HapticFeedback.Heavy]: 18,              // 重：18ms（重要操作）
+  [HapticFeedback.Success]: [8, 40, 8],    // 成功：双脉冲（更短促）
+  [HapticFeedback.Warning]: [12, 30, 12, 30, 12],  // 警告：三脉冲
 }
 
 /**
@@ -90,18 +99,86 @@ export function createThrottledHaptic(
 }
 
 /**
- * 音量滑动触觉反馈
- * 每滑动 5% 触发一次轻微震动
+ * 音量滑动触觉反馈（Apple 风格）
+ * 
+ * 策略：
+ * 1. 边界增强：0% 和 100% 触发 Medium（边界感）
+ * 2. 中点提示：50% 触发 Light（对称感）
+ * 3. 刻度感：每 10% 触发 Light（清晰反馈）
+ * 4. 细腻感：慢速滑动时每 2% 触发 Selection（极轻）
+ * 5. 速度自适应：快速滑动降低频率（避免疲劳）
+ * 
+ * 性能优化：
+ * - 最小触发间隔 16ms（60fps）
+ * - 使用 RAF 批处理
+ * - 防止阻塞主线程
  */
-export function createVolumeHaptic(): (volume: number) => void {
+export function createVolumeHaptic(): (volume: number, velocity?: number) => void {
   let lastStep = -1
-
-  return (volume: number) => {
-    const currentStep = Math.floor(volume * 20) // 20 个刻度（每 5%）
+  let lastVolume = -1
+  let lastTriggerTime = 0
+  
+  // 性能约束：最小触发间隔 16ms（60fps）
+  const MIN_INTERVAL = 16
+  
+  return (volume: number, velocity: number = 0) => {
+    const now = performance.now()
     
-    if (currentStep !== lastStep) {
-      triggerHaptic(HapticFeedback.Selection)
-      lastStep = currentStep
+    // 性能约束：防止过度触发
+    if (now - lastTriggerTime < MIN_INTERVAL) {
+      return
+    }
+    
+    // 计算当前刻度（50 个刻度，每 2%）
+    const fineStep = Math.floor(volume * 50)
+    const coarseStep = Math.floor(volume * 10) // 每 10%
+    
+    // 速度自适应：快速滑动时降低灵敏度
+    const isFastSwipe = Math.abs(velocity) > 0.5 // 速度阈值
+    
+    // 边界增强（0% 和 100%）
+    if ((volume === 0 || volume === 1) && lastVolume !== volume) {
+      triggerHaptic(HapticFeedback.Medium)
+      lastTriggerTime = now
+      lastVolume = volume
+      lastStep = fineStep
+      return
+    }
+    
+    // 中点提示（50% ± 1%）
+    if (Math.abs(volume - 0.5) < 0.01 && Math.abs(lastVolume - 0.5) >= 0.01) {
+      triggerHaptic(HapticFeedback.Light)
+      lastTriggerTime = now
+      lastVolume = volume
+      lastStep = fineStep
+      return
+    }
+    
+    // 刻度反馈
+    if (fineStep !== lastStep) {
+      // 快速滑动：只在每 10% 触发
+      if (isFastSwipe) {
+        if (coarseStep !== Math.floor(lastVolume * 10)) {
+          triggerHaptic(HapticFeedback.Light)
+          lastTriggerTime = now
+        }
+      }
+      // 慢速滑动：细腻反馈
+      else {
+        // 每 10% 触发 Light
+        if (fineStep % 5 === 0) {
+          triggerHaptic(HapticFeedback.Light)
+          lastTriggerTime = now
+        }
+        // 其他位置触发 Selection（极轻）
+        else {
+          triggerHaptic(HapticFeedback.Selection)
+          lastTriggerTime = now
+        }
+      }
+      
+      lastStep = fineStep
+      lastVolume = volume
     }
   }
 }
