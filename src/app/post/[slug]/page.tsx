@@ -12,7 +12,7 @@ import PostNavigator from '@/components/PostNavigator';
 import type { Metadata } from 'next';
 import type { Viewport } from 'next';
 
-export const revalidate = 30; // 更强时效性（保留 ISR）
+export const revalidate = 30; // 更强时效性
 
 interface PageProps {
   params: Promise<{

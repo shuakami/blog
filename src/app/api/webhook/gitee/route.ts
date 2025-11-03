@@ -61,10 +61,10 @@ export async function POST(req: NextRequest) {
       // 触发缓存重新验证
       console.log('[Gitee Webhook] Revalidating cache...');
       
-      // 重新验证标签
-      revalidateTag('obsidian');
-      revalidateTag('posts');
-      revalidateTag('obsidian-index');
+      // 重新验证标签（使用新API）
+      revalidateTag('obsidian', {});
+      revalidateTag('posts', {});
+      revalidateTag('obsidian-index', {});
       
       // 重新验证路径（关键！）
       revalidatePath('/', 'page');           // 首页
@@ -74,6 +74,9 @@ export async function POST(req: NextRequest) {
       for (const post of index.posts) {
         revalidatePath(`/post/${post.slug}`, 'page');
       }
+      
+      // 额外：清除动态路由的布局缓存
+      revalidatePath('/post/[slug]', 'page');
       
       console.log('[Gitee Webhook] Cache revalidation completed');
       console.log('[Gitee Webhook] Content processing completed, updated', index.posts.length, 'posts');

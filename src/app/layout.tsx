@@ -87,9 +87,18 @@ export default function RootLayout({
                   if (config) {
                     const { layoutMode, backgroundStyle } = JSON.parse(config);
                     
-                    // 应用布局类
-                    const shouldForceWide = path.startsWith('/music');
-                    const layout = shouldForceWide ? 'wide' : (layoutMode || 'default');
+                    // 应用布局类 - 支持强制布局
+                    let layout = layoutMode || 'default';
+                    
+                    // 音乐页面强制宽屏布局
+                    if (path.startsWith('/music')) {
+                      layout = 'wide';
+                    }
+                    // 作品页面强制紧凑布局
+                    else if (path.startsWith('/works')) {
+                      layout = 'compact';
+                    }
+                    
                     document.documentElement.classList.add('layout-' + layout);
                     
                     // 应用背景类

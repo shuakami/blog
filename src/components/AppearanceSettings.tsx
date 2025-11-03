@@ -18,8 +18,11 @@ interface AppearanceConfig {
 // 这些页面禁用背景图片
 const NO_BACKGROUND_PAGES = ['/music', '/works', '/friends'];
 
-// 这些页面强制使用默认布局
-const FORCE_DEFAULT_LAYOUT_PAGES = ['/music'];
+// 这些页面强制使用宽屏布局（音乐页面）
+const FORCE_WIDE_LAYOUT_PAGES = ['/music'];
+
+// 这些页面强制使用紧凑布局（作品页面）
+const FORCE_COMPACT_LAYOUT_PAGES = ['/works'];
 
 export default function AppearanceSettings() {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,8 +39,14 @@ export default function AppearanceSettings() {
   // 检查当前页面是否需要禁用背景
   const shouldDisableBackground = NO_BACKGROUND_PAGES.some(page => pathname.startsWith(page));
   
-  // 检查当前页面是否需要强制默认布局
-  const shouldForceDefaultLayout = FORCE_DEFAULT_LAYOUT_PAGES.some(page => pathname.startsWith(page));
+  // 检查当前页面是否需要强制宽屏布局
+  const shouldForceWideLayout = FORCE_WIDE_LAYOUT_PAGES.some(page => pathname.startsWith(page));
+  
+  // 检查当前页面是否需要强制紧凑布局
+  const shouldForceCompactLayout = FORCE_COMPACT_LAYOUT_PAGES.some(page => pathname.startsWith(page));
+  
+  // 是否强制布局（任何一种）
+  const shouldForceLayout = shouldForceWideLayout || shouldForceCompactLayout;
 
   useEffect(() => {
     // 读取配置并设置状态（背景和布局已在 inline script 中应用）
@@ -68,11 +77,19 @@ export default function AppearanceSettings() {
       document.body.classList.add("background-character");
     }
     
-    // 应用布局模式（音乐页面强制使用宽屏布局）
+    // 应用布局模式
     document.documentElement.classList.remove("layout-default", "layout-wide", "layout-compact");
-    const layoutToApply = shouldForceDefaultLayout ? "wide" : config.layoutMode;
+    
+    // 根据页面类型应用强制布局或用户选择的布局
+    let layoutToApply = config.layoutMode;
+    if (shouldForceWideLayout) {
+      layoutToApply = "wide";
+    } else if (shouldForceCompactLayout) {
+      layoutToApply = "compact";
+    }
+    
     document.documentElement.classList.add(`layout-${layoutToApply}`);
-  }, [config, mounted, shouldDisableBackground, shouldForceDefaultLayout]);
+  }, [config, mounted, shouldDisableBackground, shouldForceWideLayout, shouldForceCompactLayout]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -244,7 +261,7 @@ export default function AppearanceSettings() {
                 <div className="text-[11px] font-semibold text-black/40 dark:text-white/40 mb-3 uppercase tracking-wider">
                   布局
                 </div>
-                {shouldForceDefaultLayout && (
+                {shouldForceLayout && (
                   <div className="mb-3 p-2.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30">
                     <p className="text-[11px] leading-relaxed text-amber-700 dark:text-amber-400/90">
                       当前页面仅支持默认布局
@@ -256,56 +273,62 @@ export default function AppearanceSettings() {
                     { value: "compact" as const, label: "紧凑", Icon: Minimize2 },
                     { value: "default" as const, label: "默认", Icon: Square },
                     { value: "wide" as const, label: "宽屏", Icon: Maximize2 },
-                  ].map((item) => (
-                    <button
-                      key={item.value}
-                      onClick={() => {
-                        if (!shouldForceDefaultLayout) {
-                          triggerHaptic(HapticFeedback.Light)
-                          updateLayout(item.value)
-                        }
-                      }}
-                      disabled={shouldForceDefaultLayout}
-                      className={`group relative p-3 rounded-xl transition-all ${
-                        shouldForceDefaultLayout
-                          ? item.value === "default" 
-                            ? "bg-black/[0.06] dark:bg-white/[0.06] cursor-not-allowed"
-                            : "opacity-40 cursor-not-allowed"
-                          : config.layoutMode === item.value
-                          ? "bg-black/[0.06] dark:bg-white/[0.06]"
-                          : "hover:bg-black/[0.03] dark:hover:bg-white/[0.03]"
-                      }`}
-                    >
-                      <item.Icon className={`w-5 h-5 mx-auto mb-1.5 transition-colors ${
-                        shouldForceDefaultLayout
-                          ? item.value === "default"
-                            ? "text-black dark:text-white"
+                  ].map((item) => {
+                    // 确定哪个布局被强制使用
+                    const forcedLayout = shouldForceWideLayout ? "wide" : shouldForceCompactLayout ? "compact" : null;
+                    const isForced = item.value === forcedLayout;
+                    
+                    return (
+                      <button
+                        key={item.value}
+                        onClick={() => {
+                          if (!shouldForceLayout) {
+                            triggerHaptic(HapticFeedback.Light)
+                            updateLayout(item.value)
+                          }
+                        }}
+                        disabled={shouldForceLayout}
+                        className={`group relative p-3 rounded-xl transition-all ${
+                          shouldForceLayout
+                            ? isForced
+                              ? "bg-black/[0.06] dark:bg-white/[0.06] cursor-not-allowed"
+                              : "opacity-40 cursor-not-allowed"
+                            : config.layoutMode === item.value
+                            ? "bg-black/[0.06] dark:bg-white/[0.06]"
+                            : "hover:bg-black/[0.03] dark:hover:bg-white/[0.03]"
+                        }`}
+                      >
+                        <item.Icon className={`w-5 h-5 mx-auto mb-1.5 transition-colors ${
+                          shouldForceLayout
+                            ? isForced
+                              ? "text-black dark:text-white"
+                              : "text-black/50 dark:text-white/50"
+                            : config.layoutMode === item.value 
+                            ? "text-black dark:text-white" 
                             : "text-black/50 dark:text-white/50"
-                          : config.layoutMode === item.value 
-                          ? "text-black dark:text-white" 
-                          : "text-black/50 dark:text-white/50"
-                      }`} />
-                      <div className={`text-[11px] font-medium transition-colors ${
-                        shouldForceDefaultLayout
-                          ? item.value === "default"
+                        }`} />
+                        <div className={`text-[11px] font-medium transition-colors ${
+                          shouldForceLayout
+                            ? isForced
+                              ? "text-black dark:text-white"
+                              : "text-black/60 dark:text-white/60"
+                            : config.layoutMode === item.value
                             ? "text-black dark:text-white"
                             : "text-black/60 dark:text-white/60"
-                          : config.layoutMode === item.value
-                          ? "text-black dark:text-white"
-                          : "text-black/60 dark:text-white/60"
-                      }`}>
-                        {item.label}
-                      </div>
-                      {((shouldForceDefaultLayout && item.value === "default") || 
-                        (!shouldForceDefaultLayout && config.layoutMode === item.value)) && (
-                        <motion.div
-                          layoutId="activeLayout"
-                          className="absolute inset-0 border-2 border-black/[0.12] dark:border-white/[0.12] rounded-xl"
-                          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        />
-                      )}
-                    </button>
-                  ))}
+                        }`}>
+                          {item.label}
+                        </div>
+                        {((shouldForceLayout && isForced) || 
+                          (!shouldForceLayout && config.layoutMode === item.value)) && (
+                          <motion.div
+                            layoutId="activeLayout"
+                            className="absolute inset-0 border-2 border-black/[0.12] dark:border-white/[0.12] rounded-xl"
+                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
