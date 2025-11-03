@@ -402,33 +402,38 @@ export function createSelectionSession(opts?: HapticOptions) {
 
 /**
  * 音量滑动触觉反馈（高品质版）
- * - 速度自适应间隔：快速滑动 4-6ms，慢速滑动 8-10ms
- * - 200 个刻度（每 0.5% 一格）提升连续性
- * - 边界/中点特殊处理
+ * - 100 个刻度（每 1% 一格）
+ * - 0%/100% 边界：重/警告（快速滑动时加强）
+ * - 50% 中点：Success 双脉冲
+ * - 每 5%：中/重（按滑动速度提高强度）
+ * - 其余格：轻/中（按滑动速度提高强度）
+ * - 全局最小触发间隔 10~12ms，避免"蜂鸣"
  */
 export function createVolumeHaptic(): (volume: number, velocity?: number) => void {
   let lastStep = -1;
   let lastVolume = -1;
   let lastTriggerTime = 0;
 
+  const MIN_INTERVAL = 12; // 提升上限，保持干脆
+
   return (volume: number, velocity: number = 0) => {
     const now = performance.now ? performance.now() : Date.now();
+
+    // 安全/性能门限
+    if (now - lastTriggerTime < MIN_INTERVAL) return;
     if (Number.isNaN(volume)) return;
 
+    // [0,1] 边界钳制
     const v = Math.min(1, Math.max(0, volume));
-    const step = Math.floor(v * 200); // 200刻度，0.5%精度
+    const step = Math.floor(v * 100);
+
     const speed = Math.abs(velocity);
+    const isFastSwipe = speed > 0.9;
+    const isSuperFastSwipe = speed > 2.0;
 
-    // 速度自适应间隔：快速滑动更密集
-    const minInterval = speed > 1.5 ? 4 : speed > 0.8 ? 6 : speed > 0.3 ? 8 : 10;
-    if (now - lastTriggerTime < minInterval) return;
-
-    // 边界：0% 或 100% (更宽松的检测范围)
-    const isAtMin = v <= 0.01; // 0-1%
-    const isAtMax = v >= 0.99; // 99-100%
-    
-    if ((isAtMin && lastStep > 2) || (isAtMax && lastStep < 198)) {
-      triggerHaptic(speed > 2.0 ? HapticFeedback.Warning : HapticFeedback.Heavy);
+    // 边界：0 或 1
+    if ((v === 0 || v === 1) && lastVolume !== v) {
+      triggerHaptic(isSuperFastSwipe ? HapticFeedback.Warning : HapticFeedback.Heavy);
       lastTriggerTime = now;
       lastVolume = v;
       lastStep = step;
@@ -436,7 +441,7 @@ export function createVolumeHaptic(): (volume: number, velocity?: number) => voi
     }
 
     // 中点：50%
-    if (step === 100 && lastStep !== 100) {
+    if (step === 50 && lastStep !== 50) {
       triggerHaptic(HapticFeedback.Success);
       lastTriggerTime = now;
       lastVolume = v;
@@ -444,21 +449,13 @@ export function createVolumeHaptic(): (volume: number, velocity?: number) => voi
       return;
     }
 
-    // 步进变化
     if (step !== lastStep) {
-      // 每 10% (步进20) 加重
-      if (step % 20 === 0) {
-        triggerHaptic(speed > 0.9 ? HapticFeedback.Heavy : HapticFeedback.Medium);
-      } 
-      // 每 5% (步进10) 中等
-      else if (step % 10 === 0) {
-        triggerHaptic(speed > 0.9 ? HapticFeedback.Medium : HapticFeedback.Light);
+      if (step % 5 === 0) {
+        // 整 5% 刻度加重，快速滑动进一步增强
+        triggerHaptic(isFastSwipe ? HapticFeedback.Heavy : HapticFeedback.Medium);
+      } else {
+        triggerHaptic(isFastSwipe ? HapticFeedback.Medium : HapticFeedback.Light);
       }
-      // 其余每 0.5% 轻触
-      else {
-        triggerHaptic(speed > 1.2 ? HapticFeedback.Light : HapticFeedback.Selection);
-      }
-      
       lastTriggerTime = now;
       lastStep = step;
       lastVolume = v;
