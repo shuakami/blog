@@ -136,44 +136,8 @@ export async function processIncrementalUpdate(
       
       const html = await markdownToHtml(updatedMarkdown);
 
-      // 生成摘要
-      let excerpt = parsed.data.excerpt || '';
-      if (!excerpt) {
-        excerpt = parsed.content
-          // 移除 HTML 注释（包括 ProjectCard 等）
-          .replace(/<!--[\s\S]*?-->/g, '')
-          // 移除代码块
-          .replace(/```[\s\S]*?```/g, '')
-          // 移除行内代码
-          .replace(/`[^`]+`/g, '')
-          // 移除链接，保留文本
-          .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-          // 移除图片引用
-          .replace(/!\[\[[^\]]+\]\]/g, '')
-          .replace(/!\[([^\]]*)\]\([^)]+\)/g, '')
-          // 移除 Markdown 标记
-          .replace(/[#*_~\[\]]/g, '')
-          // 移除多余空白
-          .replace(/\s+/g, ' ')
-          .trim();
-        
-        // 智能截断：优先在句号、问号、感叹号处截断
-        if (excerpt.length > 200) {
-          const truncated = excerpt.slice(0, 200);
-          const lastPunctuation = Math.max(
-            truncated.lastIndexOf('。'),
-            truncated.lastIndexOf('？'),
-            truncated.lastIndexOf('！'),
-            truncated.lastIndexOf('.')
-          );
-          
-          if (lastPunctuation > 100) {
-            excerpt = truncated.slice(0, lastPunctuation + 1);
-          } else {
-            excerpt = truncated + '...';
-          }
-        }
-      }
+      const { generateExcerpt } = require('./excerpt-generator');
+      const excerpt = generateExcerpt(parsed.content, parsed.data.excerpt);
 
       // 构建文章对象
       const post: BlogPost = {
