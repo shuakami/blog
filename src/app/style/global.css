@@ -13,10 +13,7 @@
     --font-noto-sans-sc: '';
 }
 
-.dark {
-    --background: #000000;
-    --foreground: #F9F9F9;
-}
+/* .dark 变量由 shadcn/ui 系统统一管理（见下方 @layer base）*/
   
 
   @keyframes fadeIn {
