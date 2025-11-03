@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { Settings, Sun, Moon, Monitor, Image as ImageIcon, Minimize2, Maximize2, Square, Palette } from "lucide-react";
+import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 
 export type BackgroundOption = "none" | "character" | "luoxiaohei";
 export type LayoutMode = "default" | "wide" | "compact";
@@ -105,7 +106,10 @@ export default function AppearanceSettings() {
     <div className="relative">
       <button
         ref={buttonRef}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          triggerHaptic(HapticFeedback.Light)
+          setIsOpen(!isOpen)
+        }}
         className="w-8 h-8 rounded-full flex items-center justify-center text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
         aria-label="外观设置"
       >
@@ -136,7 +140,10 @@ export default function AppearanceSettings() {
                   ].map((item) => (
                     <button
                       key={item.value}
-                      onClick={() => setTheme(item.value)}
+                      onClick={() => {
+                        triggerHaptic(HapticFeedback.Light)
+                        setTheme(item.value)
+                      }}
                       className={`group relative p-3 rounded-xl transition-all ${
                         theme === item.value
                           ? "bg-black/[0.06] dark:bg-white/[0.06]"
@@ -190,7 +197,12 @@ export default function AppearanceSettings() {
                   ].map((item) => (
                     <button
                       key={item.value}
-                      onClick={() => updateBackground(item.value)}
+                      onClick={() => {
+                        if (!shouldDisableBackground) {
+                          triggerHaptic(HapticFeedback.Light)
+                          updateBackground(item.value)
+                        }
+                      }}
                       disabled={shouldDisableBackground}
                       className={`group relative p-3 rounded-xl transition-all ${
                         shouldDisableBackground 
@@ -247,7 +259,12 @@ export default function AppearanceSettings() {
                   ].map((item) => (
                     <button
                       key={item.value}
-                      onClick={() => updateLayout(item.value)}
+                      onClick={() => {
+                        if (!shouldForceDefaultLayout) {
+                          triggerHaptic(HapticFeedback.Light)
+                          updateLayout(item.value)
+                        }
+                      }}
                       disabled={shouldForceDefaultLayout}
                       className={`group relative p-3 rounded-xl transition-all ${
                         shouldForceDefaultLayout

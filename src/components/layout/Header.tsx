@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { NowPlaying } from "@/components/music/now-playing"
 import AppearanceSettings from "@/components/AppearanceSettings"
+import { triggerHaptic, HapticFeedback } from '@/utils/haptics'
 
 interface HeaderProps {
   isSidebarOpen: boolean
@@ -35,7 +36,10 @@ export function Header({ isSidebarOpen, onToggleSidebar, title, showSidebarToggl
           {showSidebarToggle && (
             <Button
               aria-label={isSidebarOpen ? "关闭侧边栏" : "打开侧边栏"}
-              onClick={onToggleSidebar}
+              onClick={() => {
+                triggerHaptic(HapticFeedback.Medium)
+                onToggleSidebar()
+              }}
               variant="ghost"
               className="rounded-md text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white h-8 w-8 md:h-8 md:w-8"
             >
@@ -58,7 +62,7 @@ export function Header({ isSidebarOpen, onToggleSidebar, title, showSidebarToggl
         {/* 右侧区域 - 固定宽度 */}
         <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
           {/* 搜索按钮 */}
-          <Link href="/search">
+          <Link href="/search" onClick={() => triggerHaptic(HapticFeedback.Light)}>
             <Button
               variant="ghost"
               aria-label="搜索"
