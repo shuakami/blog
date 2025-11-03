@@ -182,9 +182,8 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
     volumeHapticRef.current?.(clamped, velocity)
   }
   const handleVolumeToggle = () => {
-    // 静音/取消静音触发中等震动
     const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
-    triggerHaptic(HapticFeedback.Medium)
+    triggerHaptic(HapticFeedback.Heavy)
     
     if (volume > 0) {
       setPreviousVolume(volume)
@@ -449,7 +448,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
                         const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
-                        triggerHaptic(HapticFeedback.Light)
+                        triggerHaptic(HapticFeedback.Heavy)
                         handlePrevSong()
                       }}
                       className="w-8 h-8 rounded-full bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors"
@@ -461,7 +460,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
                         const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
-                        triggerHaptic(HapticFeedback.Medium)
+                        triggerHaptic(HapticFeedback.Success)
                         handleTogglePlay()
                       }}
                       className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors shadow-lg"
@@ -477,7 +476,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
                         const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
-                        triggerHaptic(HapticFeedback.Light)
+                        triggerHaptic(HapticFeedback.Heavy)
                         handleNextSong()
                       }}
                       className="w-8 h-8 rounded-full bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors"
@@ -569,7 +568,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                             className="group flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/50 cursor-pointer transition-all duration-300 ease-out"
                             onClick={() => {
                               const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
-                              triggerHaptic(HapticFeedback.Light)
+                              triggerHaptic(HapticFeedback.Heavy)
                               handleSongChange(actualIndex)
                             }}
                           >
@@ -749,7 +748,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                     whileTap={{ scale: 0.9 }}
                     onClick={() => {
                       const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
-                      triggerHaptic(HapticFeedback.Light)
+                      triggerHaptic(HapticFeedback.Heavy)
                       handlePrevSong()
                     }}
                     className="w-12 h-12 sm:w-12 sm:h-12 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors"
@@ -761,7 +760,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
-                      triggerHaptic(HapticFeedback.Medium)
+                      triggerHaptic(HapticFeedback.Success)
                       handleTogglePlay()
                     }}
                     className="w-16 h-16 sm:w-16 sm:h-16 rounded-full bg-primary hover:bg-primary/90 active:bg-primary/80 flex items-center justify-center transition-colors shadow-2xl"
@@ -777,7 +776,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                     whileTap={{ scale: 0.9 }}
                     onClick={() => {
                       const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
-                      triggerHaptic(HapticFeedback.Light)
+                      triggerHaptic(HapticFeedback.Heavy)
                       handleNextSong()
                     }}
                     className="w-12 h-12 sm:w-12 sm:h-12 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center transition-colors"
@@ -857,7 +856,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                             className="flex items-center gap-4 sm:gap-3 p-3 sm:p-2 rounded-xl sm:rounded-lg bg-secondary/30 hover:bg-secondary/60 active:bg-secondary/80 cursor-pointer transition-all"
                             onClick={() => {
                               const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
-                              triggerHaptic(HapticFeedback.Light)
+                              triggerHaptic(HapticFeedback.Heavy)
                               handleSongChange(actualIndex)
                             }}
                           >
