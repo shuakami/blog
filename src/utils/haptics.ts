@@ -26,16 +26,6 @@ export enum HapticFeedback {
 
 /**
  * 震动模式配置（毫秒）
- * Apple Taptic Engine 风格：极短促、精确、舒适
- * 
- * 参考 Apple HIG：
- * - Selection: 3-5ms（最轻微，用于连续滑动）
- * - Light: 5-7ms（轻触感）
- * - Medium: 10-12ms（中等强度）  
- * - Heavy: 15-18ms（重击感）
- * 
- * Web Vibration API 精度限制：
- * - 大多数设备最小可靠值为 5ms
  */
 const vibrationPatterns: Record<HapticFeedback, number | number[]> = {
   [HapticFeedback.Selection]: 4,           // 极轻：4ms（滑动专用）
@@ -99,19 +89,7 @@ export function createThrottledHaptic(
 }
 
 /**
- * 音量滑动触觉反馈（Apple 风格）
- * 
- * 策略：
- * 1. 边界增强：0% 和 100% 触发 Medium（边界感）
- * 2. 中点提示：50% 触发 Light（对称感）
- * 3. 刻度感：每 10% 触发 Light（清晰反馈）
- * 4. 细腻感：慢速滑动时每 2% 触发 Selection（极轻）
- * 5. 速度自适应：快速滑动降低频率（避免疲劳）
- * 
- * 性能优化：
- * - 最小触发间隔 16ms（60fps）
- * - 使用 RAF 批处理
- * - 防止阻塞主线程
+ * 音量滑动触觉反馈
  */
 export function createVolumeHaptic(): (volume: number, velocity?: number) => void {
   let lastStep = -1

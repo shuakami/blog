@@ -617,18 +617,17 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                     duration: 0.3, 
                     ease: [0.16, 1, 0.3, 1]  // easeOutExpo
                   }}
-                  className="fixed z-50 w-full border-0 bg-white dark:bg-black p-0 inset-x-0 bottom-0 rounded-t-3xl sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border sm:p-6 sm:bg-background"
+                  className="fixed z-50 w-full border-0 bg-white dark:bg-black p-0 inset-x-0 bottom-0 rounded-t-3xl sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border sm:p-6 sm:bg-background flex flex-col"
                   style={{ 
-                    // 移动端：从底部开始，顶部留出空间（即使被地址栏遮住也无所谓）
-                    maxHeight: 'calc(100vh - 80px)',
-                    top: 'auto',
+                    // 移动端：从底部开始，最大高度 85vh
+                    maxHeight: '85vh',
                     willChange: "transform"
                   }}
                 >
             <DialogPrimitive.Title className="sr-only">音乐播放器</DialogPrimitive.Title>
 
             {/* 顶部拖动指示器 - 仅移动端显示 */}
-            <div className="sm:hidden flex justify-center pt-3 pb-2 sticky top-0 bg-white dark:bg-background z-10">
+            <div className="sm:hidden flex justify-center pt-3 pb-2 flex-shrink-0 bg-white dark:bg-background z-10">
               <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
             </div>
 
@@ -638,7 +637,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
 
-            <div className="h-full overflow-y-auto overscroll-contain pb-safe">
+            <div className="flex-1 overflow-y-auto overscroll-contain pb-safe min-h-0">
               <div className="flex flex-col justify-start sm:justify-center px-6 pt-0 pb-8 sm:p-0 space-y-5 sm:space-y-6">
                 {/* 专辑封面和基础信息 */}
                 <div className="flex flex-col items-center gap-3 sm:gap-4">
@@ -666,13 +665,14 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                 </div>
 
                 {/* 滚动歌词区域 */}
-                <div className="h-28 sm:h-32 overflow-hidden relative bg-gradient-to-b from-transparent via-muted/20 to-transparent rounded-lg px-4">
+                <div className="h-28 sm:h-32 overflow-hidden relative bg-gradient-to-b from-transparent via-muted/20 to-transparent rounded-lg px-4 flex-shrink-0">
                   {parsedLyrics.length > 0 ? (
-                    <div className="relative h-full">
+                    <div className="relative h-full flex items-center justify-center">
                       <motion.div
                         className="absolute left-0 right-0 flex flex-col items-center"
-                        animate={{ y: -currentLyricIndex * 36 + 56 }}
+                        animate={{ y: `calc(50% - ${currentLyricIndex * 36}px)` }}
                         transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+                        style={{ top: 0 }}
                       >
                         {parsedLyrics.map((lyric, index) => {
                           const distance = Math.abs(index - currentLyricIndex)
