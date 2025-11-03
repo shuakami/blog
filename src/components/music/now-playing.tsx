@@ -695,86 +695,53 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                   </motion.button>
                 </div>
 
-                {/* 音量控制（移动端） */}
+                {/* 音量控制（移动端）- 简洁拖动滑块 */}
                 <div className="px-6 sm:px-4">
-                  <AnimatePresence mode="wait" initial={false}>
-                    {!isVolumeExpanded ? (
-                      <motion.button
-                        key="volume-button"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => setIsVolumeExpanded(true)}
-                        className="w-full h-11 sm:h-10 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center gap-2 transition-colors"
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                    className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/30"
+                  >
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handleVolumeToggle}
+                      className="w-9 h-9 rounded-full hover:bg-background/50 active:bg-background/70 flex items-center justify-center transition-colors flex-shrink-0"
+                    >
+                      <VolumeIcon className="w-5 h-5 text-muted-foreground" />
+                    </motion.button>
+                    
+                    <div className="flex-1 flex items-center gap-3">
+                      <div 
+                        className="flex-1 h-2 bg-muted/50 dark:bg-muted/30 rounded-full cursor-pointer relative group"
+                        onClick={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect()
+                          const clickX = e.clientX - rect.left
+                          const percentage = clickX / rect.width
+                          handleVolumeChange(percentage)
+                        }}
                       >
-                        <VolumeIcon className="w-5 h-5 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground font-mono">
-                          {Math.round(volume * 100)}%
-                        </span>
-                      </motion.button>
-                    ) : (
-                      <motion.div
-                        key="volume-controls"
-                        initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-                        className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/50 overflow-hidden"
-                      >
-                        <motion.button
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.15, duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={handleVolumeToggle}
-                          className="w-9 h-9 rounded-full bg-background hover:bg-background/80 active:bg-background/70 flex items-center justify-center transition-colors flex-shrink-0"
-                        >
-                          <VolumeIcon className="w-4 h-4 text-muted-foreground" />
-                        </motion.button>
-                        
                         <motion.div
-                          initial={{ opacity: 0, scaleX: 0.8 }}
-                          animate={{ opacity: 1, scaleX: 1 }}
-                          transition={{ delay: 0.2, duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-                          className="flex-1 flex items-center gap-3"
-                        >
-                          <div 
-                            className="flex-1 h-2 bg-muted/50 rounded-full cursor-pointer relative"
-                            onClick={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect()
-                              const clickX = e.clientX - rect.left
-                              const percentage = clickX / rect.width
-                              handleVolumeChange(percentage)
-                            }}
-                          >
-                            <motion.div
-                              className="h-full bg-foreground rounded-full"
-                              style={{ width: `${volume * 100}%` }}
-                              initial={false}
-                              animate={{ width: `${volume * 100}%` }}
-                              transition={{ duration: 0.15, ease: "easeOut" }}
-                            />
-                          </div>
-                          <span className="text-xs text-muted-foreground w-10 text-right font-mono">
-                            {Math.round(volume * 100)}%
-                          </span>
-                        </motion.div>
-
-                        <motion.button
-                          initial={{ opacity: 0, x: 10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.15, duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => setIsVolumeExpanded(false)}
-                          className="w-9 h-9 rounded-full bg-background hover:bg-background/80 active:bg-background/70 flex items-center justify-center transition-colors flex-shrink-0"
-                        >
-                          <X className="w-4 h-4 text-muted-foreground" />
-                        </motion.button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                          className="h-full bg-foreground dark:bg-primary rounded-full"
+                          style={{ width: `${volume * 100}%` }}
+                          initial={false}
+                          animate={{ width: `${volume * 100}%` }}
+                          transition={{ duration: 0.15, ease: "easeOut" }}
+                        />
+                        {/* 指示器圆点 */}
+                        <motion.div
+                          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-foreground dark:bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          style={{ left: `${volume * 100}%`, transform: 'translate(-50%, -50%)' }}
+                          initial={false}
+                          animate={{ left: `${volume * 100}%` }}
+                          transition={{ duration: 0.15, ease: "easeOut" }}
+                        />
+                      </div>
+                      <span className="text-xs text-muted-foreground w-10 text-right font-mono">
+                        {Math.round(volume * 100)}%
+                      </span>
+                    </div>
+                  </motion.div>
                 </div>
 
                 {/* Next Up 列表（移动端） */}
