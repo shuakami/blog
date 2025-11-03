@@ -94,18 +94,35 @@ function rehypeAddHeadingIds() {
 
 function rehypeProjectCards() {
   return (tree: Node) => {
-    visit(tree, 'comment', (node: any, index, parent) => {
-      if (!node.value || !parent || index === null) return;
+    visit(tree, (node: any, index, parent) => {
+      if (node.type === 'comment' && node.value && parent && index !== null) {
+        const trimmed = node.value.trim();
+        if (trimmed.startsWith('ProjectCard')) {
+          const cardData = parseProjectCard(trimmed);
+          if (cardData) {
+            const html = renderProjectCard(cardData);
+            parent.children[index] = {
+              type: 'html',
+              value: html,
+            };
+          }
+        }
+      }
       
-      const trimmed = node.value.trim();
-      if (trimmed.startsWith('ProjectCard')) {
-        const cardData = parseProjectCard(trimmed);
-        if (cardData) {
-          const html = renderProjectCard(cardData);
-          parent.children[index] = {
-            type: 'raw',
-            value: html,
-          };
+      if (node.type === 'element' && node.tagName === 'p' && node.children && node.children.length > 0) {
+        const child = node.children[0];
+        if (child.type === 'text' && child.value && child.value.trim().startsWith('<!--') && child.value.includes('ProjectCard')) {
+          const commentMatch = child.value.match(/<!--\s*(ProjectCard[^>]+)-->/);
+          if (commentMatch) {
+            const cardData = parseProjectCard(commentMatch[1]);
+            if (cardData && parent && index !== null) {
+              const html = renderProjectCard(cardData);
+              parent.children[index] = {
+                type: 'raw',
+                value: html,
+              };
+            }
+          }
         }
       }
     });

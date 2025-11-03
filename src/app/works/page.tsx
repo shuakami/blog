@@ -269,11 +269,14 @@ export default function WorksPage() {
 
       {/* 作品列表 */}
       <div className="space-y-0">
-            {works.map((work, index) => (
+            {works.map((work, index) => {
+              const workId = work.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+              return (
               <article 
-                key={index} 
+                key={index}
+                id={workId}
                 data-work-index={index}
-                className="group py-8 sm:py-12 md:py-16 border-b border-black/[0.06] dark:border-white/[0.06] last:border-0"
+                className="group py-8 sm:py-12 md:py-16 border-b border-black/[0.06] dark:border-white/[0.06] last:border-0 scroll-mt-24"
               >
             {/* 项目预览图 */}
             {work.customBanner ? (
@@ -436,7 +439,8 @@ export default function WorksPage() {
                     </div>
                   </div>
               </article>
-            ))}
+              );
+            })}
           </div>
 
       {/* 右侧导航光刻标 */}
