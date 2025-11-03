@@ -6,11 +6,13 @@ export interface ProjectCardData {
 }
 
 export function parseProjectCard(comment: string): ProjectCardData | null {
-  // 支持双引号和单引号
-  const titleMatch = comment.match(/title:\s*["']([^"']+)["']/);
-  const descMatch = comment.match(/description:\s*["']([^"']+)["']/);
-  const buttonMatch = comment.match(/button:\s*["']([^"']+)["']/);
-  const linkMatch = comment.match(/link:\s*["']([^"']+)["']/);
+  // 支持双引号、单引号，以及冒号和等号两种格式
+  // 格式1: title:"xxx" 或 title:'xxx'
+  // 格式2: title="xxx" 或 title='xxx'
+  const titleMatch = comment.match(/title[:=]\s*["']([^"']+)["']/);
+  const descMatch = comment.match(/description[:=]\s*["']([^"']+)["']/);
+  const buttonMatch = comment.match(/button[:=]\s*["']([^"']+)["']/);
+  const linkMatch = comment.match(/link[:=]\s*["']([^"']+)["']/);
 
   if (!titleMatch || !descMatch || !buttonMatch || !linkMatch) {
     return null;
