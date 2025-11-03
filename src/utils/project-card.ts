@@ -6,10 +6,11 @@ export interface ProjectCardData {
 }
 
 export function parseProjectCard(comment: string): ProjectCardData | null {
-  const titleMatch = comment.match(/title:\s*"([^"]+)"/);
-  const descMatch = comment.match(/description:\s*"([^"]+)"/);
-  const buttonMatch = comment.match(/button:\s*"([^"]+)"/);
-  const linkMatch = comment.match(/link:\s*"([^"]+)"/);
+  // 支持双引号和单引号
+  const titleMatch = comment.match(/title:\s*["']([^"']+)["']/);
+  const descMatch = comment.match(/description:\s*["']([^"']+)["']/);
+  const buttonMatch = comment.match(/button:\s*["']([^"']+)["']/);
+  const linkMatch = comment.match(/link:\s*["']([^"']+)["']/);
 
   if (!titleMatch || !descMatch || !buttonMatch || !linkMatch) {
     return null;
