@@ -614,7 +614,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
       {/* 移动端模态框（从底部弹出，顶部留空） */}
       <AnimatePresence>
         {isModalOpen && (
-          <DialogPrimitive.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <DialogPrimitive.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogPrimitive.Portal forceMount>
               <motion.div
                 initial={{ opacity: 0 }}
@@ -794,21 +794,21 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
 
                 {/* 音量控制（移动端）- 保持原样式，可直接滑动 */}
                 <div className="px-6 sm:px-4">
-                  <motion.button
-                    key="volume-button"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-                    whileTap={{ scale: 0.97 }}
+                      <motion.button
+                        key="volume-button"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                        whileTap={{ scale: 0.97 }}
                     onMouseDown={(e) => {
                       e.preventDefault()
                       setIsVolumeDragging(true)
-                      const rect = e.currentTarget.getBoundingClientRect()
-                      const clickX = e.clientX - rect.left
-                      const percentage = clickX / rect.width
-                      handleVolumeChange(percentage)
-                    }}
+                              const rect = e.currentTarget.getBoundingClientRect()
+                              const clickX = e.clientX - rect.left
+                              const percentage = clickX / rect.width
+                              handleVolumeChange(percentage)
+                            }}
                     onTouchStart={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect()
                       const touch = e.touches[0]
@@ -827,24 +827,24 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                     className="relative w-full h-11 sm:h-10 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center gap-2 transition-colors overflow-hidden"
                   >
                     {/* 音量进度背景 */}
-                    <motion.div
+                            <motion.div
                       className="absolute inset-0 bg-primary/10"
                       style={{ 
                         clipPath: `inset(0 ${100 - volume * 100}% 0 0)`,
                       }}
-                      initial={false}
+                              initial={false}
                       animate={{ 
                         clipPath: `inset(0 ${100 - volume * 100}% 0 0)`,
                       }}
-                      transition={{ duration: 0.15, ease: "easeOut" }}
-                    />
+                              transition={{ duration: 0.15, ease: "easeOut" }}
+                            />
                     
                     {/* 图标和文字 */}
                     <VolumeIcon className="w-5 h-5 text-muted-foreground relative z-10" />
                     <span className="text-sm text-muted-foreground font-mono relative z-10">
-                      {Math.round(volume * 100)}%
-                    </span>
-                  </motion.button>
+                            {Math.round(volume * 100)}%
+                          </span>
+                        </motion.button>
                 </div>
 
                 {/* Next Up 列表（移动端） */}
@@ -893,9 +893,9 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
               </div>
             </div>
                 </motion.div>
-              </DialogPrimitive.Content>
-            </DialogPrimitive.Portal>
-          </DialogPrimitive.Root>
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
         )}
       </AnimatePresence>
     </div>

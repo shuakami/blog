@@ -198,19 +198,28 @@ const useMusicPlayerStore = create<MusicPlayerState>()(
         set({
           currentSongIndex: ((newIndex % playlist.length) + playlist.length) % playlist.length,
           pendingPlay: false,
+          savedTime: 0, // 切歌时重置进度
         })
       },
 
       handleNextSong: () => {
         const { playlist, currentSongIndex } = get()
         if (!playlist.length) return
-        set({ currentSongIndex: (currentSongIndex + 1) % playlist.length, pendingPlay: false })
+        set({ 
+          currentSongIndex: (currentSongIndex + 1) % playlist.length, 
+          pendingPlay: false,
+          savedTime: 0, // 切歌时重置进度
+        })
       },
 
       handlePrevSong: () => {
         const { playlist, currentSongIndex } = get()
         if (!playlist.length) return
-        set({ currentSongIndex: (currentSongIndex - 1 + playlist.length) % playlist.length, pendingPlay: false })
+        set({ 
+          currentSongIndex: (currentSongIndex - 1 + playlist.length) % playlist.length, 
+          pendingPlay: false,
+          savedTime: 0, // 切歌时重置进度
+        })
       },
 
       handleTogglePlay: () => {
@@ -370,6 +379,7 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
   const retryCount = useRef(0)
   const isPageVisible = useRef(true)
   const hasRestoredProgress = useRef(false)
+  const lastRestoredSongId = useRef<string | number | null>(null)
 
   // WebAudio 图
   const acRef = useRef<AudioContext | null>(null)
@@ -510,10 +520,17 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
         gain.gain.linearRampToValueAtTime(useMusicPlayerStore.getState().volume, ac.currentTime + FADE_MS / 1000)
       }
       
-      // 恢复进度：只在页面初始加载时执行一次
+      // 恢复进度：仅在页面初始加载且 savedTime > 0 时恢复
+      // 切歌后 savedTime 被重置为 0，所以不会恢复到上一首的进度
       if (!hasRestoredProgress.current && savedTime > 0 && !isNaN(savedTime)) {
         audio.currentTime = savedTime
         hasRestoredProgress.current = true
+        lastRestoredSongId.current = currentSongId || null
+      }
+      // 如果切换到新歌曲，允许下次恢复（但由于切歌时 savedTime 已重置为 0，实际不会恢复）
+      else if (lastRestoredSongId.current !== currentSongId) {
+        hasRestoredProgress.current = false
+        lastRestoredSongId.current = currentSongId || null
       }
       
       // 不静音 <audio>，确保即使 CDN 缺少 CORS 头，仍有直播放音兜底

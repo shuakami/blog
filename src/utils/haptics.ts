@@ -428,17 +428,16 @@ export function createVolumeHaptic(): (volume: number, velocity?: number) => voi
     const isAtMax = v >= 0.99; // 99-100%
     
     if ((isAtMin && lastStep > 2) || (isAtMax && lastStep < 198)) {
-      // 边界永远用 Warning（三脉冲）确保明显
-      triggerHaptic(HapticFeedback.Warning);
+      triggerHaptic(speed > 2.0 ? HapticFeedback.Warning : HapticFeedback.Heavy);
       lastTriggerTime = now;
       lastVolume = v;
       lastStep = step;
       return;
     }
 
-    // 中点：50% - 加强为 Warning
+    // 中点：50%
     if (step === 100 && lastStep !== 100) {
-      triggerHaptic(HapticFeedback.Warning);
+      triggerHaptic(HapticFeedback.Success);
       lastTriggerTime = now;
       lastVolume = v;
       lastStep = step;
