@@ -138,6 +138,14 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
   }
 
   // ---------------- 音量控制 ----------------
+  // 创建音量滑动触觉反馈
+  const volumeHapticRef = useRef<((volume: number) => void) | null>(null)
+  
+  useEffect(() => {
+    const { createVolumeHaptic } = require('@/utils/haptics')
+    volumeHapticRef.current = createVolumeHaptic()
+  }, [])
+  
   const handleVolumeChange = (newVolume: number) => {
     const clamped = Math.max(0, Math.min(1, newVolume))
     setVolume(clamped)
@@ -147,8 +155,15 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
     }
     localStorage.setItem('musicPlayer-volume', clamped.toString())
     if (audioRef?.current) audioRef.current.volume = clamped
+    
+    // 触发触觉反馈
+    volumeHapticRef.current?.(clamped)
   }
   const handleVolumeToggle = () => {
+    // 静音/取消静音触发中等震动
+    const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+    triggerHaptic(HapticFeedback.Medium)
+    
     if (volume > 0) {
       setPreviousVolume(volume)
       localStorage.setItem('musicPlayer-previousVolume', volume.toString())
@@ -557,34 +572,46 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
         </div>
       )}
 
-      {/* 移动端全屏模态框（小屏适配） */}
-      <DialogPrimitive.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 dark:bg-black/70 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-500" style={{ animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }} />
-          <DialogPrimitive.Content 
-            className="fixed z-50 w-full border-0 bg-white dark:bg-black p-0 data-[state=open]:animate-in data-[state=closed]:animate-out inset-x-0 bottom-0 max-h-[100dvh] rounded-t-3xl data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-700 sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border sm:p-6 sm:bg-background sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%] sm:duration-200" 
-            style={{ 
-              animationTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)',
-              // 使用 CSS 变量处理安全区域
-              paddingTop: 'max(env(safe-area-inset-top), 0.75rem)',
-              height: 'calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px))'
-            }}
-          >
+      {/* 移动端模态框（从底部弹出，顶部留空） */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <DialogPrimitive.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogPrimitive.Portal forceMount>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80"
+                onClick={() => setIsModalOpen(false)}
+                style={{ willChange: "opacity" }}
+              />
+              <DialogPrimitive.Content asChild forceMount>
+                <motion.div
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  exit={{ y: "100%" }}
+                  transition={{ 
+                    duration: 0.3, 
+                    ease: [0.16, 1, 0.3, 1]  // easeOutExpo
+                  }}
+                  className="fixed z-50 w-full border-0 bg-white dark:bg-black p-0 inset-x-0 bottom-0 rounded-t-3xl sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:h-auto sm:max-w-[95vw] sm:max-h-[85vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:border sm:p-6 sm:bg-background"
+                  style={{ 
+                    // 移动端：从底部开始，顶部留出空间（即使被地址栏遮住也无所谓）
+                    maxHeight: 'calc(100vh - 80px)',
+                    top: 'auto',
+                    willChange: "transform"
+                  }}
+                >
             <DialogPrimitive.Title className="sr-only">音乐播放器</DialogPrimitive.Title>
 
             {/* 顶部拖动指示器 - 仅移动端显示 */}
-            <div className="sm:hidden flex justify-center pt-2 pb-2 sticky top-0 bg-white dark:bg-background z-10">
+            <div className="sm:hidden flex justify-center pt-3 pb-2 sticky top-0 bg-white dark:bg-background z-10">
               <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
             </div>
 
-            {/* 关闭按钮 - 调整位置确保在安全区域内 */}
-            <DialogPrimitive.Close 
-              className="absolute right-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-background/80 backdrop-blur-sm shadow-lg"
-              style={{
-                // 确保按钮在安全区域内，使用动态计算
-                top: 'max(env(safe-area-inset-top, 0px) + 1rem, 1rem)'
-              }}
-            >
+            {/* 关闭按钮 - 固定在内容区顶部 */}
+            <DialogPrimitive.Close className="absolute right-4 top-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-background/80 backdrop-blur-sm shadow-lg">
               <X className="h-5 w-5 sm:h-4 sm:w-4 text-foreground" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
@@ -710,87 +737,59 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                   </motion.button>
                 </div>
 
-                {/* 音量控制（移动端）- 精致版 */}
+                {/* 音量控制（移动端）- 保持原样式，可直接滑动 */}
                 <div className="px-6 sm:px-4">
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                  <motion.button
+                    key="volume-button"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-                    className="relative"
+                    whileTap={{ scale: 0.97 }}
+                    onMouseDown={(e) => {
+                      e.preventDefault()
+                      setIsVolumeDragging(true)
+                      const rect = e.currentTarget.getBoundingClientRect()
+                      const clickX = e.clientX - rect.left
+                      const percentage = clickX / rect.width
+                      handleVolumeChange(percentage)
+                    }}
+                    onTouchStart={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect()
+                      const touch = e.touches[0]
+                      const clickX = touch.clientX - rect.left
+                      const percentage = clickX / rect.width
+                      handleVolumeChange(percentage)
+                    }}
+                    onTouchMove={(e) => {
+                      e.preventDefault()
+                      const rect = e.currentTarget.getBoundingClientRect()
+                      const touch = e.touches[0]
+                      const x = touch.clientX - rect.left
+                      const percentage = Math.max(0, Math.min(1, x / rect.width))
+                      handleVolumeChange(percentage)
+                    }}
+                    className="relative w-full h-11 sm:h-10 rounded-full bg-secondary hover:bg-secondary/80 active:bg-secondary/70 flex items-center justify-center gap-2 transition-colors overflow-hidden"
                   >
-                    {/* 可滑动的音量显示区域 */}
-                    <div
-                      className="relative w-full h-14 rounded-2xl bg-gradient-to-b from-secondary/40 to-secondary/20 overflow-hidden cursor-pointer group"
-                      onMouseDown={(e) => {
-                        e.preventDefault()
-                        setIsVolumeDragging(true)
-                        const rect = e.currentTarget.getBoundingClientRect()
-                        const clickX = e.clientX - rect.left
-                        const percentage = clickX / rect.width
-                        handleVolumeChange(percentage)
+                    {/* 音量进度背景 */}
+                    <motion.div
+                      className="absolute inset-0 bg-primary/10"
+                      style={{ 
+                        clipPath: `inset(0 ${100 - volume * 100}% 0 0)`,
                       }}
-                      onTouchStart={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect()
-                        const touch = e.touches[0]
-                        const clickX = touch.clientX - rect.left
-                        const percentage = clickX / rect.width
-                        handleVolumeChange(percentage)
+                      initial={false}
+                      animate={{ 
+                        clipPath: `inset(0 ${100 - volume * 100}% 0 0)`,
                       }}
-                      onTouchMove={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect()
-                        const touch = e.touches[0]
-                        const x = touch.clientX - rect.left
-                        const percentage = Math.max(0, Math.min(1, x / rect.width))
-                        handleVolumeChange(percentage)
-                      }}
-                    >
-                      {/* 音量进度背景 */}
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10"
-                        style={{ 
-                          clipPath: `inset(0 ${100 - volume * 100}% 0 0)`,
-                        }}
-                        initial={false}
-                        animate={{ 
-                          clipPath: `inset(0 ${100 - volume * 100}% 0 0)`,
-                        }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                      />
-                      
-                      {/* 内容区域 */}
-                      <div className="relative h-full flex items-center justify-between px-5">
-                        {/* 左侧：音量图标 */}
-                        <motion.button
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleVolumeToggle()
-                          }}
-                          className="w-10 h-10 rounded-full hover:bg-background/50 active:bg-background/70 flex items-center justify-center transition-colors z-10"
-                        >
-                          <VolumeIcon className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                        </motion.button>
-                        
-                        {/* 右侧：音量百分比 */}
-                        <motion.div 
-                          className="text-2xl font-semibold text-foreground/90 tabular-nums"
-                          animate={{ scale: isVolumeDragging ? 1.1 : 1 }}
-                          transition={{ duration: 0.15 }}
-                        >
-                          {Math.round(volume * 100)}%
-                        </motion.div>
-                      </div>
-                      
-                      {/* 悬浮提示 */}
-                      <motion.div
-                        className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity"
-                        initial={{ y: 10 }}
-                        animate={{ y: 0 }}
-                      >
-                        滑动调节音量
-                      </motion.div>
-                    </div>
-                  </motion.div>
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                    />
+                    
+                    {/* 图标和文字 */}
+                    <VolumeIcon className="w-5 h-5 text-muted-foreground relative z-10" />
+                    <span className="text-sm text-muted-foreground font-mono relative z-10">
+                      {Math.round(volume * 100)}%
+                    </span>
+                  </motion.button>
                 </div>
 
                 {/* Next Up 列表（移动端） */}
@@ -835,9 +834,12 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                 )}
               </div>
             </div>
-          </DialogPrimitive.Content>
-        </DialogPrimitive.Portal>
-      </DialogPrimitive.Root>
+                </motion.div>
+              </DialogPrimitive.Content>
+            </DialogPrimitive.Portal>
+          </DialogPrimitive.Root>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
