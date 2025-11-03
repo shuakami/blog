@@ -416,10 +416,14 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
 
   // 用户手势恢复 AudioContext：第一次点击播放必然有用户手势
   useEffect(() => {
-    if (!isPlaying) return
     const ac = acRef.current
-    if (ac && ac.state !== "running") {
-      void ac.resume() // 处理自动播放/节能策略导致的挂起。&#8203;:contentReference[oaicite:6]{index=6}
+    if (ac && ac.state !== "running" && isPlaying) {
+      void ac.resume() // 处理自动播放/节能策略导致的挂起。
+    }
+    
+    // 更新 Media Session 播放状态
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused"
     }
   }, [isPlaying])
 
@@ -533,6 +537,21 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
         lastRestoredSongId.current = currentSongId || null
       }
       
+      // 更新 Media Session 播放位置
+      if ("mediaSession" in navigator && "setPositionState" in navigator.mediaSession) {
+        try {
+          if (audio.duration && !isNaN(audio.duration)) {
+            navigator.mediaSession.setPositionState({
+              duration: audio.duration,
+              playbackRate: audio.playbackRate,
+              position: Math.min(audio.currentTime, audio.duration),
+            })
+          }
+        } catch (e) {
+          // Position state may fail if audio is not ready
+        }
+      }
+      
       // 不静音 <audio>，确保即使 CDN 缺少 CORS 头，仍有直播放音兜底
       if (useMusicPlayerStore.getState().isPlaying || useMusicPlayerStore.getState().pendingPlay) {
         try { await audio.play() } catch (e) { console.error("[Audio] play() rejected:", e) }
@@ -570,7 +589,7 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
     }
 
     return () => audio.removeEventListener("canplay", onCanPlay)
-  }, [currentSong, isPlaying, pendingPlay, setPendingPlay])
+  }, [currentSong, isPlaying, pendingPlay, setPendingPlay, savedTime, currentSongId])
 
   /* ---- 懒加载 ---- */
   useEffect(() => {
@@ -578,6 +597,89 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
       void loadMoreSongs(false)
     }
   }, [currentSongIndex, playlist.length, isLoading, hasMore, offset, loadMoreSongs])
+
+  /* ---- Media Session API（Chrome 原生媒体控制） ---- */
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return
+    if (!currentSong) return
+
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentSong.title || "未知歌曲",
+        artist: currentSong.artist || "未知艺术家",
+        album: currentSong.album || "未知专辑",
+        artwork: currentSong.coverUrl ? [
+          { src: currentSong.coverUrl, sizes: "96x96", type: "image/jpeg" },
+          { src: currentSong.coverUrl, sizes: "128x128", type: "image/jpeg" },
+          { src: currentSong.coverUrl, sizes: "192x192", type: "image/jpeg" },
+          { src: currentSong.coverUrl, sizes: "256x256", type: "image/jpeg" },
+          { src: currentSong.coverUrl, sizes: "384x384", type: "image/jpeg" },
+          { src: currentSong.coverUrl, sizes: "512x512", type: "image/jpeg" },
+        ] : undefined,
+      })
+    } catch (e) {
+      console.error("[Media Session] Failed to set metadata:", e)
+    }
+  }, [currentSong])
+
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return
+
+    const { handleTogglePlay, handlePrevSong, handleNextSong } = useMusicPlayerStore.getState()
+
+    navigator.mediaSession.setActionHandler("play", () => {
+      handleTogglePlay()
+    })
+    
+    navigator.mediaSession.setActionHandler("pause", () => {
+      handleTogglePlay()
+    })
+    
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+      handlePrevSong()
+    })
+    
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      handleNextSong()
+    })
+    
+    navigator.mediaSession.setActionHandler("seekto", (details) => {
+      const audio = audioRef.current
+      if (audio && details.seekTime !== undefined && details.seekTime !== null) {
+        audio.currentTime = details.seekTime
+      }
+    })
+
+    navigator.mediaSession.setActionHandler("seekbackward", (details) => {
+      const audio = audioRef.current
+      if (audio) {
+        const skipTime = details.seekOffset || 10
+        audio.currentTime = Math.max(audio.currentTime - skipTime, 0)
+      }
+    })
+
+    navigator.mediaSession.setActionHandler("seekforward", (details) => {
+      const audio = audioRef.current
+      if (audio) {
+        const skipTime = details.seekOffset || 10
+        audio.currentTime = Math.min(audio.currentTime + skipTime, audio.duration || 0)
+      }
+    })
+
+    return () => {
+      try {
+        navigator.mediaSession.setActionHandler("play", null)
+        navigator.mediaSession.setActionHandler("pause", null)
+        navigator.mediaSession.setActionHandler("previoustrack", null)
+        navigator.mediaSession.setActionHandler("nexttrack", null)
+        navigator.mediaSession.setActionHandler("seekto", null)
+        navigator.mediaSession.setActionHandler("seekbackward", null)
+        navigator.mediaSession.setActionHandler("seekforward", null)
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
+  }, [])
 
   /* ---- 歌词 + 进度（低频写入，persist 异步落盘） ---- */
   useEffect(() => {
@@ -595,6 +697,7 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
 
     let lastLyricStamp = 0
     let lastProgressStamp = 0
+    let lastMediaSessionUpdateStamp = 0
 
     const onTime = () => {
       const now = performance.now?.() ?? Date.now()
@@ -611,6 +714,22 @@ export function MusicPlayerProvider({ children }: MusicPlayerProviderProps) {
       if (now - lastProgressStamp >= PROGRESS_SAVE_INTERVAL_MS) {
         useMusicPlayerStore.setState({ savedTime: t })
         lastProgressStamp = now
+      }
+
+      // 更新 Media Session 播放位置（每秒一次）
+      if ("mediaSession" in navigator && now - lastMediaSessionUpdateStamp >= 1000) {
+        try {
+          if ("setPositionState" in navigator.mediaSession && audio.duration && !isNaN(audio.duration)) {
+            navigator.mediaSession.setPositionState({
+              duration: audio.duration,
+              playbackRate: audio.playbackRate,
+              position: Math.min(t, audio.duration),
+            })
+          }
+        } catch (e) {
+          // Position state may fail if audio is not ready
+        }
+        lastMediaSessionUpdateStamp = now
       }
     }
 
