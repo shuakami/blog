@@ -127,6 +127,9 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
     const newTime = percentage * duration
     audio.currentTime = newTime
     setCurrentTime(newTime)
+    
+    const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+    triggerHaptic(HapticFeedback.Light)
   }
 
   // ---------------- 时间格式化 ----------------
@@ -284,7 +287,13 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
         ref={displayRowRef}
         className="flex items-center gap-3 text-sm text-muted-foreground cursor-pointer transition-all duration-300 ease-out"
         style={{ marginLeft: `${mainOffset}px` }}
-        onClick={() => { if (isMobile) setIsModalOpen(true) }}
+        onClick={() => {
+          if (isMobile) {
+            const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+            triggerHaptic(HapticFeedback.Light)
+            setIsModalOpen(true)
+          }
+        }}
       >
         {!isMobile && <Music className="h-4 w-4 flex-shrink-0" />}
         <div className="flex items-center gap-2 min-w-0">
@@ -620,7 +629,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25, ease: "easeOut" }}
                 className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80"
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {
+                  const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+                  triggerHaptic(HapticFeedback.Light)
+                  setIsModalOpen(false)
+                }}
                 style={{ willChange: "opacity" }}
               />
               <DialogPrimitive.Content asChild forceMount>
@@ -647,7 +660,13 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
             </div>
 
             {/* 关闭按钮 - 固定在内容区顶部 */}
-            <DialogPrimitive.Close className="absolute right-4 top-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-background/80 backdrop-blur-sm shadow-lg">
+            <DialogPrimitive.Close 
+              className="absolute right-4 top-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-background/80 backdrop-blur-sm shadow-lg"
+              onClick={() => {
+                const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
+                triggerHaptic(HapticFeedback.Medium)
+              }}
+            >
               <X className="h-5 w-5 sm:h-4 sm:w-4 text-foreground" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
