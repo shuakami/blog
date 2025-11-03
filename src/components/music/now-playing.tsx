@@ -6,6 +6,7 @@ import { Music, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Volume1, X
 import { useMusicPlayer } from "@/hooks/use-music-player"
 import { AnimatePresence, motion } from "framer-motion"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { triggerHaptic, HapticFeedback, createVolumeHaptic } from '@/utils/haptics'
 
 interface NowPlayingProps {
   isSidebarOpen?: boolean
@@ -128,7 +129,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
     audio.currentTime = newTime
     setCurrentTime(newTime)
     
-    const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
     triggerHaptic(HapticFeedback.Light)
   }
 
@@ -152,7 +152,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
   })
   
   useEffect(() => {
-    const { createVolumeHaptic } = require('@/utils/haptics')
     volumeHapticRef.current = createVolumeHaptic()
   }, [])
   
@@ -185,7 +184,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
     volumeHapticRef.current?.(clamped, velocity)
   }
   const handleVolumeToggle = () => {
-    const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
     triggerHaptic(HapticFeedback.Heavy)
     
     if (volume > 0) {
@@ -289,7 +287,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
         style={{ marginLeft: `${mainOffset}px` }}
         onClick={() => {
           if (isMobile) {
-            const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
             triggerHaptic(HapticFeedback.Light)
             setIsModalOpen(true)
           }
@@ -456,7 +453,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                     <motion.button
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-                        const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
                         triggerHaptic(HapticFeedback.Heavy)
                         handlePrevSong()
                       }}
@@ -468,7 +464,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                     <motion.button
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-                        const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
                         triggerHaptic(HapticFeedback.Success)
                         handleTogglePlay()
                       }}
@@ -484,7 +479,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                     <motion.button
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-                        const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
                         triggerHaptic(HapticFeedback.Heavy)
                         handleNextSong()
                       }}
@@ -576,7 +570,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                             transition={{ duration: 0.4, delay: index * 0.05, ease: "easeOut" }}
                             className="group flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/50 cursor-pointer transition-all duration-300 ease-out"
                             onClick={() => {
-                              const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
                               triggerHaptic(HapticFeedback.Heavy)
                               handleSongChange(actualIndex)
                             }}
@@ -630,7 +623,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                 transition={{ duration: 0.25, ease: "easeOut" }}
                 className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80"
                 onClick={() => {
-                  const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
                   triggerHaptic(HapticFeedback.Light)
                   setIsModalOpen(false)
                 }}
@@ -663,7 +655,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
             <DialogPrimitive.Close 
               className="absolute right-4 top-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-background/80 backdrop-blur-sm shadow-lg"
               onClick={() => {
-                const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
                 triggerHaptic(HapticFeedback.Medium)
               }}
             >
@@ -766,7 +757,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => {
-                      const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
                       triggerHaptic(HapticFeedback.Heavy)
                       handlePrevSong()
                     }}
@@ -778,7 +768,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
-                      const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
                       triggerHaptic(HapticFeedback.Success)
                       handleTogglePlay()
                     }}
@@ -794,7 +783,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => {
-                      const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
                       triggerHaptic(HapticFeedback.Heavy)
                       handleNextSong()
                     }}
@@ -874,7 +862,6 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                             transition={{ duration: 0.5, delay: index * 0.08, ease: [0.32, 0.72, 0, 1] }}
                             className="flex items-center gap-4 sm:gap-3 p-3 sm:p-2 rounded-xl sm:rounded-lg bg-secondary/30 hover:bg-secondary/60 active:bg-secondary/80 cursor-pointer transition-all"
                             onClick={() => {
-                              const { triggerHaptic, HapticFeedback } = require('@/utils/haptics')
                               triggerHaptic(HapticFeedback.Heavy)
                               handleSongChange(actualIndex)
                             }}
