@@ -102,7 +102,34 @@ function remarkProjectCards() {
         const cardData = parseProjectCard(commentMatch[1]);
         if (cardData) {
           const html = renderProjectCard(cardData);
+          // 直接替换为 HTML，不保留注释
           node.value = html;
+          node.type = 'html';
+        }
+      }
+    });
+  };
+}
+
+function rehypeRemoveProjectCardComments() {
+  return (tree: Node) => {
+    visit(tree, (node: any, index, parent) => {
+      // 移除残留的 ProjectCard 注释
+      if (node.type === 'comment' && node.value && node.value.includes('ProjectCard')) {
+        if (parent && index !== null) {
+          parent.children.splice(index, 1);
+          return index;
+        }
+      }
+      
+      // 替换 HTML 中的 ProjectCard 注释
+      if (node.type === 'raw' && node.value && node.value.includes('<!-- ProjectCard')) {
+        const commentMatch = node.value.match(/<!--\s*(ProjectCard[^>]+)-->/);
+        if (commentMatch) {
+          const cardData = parseProjectCard(commentMatch[1]);
+          if (cardData) {
+            node.value = renderProjectCard(cardData);
+          }
         }
       }
     });
@@ -116,6 +143,7 @@ const base = () =>
     .use(remarkProjectCards)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
+    .use(rehypeRemoveProjectCardComments)
     .use(rehypeAddHeadingIds);
 
 const processorWithPrism = base().use(rehypePrism).use(handleUnknownLanguage).use(rehypeStringify);
