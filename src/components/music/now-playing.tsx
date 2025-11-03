@@ -710,51 +710,85 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                   </motion.button>
                 </div>
 
-                {/* 音量控制（移动端）- 简洁拖动滑块 */}
+                {/* 音量控制（移动端）- 精致版 */}
                 <div className="px-6 sm:px-4">
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-                    className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/30"
+                    className="relative"
                   >
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      onClick={handleVolumeToggle}
-                      className="w-9 h-9 rounded-full hover:bg-background/50 active:bg-background/70 flex items-center justify-center transition-colors flex-shrink-0"
+                    {/* 可滑动的音量显示区域 */}
+                    <div
+                      className="relative w-full h-14 rounded-2xl bg-gradient-to-b from-secondary/40 to-secondary/20 overflow-hidden cursor-pointer group"
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        setIsVolumeDragging(true)
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        const clickX = e.clientX - rect.left
+                        const percentage = clickX / rect.width
+                        handleVolumeChange(percentage)
+                      }}
+                      onTouchStart={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        const touch = e.touches[0]
+                        const clickX = touch.clientX - rect.left
+                        const percentage = clickX / rect.width
+                        handleVolumeChange(percentage)
+                      }}
+                      onTouchMove={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        const touch = e.touches[0]
+                        const x = touch.clientX - rect.left
+                        const percentage = Math.max(0, Math.min(1, x / rect.width))
+                        handleVolumeChange(percentage)
+                      }}
                     >
-                      <VolumeIcon className="w-5 h-5 text-muted-foreground" />
-                    </motion.button>
-                    
-                    <div className="flex-1 flex items-center gap-3">
-                      <div 
-                        className="flex-1 h-2 bg-muted/50 dark:bg-muted/30 rounded-full cursor-pointer relative group"
-                        onClick={(e) => {
-                          const rect = e.currentTarget.getBoundingClientRect()
-                          const clickX = e.clientX - rect.left
-                          const percentage = clickX / rect.width
-                          handleVolumeChange(percentage)
+                      {/* 音量进度背景 */}
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10"
+                        style={{ 
+                          clipPath: `inset(0 ${100 - volume * 100}% 0 0)`,
                         }}
-                      >
-                        <motion.div
-                          className="h-full bg-foreground dark:bg-primary rounded-full"
-                          style={{ width: `${volume * 100}%` }}
-                          initial={false}
-                          animate={{ width: `${volume * 100}%` }}
-                          transition={{ duration: 0.15, ease: "easeOut" }}
-                        />
-                        {/* 指示器圆点 */}
-                        <motion.div
-                          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-foreground dark:bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                          style={{ left: `${volume * 100}%`, transform: 'translate(-50%, -50%)' }}
-                          initial={false}
-                          animate={{ left: `${volume * 100}%` }}
-                          transition={{ duration: 0.15, ease: "easeOut" }}
-                        />
+                        initial={false}
+                        animate={{ 
+                          clipPath: `inset(0 ${100 - volume * 100}% 0 0)`,
+                        }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                      />
+                      
+                      {/* 内容区域 */}
+                      <div className="relative h-full flex items-center justify-between px-5">
+                        {/* 左侧：音量图标 */}
+                        <motion.button
+                          whileTap={{ scale: 0.9 }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleVolumeToggle()
+                          }}
+                          className="w-10 h-10 rounded-full hover:bg-background/50 active:bg-background/70 flex items-center justify-center transition-colors z-10"
+                        >
+                          <VolumeIcon className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        </motion.button>
+                        
+                        {/* 右侧：音量百分比 */}
+                        <motion.div 
+                          className="text-2xl font-semibold text-foreground/90 tabular-nums"
+                          animate={{ scale: isVolumeDragging ? 1.1 : 1 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          {Math.round(volume * 100)}%
+                        </motion.div>
                       </div>
-                      <span className="text-xs text-muted-foreground w-10 text-right font-mono">
-                        {Math.round(volume * 100)}%
-                      </span>
+                      
+                      {/* 悬浮提示 */}
+                      <motion.div
+                        className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-muted-foreground/60 opacity-0 group-hover:opacity-100 transition-opacity"
+                        initial={{ y: 10 }}
+                        animate={{ y: 0 }}
+                      >
+                        滑动调节音量
+                      </motion.div>
                     </div>
                   </motion.div>
                 </div>
