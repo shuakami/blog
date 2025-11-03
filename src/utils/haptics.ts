@@ -114,9 +114,7 @@ export function createVolumeHaptic(): (volume: number, velocity?: number) => voi
     const isFastSwipe = Math.abs(velocity) > 0.8  // 速度阈值
     const isSuperFastSwipe = Math.abs(velocity) > 2.0
     
-    // === 边界碰撞（0% 和 100%）===
     if ((volume === 0 || volume === 1) && lastVolume !== volume) {
-      // 边界时触发最强震动
       triggerHaptic(isSuperFastSwipe ? HapticFeedback.Warning : HapticFeedback.Heavy)
       lastTriggerTime = now
       lastVolume = volume
@@ -124,9 +122,7 @@ export function createVolumeHaptic(): (volume: number, velocity?: number) => voi
       return
     }
     
-    // === 中点共鸣（50%）===
     if (step === 50 && lastStep !== 50) {
-      // 50% 触发成功反馈（双脉冲）
       triggerHaptic(HapticFeedback.Success)
       lastTriggerTime = now
       lastVolume = volume
@@ -134,17 +130,11 @@ export function createVolumeHaptic(): (volume: number, velocity?: number) => voi
       return
     }
     
-    // === 连续刻度反馈 ===
     if (step !== lastStep) {
-      // 每 5% 的大刻度（0, 5, 10, 15...）
       if (step % 5 === 0) {
-        // 快速滑动时强化反馈
         triggerHaptic(isFastSwipe ? HapticFeedback.Heavy : HapticFeedback.Medium)
         lastTriggerTime = now
-      }
-      // 每 1% 的小刻度（清晰的连续感）
-      else {
-        // 快速滑动时也用 Medium
+      } else {
         triggerHaptic(isFastSwipe ? HapticFeedback.Medium : HapticFeedback.Light)
         lastTriggerTime = now
       }

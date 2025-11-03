@@ -683,12 +683,11 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                 {/* 滚动歌词区域 */}
                 <div className="h-28 sm:h-32 overflow-hidden relative bg-gradient-to-b from-transparent via-muted/20 to-transparent rounded-lg px-4 flex-shrink-0">
                   {parsedLyrics.length > 0 ? (
-                    <div className="relative h-full flex items-center justify-center">
+                    <div className="relative h-full">
                       <motion.div
                         className="absolute left-0 right-0 flex flex-col items-center"
-                        animate={{ y: `calc(50% - ${currentLyricIndex * 36}px)` }}
+                        animate={{ y: isMobile ? (-currentLyricIndex * 36 + 56) : (-currentLyricIndex * 36 + 64) }}
                         transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-                        style={{ top: 0 }}
                       >
                         {parsedLyrics.map((lyric, index) => {
                           const distance = Math.abs(index - currentLyricIndex)
