@@ -35,18 +35,29 @@ export const getBlogPosts = cache(async (page = 1) => {
   const paginatedPosts = sorted.slice(start, end);
 
   // 转换格式
-  const mapped: ListPostBase[] = paginatedPosts.map((p) => ({
-    slug: p.slug,
-    title: p.title ?? 'Untitled',
-    date: new Date(p.date).toISOString(),
-    excerpt: p.excerpt ?? '',
-    tags: [],
-    category: p.category,
-    coverImage: null,
-    author: 'Shuakami',
-    content: '',
-    source: 'obsidian',
-  }));
+  const mapped: ListPostBase[] = paginatedPosts.map((p) => {
+    // 合并 category 和 tags
+    const allTags = [];
+    if (p.category) {
+      allTags.push(p.category);
+    }
+    if (p.tags && Array.isArray(p.tags)) {
+      allTags.push(...p.tags);
+    }
+    
+    return {
+      slug: p.slug,
+      title: p.title ?? 'Untitled',
+      date: new Date(p.date).toISOString(),
+      excerpt: p.excerpt ?? '',
+      tags: allTags,
+      category: p.category,
+      coverImage: null,
+      author: 'Shuakami',
+      content: '',
+      source: 'obsidian',
+    };
+  });
 
   return {
     posts: mapped as unknown as BlogPost[],
@@ -80,19 +91,30 @@ export const getArchivePosts = cache(async (page = 1) => {
   const paginatedPosts = sorted.slice(start, end);
 
   // 转换格式
-  const mapped: ListPostBase[] = paginatedPosts.map((p) => ({
-    slug: p.slug,
-    title: p.title ?? 'Untitled',
-    date: new Date(p.date).toISOString(),
-    excerpt: p.excerpt ?? '',
-    tags: [],
-    category: p.category,
-    coverImage: null,
-    author: 'Shuakami',
-    content: '',
-    wordCount: 0,
-    source: 'obsidian',
-  }));
+  const mapped: ListPostBase[] = paginatedPosts.map((p) => {
+    // 合并 category 和 tags
+    const allTags = [];
+    if (p.category) {
+      allTags.push(p.category);
+    }
+    if (p.tags && Array.isArray(p.tags)) {
+      allTags.push(...p.tags);
+    }
+    
+    return {
+      slug: p.slug,
+      title: p.title ?? 'Untitled',
+      date: new Date(p.date).toISOString(),
+      excerpt: p.excerpt ?? '',
+      tags: allTags,
+      category: p.category,
+      coverImage: null,
+      author: 'Shuakami',
+      content: '',
+      wordCount: 0,
+      source: 'obsidian',
+    };
+  });
 
   return {
     posts: mapped as unknown as ArchivePost[],

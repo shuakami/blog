@@ -137,8 +137,6 @@ export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
               {/* 该年份的文章 */}
               <div className="space-y-0">
                 {yearPosts.map((post: any) => {
-                  // 优先使用 category，回退到 tags[0]（兼容旧数据）
-                  const category = post.category || post.tags?.[0];
                   const formattedDate = formatDate(post.date);
 
                   return (
@@ -155,22 +153,30 @@ export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
 
                         {/* 右侧信息 */}
                         <div className="flex items-center gap-3 text-sm text-black/40 dark:text-white/40 flex-shrink-0">
-                          {category && (
-                            <>
-                              <span className="hidden md:inline">{category}</span>
-                              <span className="hidden md:inline">·</span>
-                            </>
-                          )}
                           <time className="font-mono">{formattedDate}</time>
                         </div>
                       </div>
 
-                      {/* 摘要 */}
-                      {post.excerpt && (
-                        <p className="mt-2 text-sm text-black/50 dark:text-white/50 line-clamp-1 md:line-clamp-2">
-                          {post.excerpt}
-                        </p>
-                      )}
+                      {/* 摘要和标签 */}
+                      <div className="mt-2 flex flex-col md:flex-row md:items-center gap-2">
+                        {post.excerpt && (
+                          <p className="text-sm text-black/50 dark:text-white/50 line-clamp-1 md:line-clamp-2 flex-1">
+                            {post.excerpt}
+                          </p>
+                        )}
+                        {post.tags && post.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 flex-shrink-0">
+                            {post.tags.map((tag: string, index: number) => (
+                              <span 
+                                key={index}
+                                className="inline-flex px-2 py-0.5 text-xs leading-relaxed rounded-md bg-blue-50/50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </Link>
                   );
                 })}

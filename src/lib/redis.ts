@@ -29,6 +29,7 @@ export interface ObsidianIndex {
     date: string;
     category: string;
     excerpt: string;
+    tags?: string[];
   }>;
   generated: string;
 }
