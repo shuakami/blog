@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ImageInfo {
@@ -95,13 +95,11 @@ export function ImagePreview() {
     };
 
     const handleWheel = (e: WheelEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        if (e.deltaY < 0) {
-          zoomIn();
-        } else {
-          zoomOut();
-        }
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        zoomIn();
+      } else {
+        zoomOut();
       }
     };
 
@@ -245,34 +243,6 @@ export function ImagePreview() {
               </div>
             </>
           )}
-
-          <div className="absolute bottom-8 right-8 flex items-center gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                zoomOut();
-              }}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all"
-              aria-label="缩小"
-            >
-              <ZoomOut className="w-5 h-5" />
-            </button>
-            
-            <div className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm min-w-[60px] text-center">
-              {Math.round(scale * 100)}%
-            </div>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                zoomIn();
-              }}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all"
-              aria-label="放大"
-            >
-              <ZoomIn className="w-5 h-5" />
-            </button>
-          </div>
         </motion.div>
       )}
     </AnimatePresence>
