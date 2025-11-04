@@ -9,6 +9,7 @@ import { ArrowLeft } from 'lucide-react';
 import { CodeCopyButton } from '@/components/CodeCopyButton';
 import { CopyUrlButton } from '@/components/CopyUrlButton';
 import PostNavigator from '@/components/PostNavigator';
+import { ImagePreview } from '@/components/ImagePreview';
 import type { Metadata } from 'next';
 import type { Viewport } from 'next';
 
@@ -151,6 +152,9 @@ export default async function PostPage({ params }: PageProps) {
 
       {/* 文章目录导航 */}
       <PostNavigator headings={headings} />
+      
+      {/* 图片预览 */}
+      <ImagePreview />
     </article>
   );
 }
