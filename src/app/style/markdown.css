@@ -143,8 +143,8 @@
   @apply max-w-full h-auto my-8;
   @apply rounded-lg;
   @apply border border-black/[0.06] dark:border-white/[0.06];
-  @apply cursor-pointer transition-all duration-300;
-  @apply hover:shadow-lg hover:scale-[1.02] hover:border-black/[0.12] dark:hover:border-white/[0.12];
+  @apply cursor-pointer transition-opacity duration-200;
+  @apply hover:opacity-80;
   }
 
   /* Project Card */

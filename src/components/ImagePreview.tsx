@@ -51,8 +51,10 @@ export function ImagePreview() {
 
   const close = useCallback(() => {
     setIsOpen(false);
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
+    setTimeout(() => {
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+    }, 200);
   }, []);
 
   const goToPrevious = useCallback(() => {
@@ -142,21 +144,22 @@ export function ImagePreview() {
   const currentImage = images[currentIndex];
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpen && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
           className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-sm"
           onClick={close}
         >
           <div className="absolute inset-0 flex items-center justify-center p-4">
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
               onMouseDown={handleMouseDown}
@@ -167,21 +170,23 @@ export function ImagePreview() {
                 cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
               }}
             >
-              <motion.img
-                key={currentIndex}
-                src={currentImage.src}
-                alt={currentImage.alt}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="max-w-full max-h-full object-contain select-none"
-                style={{
-                  transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
-                  transition: isDragging ? 'none' : 'transform 0.2s ease-out',
-                }}
-                draggable={false}
-              />
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={currentIndex}
+                  src={currentImage.src}
+                  alt={currentImage.alt}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="max-w-full max-h-full object-contain select-none"
+                  style={{
+                    transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+                    transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+                  }}
+                  draggable={false}
+                />
+              </AnimatePresence>
             </motion.div>
           </div>
 
@@ -250,12 +255,6 @@ export function ImagePreview() {
               <ZoomIn className="w-5 h-5" />
             </button>
           </div>
-
-          {currentImage.alt && (
-            <div className="absolute bottom-24 left-1/2 -translate-x-1/2 max-w-2xl px-6 py-3 rounded-lg bg-white/10 backdrop-blur-sm text-white text-center">
-              {currentImage.alt}
-            </div>
-          )}
         </motion.div>
       )}
     </AnimatePresence>

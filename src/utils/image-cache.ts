@@ -38,9 +38,9 @@ export async function cacheImageUrl(
     pipeline.set(
       `obsidian:image:meta:${ossUrl}`,
       JSON.stringify({
-        giteePath,
-        hash,
-        uploadedAt: Date.now(),
+      giteePath,
+      hash,
+      uploadedAt: Date.now(),
       })
     );
     await pipeline.exec();

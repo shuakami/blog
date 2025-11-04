@@ -39,7 +39,7 @@ export async function acquireLock(): Promise<string | null> {
 export async function releaseLock(lockId: string): Promise<void> {
   try {
     await (redis as any).eval(LUA_RELEASE, 1, LOCK_KEY, lockId);
-    console.log(`[Lock] Released lock: ${lockId}`);
+      console.log(`[Lock] Released lock: ${lockId}`);
   } catch (error) {
     console.error('[Lock] Error releasing lock:', error);
   }
@@ -62,7 +62,7 @@ export async function withLock<T>(
 ): Promise<T> {
   for (let i = 0; i < maxRetries; i++) {
     const lockId = await acquireLock();
-
+    
     if (lockId) {
       const intervalMs = Math.max(3_000, Math.floor(LOCK_TIMEOUT / 3));
       let alive = true;
@@ -84,7 +84,7 @@ export async function withLock<T>(
         await releaseLock(lockId);
       }
     }
-
+    
     if (i < maxRetries - 1) {
       const jitter = Math.floor(Math.random() * 200);
       const delay = retryDelay * Math.pow(2, i) + jitter;
@@ -92,6 +92,6 @@ export async function withLock<T>(
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
-
+  
   throw new Error(`Failed to acquire lock after ${maxRetries} retries`);
 }

@@ -76,7 +76,7 @@ async function getWithRetry<T>(url: string, params: Record<string, any>, maxTrie
 
 export async function getFileContent(path: string): Promise<string> {
   const encodedPath = encodePath(path);
-  const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
+    const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
   const cacheKey = keyOf(encodedPath);
 
   const cached = textCache.get(cacheKey);
@@ -96,13 +96,13 @@ export async function getFileContent(path: string): Promise<string> {
         textCache.set(cacheKey, text);
         return text;
       }
-      throw new Error(`No content found for ${path}`);
-    } catch (error: any) {
+    throw new Error(`No content found for ${path}`);
+  } catch (error: any) {
       console.error(`[Gitee API] Error for ${path}:`, error?.message || error);
-      throw error;
+    throw error;
     } finally {
       inflightText.delete(cacheKey);
-    }
+  }
   })();
 
   inflightText.set(cacheKey, p);
@@ -111,7 +111,7 @@ export async function getFileContent(path: string): Promise<string> {
 
 export async function getImageBuffer(path: string): Promise<Buffer> {
   const encodedPath = encodePath(path);
-  const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
+    const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
   const cacheKey = keyOf(encodedPath);
 
   const cached = imgCache.get(cacheKey);
@@ -130,13 +130,13 @@ export async function getImageBuffer(path: string): Promise<Buffer> {
         imgCache.set(cacheKey, buf);
         return buf;
       }
-      throw new Error(`No content found for image ${path}`);
+    throw new Error(`No content found for image ${path}`);
     } catch (error: any) {
       console.error(`[Gitee API] Error getting image buffer for ${path}:`, error?.message || error);
-      throw error;
+    throw error;
     } finally {
       inflightImg.delete(cacheKey);
-    }
+  }
   })();
 
   inflightImg.set(cacheKey, p);
