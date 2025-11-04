@@ -105,14 +105,19 @@ export function ImagePreview() {
       }
     };
 
+    // 计算滚动条宽度并补偿，避免抖动
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('wheel', handleWheel, { passive: false });
-    document.body.style.overflow = 'hidden';
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('wheel', handleWheel);
       document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     };
   }, [isOpen, close, goToPrevious, goToNext, zoomIn, zoomOut, resetZoom]);
 
