@@ -139,13 +139,11 @@ export function ImagePreview() {
     setIsDragging(false);
   };
 
-  if (!isOpen || images.length === 0) return null;
-
   const currentImage = images[currentIndex];
 
   return (
-    <AnimatePresence mode="wait">
-      {isOpen && (
+    <AnimatePresence>
+      {isOpen && images.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -170,7 +168,7 @@ export function ImagePreview() {
                 cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
               }}
             >
-              <AnimatePresence mode="wait">
+              <AnimatePresence initial={false}>
                 <motion.img
                   key={currentIndex}
                   src={currentImage.src}
@@ -178,7 +176,7 @@ export function ImagePreview() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  transition={{ duration: 0.25 }}
                   className="max-w-full max-h-full object-contain select-none"
                   style={{
                     transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
