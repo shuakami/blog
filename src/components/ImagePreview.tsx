@@ -168,15 +168,10 @@ export function ImagePreview() {
                 cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
               }}
             >
-              <AnimatePresence initial={false}>
-                <motion.img
-                  key={currentIndex}
+              {images.length === 1 ? (
+                <img
                   src={currentImage.src}
                   alt={currentImage.alt}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.25 }}
                   className="max-w-full max-h-full object-contain select-none"
                   style={{
                     transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
@@ -184,7 +179,27 @@ export function ImagePreview() {
                   }}
                   draggable={false}
                 />
-              </AnimatePresence>
+              ) : (
+                Array.from(new Set([
+                  currentIndex > 0 ? currentIndex - 1 : images.length - 1,
+                  currentIndex,
+                  currentIndex < images.length - 1 ? currentIndex + 1 : 0
+                ])).map((idx) => (
+                  <img
+                    key={idx}
+                    src={images[idx].src}
+                    alt={images[idx].alt}
+                    className="absolute inset-0 max-w-full max-h-full object-contain select-none m-auto"
+                    style={{
+                      opacity: idx === currentIndex ? 1 : 0,
+                      transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+                      transition: isDragging ? 'none' : 'transform 0.2s ease-out, opacity 0.3s ease-in-out',
+                      pointerEvents: idx === currentIndex ? 'auto' : 'none',
+                    }}
+                    draggable={false}
+                  />
+                ))
+              )}
             </motion.div>
           </div>
 
