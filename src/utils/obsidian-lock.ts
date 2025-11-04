@@ -1,31 +1,33 @@
-// src/utils/obsidian-lock.ts - Redis 分布式锁
+// src/utils/obsidian-lock.ts
 import redis from '@/lib/redis';
 
 const LOCK_KEY = 'obsidian:update:lock';
-const LOCK_TIMEOUT = 30000; // 30 秒超时
+const LOCK_TIMEOUT = 30_000;
 
-/**
- * 获取分布式锁
- * @returns 成功返回 lock ID，失败返回 null
- */
+const LUA_RELEASE = `
+if redis.call("get", KEYS[1]) == ARGV[1] then
+  return redis.call("del", KEYS[1])
+else
+  return 0
+end
+`;
+
+const LUA_RENEW = `
+if redis.call("get", KEYS[1]) == ARGV[1] then
+  return redis.call("pexpire", KEYS[1], ARGV[2])
+else
+  return 0
+end
+`;
+
 export async function acquireLock(): Promise<string | null> {
   const lockId = `${Date.now()}_${Math.random()}`;
-  
   try {
-    // 使用 SET NX EX 实现分布式锁
-    const result = await redis.set(
-      LOCK_KEY,
-      lockId,
-      'PX', // 毫秒
-      LOCK_TIMEOUT,
-      'NX' // 仅当 key 不存在时设置
-    );
-    
+    const result = await (redis as any).set(LOCK_KEY, lockId, 'PX', LOCK_TIMEOUT, 'NX');
     if (result === 'OK') {
       console.log(`[Lock] Acquired lock: ${lockId}`);
       return lockId;
     }
-    
     console.warn('[Lock] Failed to acquire lock (already locked)');
     return null;
   } catch (error) {
@@ -34,28 +36,25 @@ export async function acquireLock(): Promise<string | null> {
   }
 }
 
-/**
- * 释放分布式锁
- */
 export async function releaseLock(lockId: string): Promise<void> {
   try {
-    // 只有持有锁的进程才能释放（防止误删）
-    const currentLockId = await redis.get(LOCK_KEY);
-    
-    if (currentLockId === lockId) {
-      await redis.del(LOCK_KEY);
-      console.log(`[Lock] Released lock: ${lockId}`);
-    } else {
-      console.warn(`[Lock] Cannot release lock: ${lockId} (current: ${currentLockId})`);
-    }
+    await (redis as any).eval(LUA_RELEASE, 1, LOCK_KEY, lockId);
+    console.log(`[Lock] Released lock: ${lockId}`);
   } catch (error) {
     console.error('[Lock] Error releasing lock:', error);
   }
 }
 
-/**
- * 使用分布式锁执行函数（自动获取和释放）
- */
+async function renewLock(lockId: string): Promise<boolean> {
+  try {
+    const res = await (redis as any).eval(LUA_RENEW, 1, LOCK_KEY, lockId, String(LOCK_TIMEOUT));
+    return res === 1;
+  } catch (error) {
+    console.error('[Lock] Error renewing lock:', error);
+    return false;
+  }
+}
+
 export async function withLock<T>(
   fn: () => Promise<T>,
   maxRetries = 3,
@@ -63,23 +62,36 @@ export async function withLock<T>(
 ): Promise<T> {
   for (let i = 0; i < maxRetries; i++) {
     const lockId = await acquireLock();
-    
+
     if (lockId) {
+      const intervalMs = Math.max(3_000, Math.floor(LOCK_TIMEOUT / 3));
+      let alive = true;
+      const timer = setInterval(async () => {
+        if (!alive) return;
+        const ok = await renewLock(lockId);
+        if (!ok) {
+          console.warn('[Lock] Renew failed, lock might be lost early.');
+        }
+      }, intervalMs);
+      timer.unref?.();
+
       try {
         const result = await fn();
         return result;
       } finally {
+        alive = false;
+        clearInterval(timer);
         await releaseLock(lockId);
       }
     }
-    
-    // 未获取到锁，等待后重试
+
     if (i < maxRetries - 1) {
-      console.log(`[Lock] Retry ${i + 1}/${maxRetries} after ${retryDelay}ms`);
-      await new Promise(resolve => setTimeout(resolve, retryDelay));
+      const jitter = Math.floor(Math.random() * 200);
+      const delay = retryDelay * Math.pow(2, i) + jitter;
+      console.log(`[Lock] Retry ${i + 1}/${maxRetries} after ${delay}ms`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
-  
+
   throw new Error(`Failed to acquire lock after ${maxRetries} retries`);
 }
-

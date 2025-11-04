@@ -1,5 +1,8 @@
 // src/utils/gitee.ts
 import axios from 'axios';
+import { LRUCache } from 'lru-cache';
+import * as http from 'http';
+import * as https from 'https';
 
 const GITEE_API = 'https://gitee.com/api/v5';
 const GITEE_PAT = process.env.GITEE_PAT!;
@@ -7,101 +10,157 @@ const GITEE_OWNER = process.env.GITEE_OWNER!;
 const GITEE_REPO = process.env.GITEE_REPO!;
 const GITEE_BRANCH = process.env.GITEE_BRANCH || 'master';
 
-// 创建 axios 实例
+const TEXT_TTL = Number(process.env.GITEE_CACHE_TTL_MS || 30_000);
+const IMG_TTL  = Number(process.env.GITEE_IMG_CACHE_TTL_MS || 60_000);
+
+const textCache = new LRUCache<string, string>({ max: 500, ttl: TEXT_TTL, updateAgeOnGet: true });
+const imgCache  = new LRUCache<string, Buffer>({ max: 300, ttl: IMG_TTL, updateAgeOnGet: true });
+
+const inflightText = new Map<string, Promise<string>>();
+const inflightImg  = new Map<string, Promise<Buffer>>();
+
 const giteeAxios = axios.create({
   baseURL: GITEE_API,
-  timeout: 10000,
+  timeout: 10_000,
+  httpAgent: new http.Agent({ keepAlive: true, maxSockets: 50, keepAliveMsecs: 10_000 }),
+  httpsAgent: new https.Agent({ keepAlive: true, maxSockets: 50, keepAliveMsecs: 10_000 }),
+  headers: {
+    'User-Agent': 'NextBlog-GiteeClient/1.0',
+    'Accept': 'application/json',
+  },
+  validateStatus: (status) => status >= 200 && status < 300,
 });
 
-// 获取文件内容（文本文件）
+function encodePath(path: string): string {
+  return path.split('/').map(encodeURIComponent).join('/');
+}
+
+function keyOf(path: string): string {
+  return `${GITEE_BRANCH}:${path}`;
+}
+
+function isRetryableError(err: any): boolean {
+  const code = err?.code;
+  const status = err?.response?.status;
+  if (status && status >= 500) return true;
+  return ['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'ENOTFOUND'].includes(code);
+}
+
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function getWithRetry<T>(url: string, params: Record<string, any>, maxTries = 2): Promise<T> {
+  let attempt = 0;
+  let lastErr: any;
+  while (attempt < maxTries) {
+    attempt++;
+    try {
+      const t0 = Date.now();
+      const res = await giteeAxios.get<T>(url, { params });
+      const dt = Date.now() - t0;
+      if (dt > 300) {
+        console.log(`[Gitee API] GET ${url} (${dt}ms)`);
+      }
+      return res.data;
+    } catch (err: any) {
+      lastErr = err;
+      if (attempt >= maxTries || !isRetryableError(err)) break;
+      const backoff = 150 * attempt * attempt + Math.floor(Math.random() * 100);
+      console.warn(`[Gitee API] Retry ${attempt}/${maxTries} after ${backoff}ms: ${url}`);
+      await sleep(backoff);
+    }
+  }
+  throw lastErr;
+}
+
 export async function getFileContent(path: string): Promise<string> {
-  try {
-    // 编码路径（保留斜杠，只编码特殊字符和中文）
-    const encodedPath = path.split('/').map(part => encodeURIComponent(part)).join('/');
-    const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
-    
-    console.log(`[Gitee API] Requesting: ${url}`);
-    console.log(`[Gitee API] Original path: ${path}`);
-    console.log(`[Gitee API] Encoded path: ${encodedPath}`);
-    
-    const res = await giteeAxios.get(url, {
-      params: { 
-        access_token: GITEE_PAT, 
-        ref: GITEE_BRANCH 
-      },
-    });
+  const encodedPath = encodePath(path);
+  const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
+  const cacheKey = keyOf(encodedPath);
 
-    if (res.data.content) {
-      // Base64 解码
-      return Buffer.from(res.data.content, 'base64').toString('utf-8');
-    }
-
-    throw new Error(`No content found for ${path}`);
-  } catch (error: any) {
-    console.error(`[Gitee API] Error for ${path}:`, error.message);
-    console.error(`[Gitee API] Status:`, error.response?.status);
-    console.error(`[Gitee API] URL:`, error.config?.url);
-    throw error;
+  const cached = textCache.get(cacheKey);
+  if (cached) {
+    return cached;
   }
+
+  const inflight = inflightText.get(cacheKey);
+  if (inflight) return inflight;
+
+  const p = (async () => {
+    try {
+      console.log(`[Gitee API] Requesting: ${url} (orig: ${path})`);
+      const data = await getWithRetry<any>(url, { access_token: GITEE_PAT, ref: GITEE_BRANCH });
+      if (data?.content) {
+        const text = Buffer.from(data.content, 'base64').toString('utf-8');
+        textCache.set(cacheKey, text);
+        return text;
+      }
+      throw new Error(`No content found for ${path}`);
+    } catch (error: any) {
+      console.error(`[Gitee API] Error for ${path}:`, error?.message || error);
+      throw error;
+    } finally {
+      inflightText.delete(cacheKey);
+    }
+  })();
+
+  inflightText.set(cacheKey, p);
+  return p;
 }
 
-// 获取图片的 Buffer（用于上传到 OSS）
 export async function getImageBuffer(path: string): Promise<Buffer> {
-  try {
-    // 编码路径（保留斜杠，只编码特殊字符和中文）
-    const encodedPath = path.split('/').map(part => encodeURIComponent(part)).join('/');
-    const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
-    const res = await giteeAxios.get(url, {
-      params: { 
-        access_token: GITEE_PAT, 
-        ref: GITEE_BRANCH 
-      },
-    });
+  const encodedPath = encodePath(path);
+  const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
+  const cacheKey = keyOf(encodedPath);
 
-    if (res.data.content) {
-      // 返回 Buffer
-      return Buffer.from(res.data.content, 'base64');
-    }
-
-    throw new Error(`No content found for image ${path}`);
-  } catch (error) {
-    console.error(`Error getting image buffer for ${path}:`, error);
-    throw error;
+  const cached = imgCache.get(cacheKey);
+  if (cached) {
+    return cached;
   }
+
+  const inflight = inflightImg.get(cacheKey);
+  if (inflight) return inflight;
+
+  const p = (async () => {
+    try {
+      const data = await getWithRetry<any>(url, { access_token: GITEE_PAT, ref: GITEE_BRANCH });
+      if (data?.content) {
+        const buf = Buffer.from(data.content, 'base64');
+        imgCache.set(cacheKey, buf);
+        return buf;
+      }
+      throw new Error(`No content found for image ${path}`);
+    } catch (error: any) {
+      console.error(`[Gitee API] Error getting image buffer for ${path}:`, error?.message || error);
+      throw error;
+    } finally {
+      inflightImg.delete(cacheKey);
+    }
+  })();
+
+  inflightImg.set(cacheKey, p);
+  return p;
 }
 
-// 获取文件树（递归）
 export async function getFileTree(sha: string = GITEE_BRANCH): Promise<any> {
   try {
     const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/git/trees/${sha}`;
-    const res = await giteeAxios.get(url, {
-      params: { 
-        access_token: GITEE_PAT, 
-        recursive: 1 
-      },
-    });
-
-    return res.data;
-  } catch (error) {
-    console.error('Error getting file tree:', error);
+    return await getWithRetry<any>(url, { access_token: GITEE_PAT, recursive: 1 });
+  } catch (error: any) {
+    console.error('Error getting file tree:', error?.message || error);
     throw error;
   }
 }
 
-// 获取仓库信息
 export async function getRepoInfo(): Promise<any> {
   try {
     const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}`;
-    const res = await giteeAxios.get(url, {
-      params: { access_token: GITEE_PAT },
-    });
-
-    return res.data;
-  } catch (error) {
-    console.error('Error getting repo info:', error);
+    return await getWithRetry<any>(url, { access_token: GITEE_PAT });
+  } catch (error: any) {
+    console.error('Error getting repo info:', error?.message || error);
     throw error;
   }
 }
 
 export default giteeAxios;
-

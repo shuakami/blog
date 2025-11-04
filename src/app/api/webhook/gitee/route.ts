@@ -1,23 +1,38 @@
 // src/app/api/webhook/gitee/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+function shouldExclude(path: string): boolean {
+  return (
+    path.startsWith('.obsidian/') ||
+    path.startsWith('Temp Book/') ||
+    path.startsWith('.') ||
+    !path.endsWith('.md')
+  );
+}
+
+function pathToSlug(path: string): string {
+  const filename = path.split('/').pop()!.replace(/\.md$/, '');
+  return filename
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\u4e00-\u9fa5-]/g, '');
+}
+
 export async function POST(req: NextRequest) {
+  const t0 = Date.now();
   console.log('[Gitee Webhook] Received webhook request');
 
   try {
-    // 1. 验证签名
     const token = req.headers.get('x-gitee-token');
     const webhookSecret = process.env.GITEE_WEBHOOK_SECRET;
 
     if (!webhookSecret) {
       console.error('[Gitee Webhook] GITEE_WEBHOOK_SECRET not configured');
-      return NextResponse.json(
-        { error: 'Webhook not configured' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
     }
 
     if (token !== webhookSecret) {
@@ -25,13 +40,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 2. 解析 payload
     const payload = await req.json();
     console.log('[Gitee Webhook] Event:', payload.hook_name || payload['X-Gitee-Event']);
 
-    // 获取 commit 信息
     const commit = payload.commits?.[0] || payload.head_commit;
-
     if (!commit) {
       console.warn('[Gitee Webhook] No commit data in payload');
       return NextResponse.json({ error: 'No commit data' }, { status: 400 });
@@ -40,70 +52,76 @@ export async function POST(req: NextRequest) {
     console.log('[Gitee Webhook] Processing commit:', commit.id?.slice(0, 7));
     console.log('[Gitee Webhook] Message:', commit.message);
 
-    // 3. 立即返回响应（极速）
-    const responseTimestamp = new Date().toISOString();
-    
-    console.log('[Gitee Webhook] Webhook received, async processing triggered');
-    
-    // 4. 同步处理内容更新
+    const added: string[] = Array.isArray(commit.added) ? commit.added : [];
+    const modified: string[] = Array.isArray(commit.modified) ? commit.modified : [];
+    const removed: string[] = Array.isArray(commit.removed) ? commit.removed : [];
+
+    const changedMarkdown = [...added, ...modified, ...removed].filter((p) => !shouldExclude(p));
+    const changedSlugs = Array.from(
+      new Set(
+        changedMarkdown
+          .filter((p) => p.endsWith('.md'))
+          .map((p) => pathToSlug(p))
+      )
+    );
+
+    console.log('[Gitee Webhook] Starting content processing');
+    const processStart = Date.now();
+
     try {
       const { processIncrementalUpdate } = await import('@/utils/obsidian');
-      const { revalidateTag, revalidatePath } = await import('next/cache');
-      
-      console.log('[Gitee Webhook] Starting content processing');
-      
+
       const index = await processIncrementalUpdate({
-        added: commit.added || [],
-        modified: commit.modified || [],
-        removed: commit.removed || [],
+        added,
+        modified,
+        removed,
       });
-      
-      // 触发缓存重新验证
-      console.log('[Gitee Webhook] Revalidating cache...');
-      
-      // 重新验证标签（使用新API）
-      revalidateTag('obsidian', {});
-      revalidateTag('posts', {});
-      revalidateTag('obsidian-index', {});
-      
-      // 重新验证路径（关键！）
-      revalidatePath('/', 'page');           // 首页
-      revalidatePath('/archive', 'page');    // 归档页
-      
-      // 重新验证所有文章页面
-      for (const post of index.posts) {
-        revalidatePath(`/post/${post.slug}`, 'page');
+
+      const processEnd = Date.now();
+      console.log(
+        `[Gitee Webhook] Content processing completed -> posts: ${index.posts.length} (耗时: ${(processEnd - processStart).toFixed(0)}ms)`
+      );
+
+      const revStart = Date.now();
+      console.log('[Gitee Webhook] Revalidating cache (delta mode)...');
+
+      revalidateTag('obsidian', 'max');
+      revalidateTag('posts', 'max');
+      revalidateTag('obsidian-index', 'max');
+
+      revalidatePath('/', 'page');
+      revalidatePath('/archive', 'page');
+
+      for (const slug of changedSlugs) {
+        revalidatePath(`/post/${slug}`, 'page');
       }
-      
-      // 额外：清除动态路由的布局缓存
-      revalidatePath('/post/[slug]', 'page');
-      
-      console.log('[Gitee Webhook] Cache revalidation completed');
-      console.log('[Gitee Webhook] Content processing completed, updated', index.posts.length, 'posts');
+
+      const revEnd = Date.now();
+      console.log(
+        `[Gitee Webhook] Cache revalidation completed (delta: ${changedSlugs.length} slugs, 耗时: ${(revEnd - revStart).toFixed(0)}ms)`
+      );
     } catch (error: any) {
-      console.error('[Gitee Webhook] Content processing error:', error.message);
-      // 不影响 webhook 响应
+      console.error('[Gitee Webhook] Content processing error:', error?.message || error);
     }
 
-    // 5. 立即返回成功响应
+    const responseTimestamp = new Date().toISOString();
+    const t1 = Date.now();
+    console.log(`[Gitee Webhook] Done (总耗时: ${((t1 - t0) / 1000).toFixed(3)}s)`);
+
     return NextResponse.json({
       success: true,
-      message: 'Webhook received, processing asynchronously',
+      message: 'Webhook received and processed',
       timestamp: responseTimestamp,
     });
   } catch (error: any) {
     console.error('[Gitee Webhook] Error:', error);
     return NextResponse.json(
-      {
-        error: 'Processing failed',
-        message: error.message || String(error),
-      },
+      { error: 'Processing failed', message: error?.message || String(error) },
       { status: 500 }
     );
   }
 }
 
-// GET 方法用于健康检查
 export async function GET() {
   return NextResponse.json({
     status: 'ok',
@@ -111,4 +129,3 @@ export async function GET() {
     timestamp: new Date().toISOString(),
   });
 }
-

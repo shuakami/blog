@@ -2,7 +2,6 @@
 import Redis from 'ioredis';
 import type { BlogPost } from '@/types/post';
 
-// 全局 Redis 实例（避免重复连接）
 declare global {
   // eslint-disable-next-line no-var
   var __REDIS_CLIENT__: Redis | undefined;
@@ -11,11 +10,13 @@ declare global {
 const redis =
   global.__REDIS_CLIENT__ ??
   new Redis(process.env.REDIS_URL!, {
+    connectTimeout: 5000,
     maxRetriesPerRequest: 3,
     retryStrategy: (times) => {
       if (times > 3) return null;
       return Math.min(times * 50, 2000);
     },
+    enableAutoPipelining: true,
   });
 
 if (process.env.NODE_ENV !== 'production') {
@@ -34,7 +35,6 @@ export interface ObsidianIndex {
   generated: string;
 }
 
-// 获取 Obsidian 索引
 export async function getObsidianIndex(): Promise<ObsidianIndex | null> {
   try {
     const data = await redis.get('obsidian:index');
@@ -45,7 +45,6 @@ export async function getObsidianIndex(): Promise<ObsidianIndex | null> {
   }
 }
 
-// 设置 Obsidian 索引
 export async function setObsidianIndex(index: ObsidianIndex): Promise<void> {
   try {
     await redis.set('obsidian:index', JSON.stringify(index));
@@ -55,7 +54,6 @@ export async function setObsidianIndex(index: ObsidianIndex): Promise<void> {
   }
 }
 
-// 获取单篇文章
 export async function getObsidianPost(slug: string): Promise<BlogPost | null> {
   try {
     const data = await redis.get(`obsidian:post:${slug}`);
@@ -66,7 +64,6 @@ export async function getObsidianPost(slug: string): Promise<BlogPost | null> {
   }
 }
 
-// 设置单篇文章
 export async function setObsidianPost(slug: string, post: BlogPost): Promise<void> {
   try {
     await redis.set(`obsidian:post:${slug}`, JSON.stringify(post));
@@ -76,7 +73,20 @@ export async function setObsidianPost(slug: string, post: BlogPost): Promise<voi
   }
 }
 
-// 删除单篇文章
+export async function setObsidianPostsBulk(entries: Array<{ slug: string; post: BlogPost }>): Promise<void> {
+  if (!entries.length) return;
+  const pipeline = redis.pipeline();
+  for (const { slug, post } of entries) {
+    pipeline.set(`obsidian:post:${slug}`, JSON.stringify(post));
+  }
+  try {
+    await pipeline.exec();
+  } catch (error) {
+    console.error('Error setting Obsidian posts bulk:', error);
+    await Promise.all(entries.map(({ slug, post }) => setObsidianPost(slug, post)));
+  }
+}
+
 export async function deleteObsidianPost(slug: string): Promise<void> {
   try {
     await redis.del(`obsidian:post:${slug}`);
@@ -86,14 +96,11 @@ export async function deleteObsidianPost(slug: string): Promise<void> {
   }
 }
 
-// 图片处理队列
-
 export interface ImageTask {
   slug: string;
   timestamp: number;
 }
 
-// 推入图片任务到队列
 export async function pushImageTask(task: ImageTask): Promise<void> {
   try {
     await redis.rpush('obsidian:image:queue', JSON.stringify(task));
@@ -103,7 +110,6 @@ export async function pushImageTask(task: ImageTask): Promise<void> {
   }
 }
 
-// 从队列弹出图片任务
 export async function popImageTask(): Promise<ImageTask | null> {
   try {
     const data = await redis.lpop('obsidian:image:queue');
@@ -114,7 +120,6 @@ export async function popImageTask(): Promise<ImageTask | null> {
   }
 }
 
-// 获取队列长度
 export async function getImageQueueLength(): Promise<number> {
   try {
     return await redis.llen('obsidian:image:queue');
@@ -125,4 +130,3 @@ export async function getImageQueueLength(): Promise<number> {
 }
 
 export default redis;
-
