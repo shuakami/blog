@@ -270,11 +270,7 @@ export default function MusicSharePage() {
   }
 
   return (
-    <div className="min-h-screen lg:flex lg:items-center lg:justify-center py-4 sm:py-8 md:py-16 relative">
-      {/* 移动端滚动测试元素 */}
-      <div className="lg:hidden fixed top-0 right-0 z-50 bg-red-500 text-white text-xs p-1">
-        Scroll Test
-      </div>
+    <div className="min-h-screen py-4 sm:py-8 lg:py-16 relative lg:flex lg:items-center lg:justify-center">
       {/* 高斯模糊渐变背景 */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/20 blur-3xl opacity-80" />
       <div className="absolute inset-0 bg-gradient-to-tr from-secondary/10 to-background blur-2xl opacity-60" />
@@ -366,7 +362,7 @@ export default function MusicSharePage() {
           >
             <div className="lg:sticky lg:top-8 flex flex-col h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] space-y-4 sm:space-y-6 lg:space-y-8">
               {/* 专辑封面 */}
-              <div className="relative flex-1 w-full max-w-none rounded-lg sm:rounded-xl lg:rounded-2xl overflow-hidden shadow-lg">
+              <div className="relative flex-1 w-full max-w-none overflow-hidden">
                 <Image
                   src={song.coverUrl}
                   alt={song.title}
@@ -449,8 +445,8 @@ export default function MusicSharePage() {
           </motion.div>
         </div>
         
-        {/* 移动端额外空间，确保可以滚动 */}
-        <div className="lg:hidden h-screen"></div>
+        {/* 移动端额外空间 */}
+        <div className="lg:hidden h-32"></div>
       </div>
     </div>
   )
