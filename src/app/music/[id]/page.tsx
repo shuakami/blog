@@ -114,18 +114,36 @@ export default function MusicSharePage() {
     }
   }, [id])
 
-  // 初始化：禁用滚动和隐藏 footer
+  // 初始化：隐藏 footer，移动端保持滚动能力
   useEffect(() => {
     setHasMounted(true)
     
-    document.documentElement.style.overflow = 'hidden'
-    document.body.style.overflow = 'hidden'
+    const updateScrollBehavior = () => {
+      const isMobile = window.innerWidth < 1024 // lg breakpoint
+      
+      // 只在桌面端禁用滚动
+      if (!isMobile) {
+        document.documentElement.style.overflow = 'hidden'
+        document.body.style.overflow = 'hidden'
+      } else {
+        document.documentElement.style.overflow = ''
+        document.body.style.overflow = ''
+      }
+    }
+    
+    // 初始设置
+    updateScrollBehavior()
+    
+    // 监听窗口大小变化
+    window.addEventListener('resize', updateScrollBehavior)
+    
     const footer = document.querySelector('footer')
     if (footer) {
       footer.style.display = 'none'
     }
     
     return () => {
+      window.removeEventListener('resize', updateScrollBehavior)
       document.documentElement.style.overflow = ''
       document.body.style.overflow = ''
       const footer = document.querySelector('footer')
@@ -274,7 +292,7 @@ export default function MusicSharePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-4 sm:py-8 md:py-16 relative overflow-hidden">
+    <div className="min-h-screen lg:flex lg:items-center lg:justify-center py-4 sm:py-8 md:py-16 relative overflow-hidden">
       {/* 高斯模糊渐变背景 */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/20 blur-3xl opacity-80" />
       <div className="absolute inset-0 bg-gradient-to-tr from-secondary/10 to-background blur-2xl opacity-60" />
