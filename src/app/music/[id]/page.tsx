@@ -233,6 +233,17 @@ export default function MusicSharePage() {
     }
   }
 
+  const handleLyricClick = (time: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = time
+      setCurrentTime(time)
+      if (!isPlaying) {
+        audioRef.current.play()
+        setIsPlaying(true)
+      }
+    }
+  }
+
   const formatTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return '0:00'
     const mins = Math.floor(seconds / 60)
@@ -263,7 +274,7 @@ export default function MusicSharePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-8 md:py-16 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center py-4 sm:py-8 md:py-16 relative overflow-hidden">
       {/* 高斯模糊渐变背景 */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/20 blur-3xl opacity-80" />
       <div className="absolute inset-0 bg-gradient-to-tr from-secondary/10 to-background blur-2xl opacity-60" />
@@ -274,9 +285,9 @@ export default function MusicSharePage() {
         crossOrigin="anonymous"
       />
 
-      <div className="w-full max-w-6xl px-6 md:px-8 mx-auto relative z-10">
+      <div className="w-full max-w-6xl px-4 sm:px-6 md:px-8 mx-auto relative z-10">
         {/* 主要内容区域 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-16">
           {/* 右侧：歌词为主 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -285,14 +296,14 @@ export default function MusicSharePage() {
             className="lg:col-span-1 flex flex-col min-h-0 order-2 lg:order-1"
           >
             {/* 歌曲信息 */}
-            <div className="mb-10 space-y-2">
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-tight">
+            <div className="mb-6 sm:mb-8 lg:mb-10 space-y-1 sm:space-y-2">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight leading-tight">
                 {song.title}
               </h1>
-              <p className="text-lg text-muted-foreground font-medium">
+              <p className="text-base sm:text-lg text-muted-foreground font-medium">
                 {song.artist}
               </p>
-              <p className="text-sm text-muted-foreground/60">
+              <p className="text-xs sm:text-sm text-muted-foreground/60">
                 {song.album}
               </p>
             </div>
@@ -305,7 +316,7 @@ export default function MusicSharePage() {
                 
                 <div
                   ref={lyricsContainerRef}
-                  className="h-[400px] lg:h-[500px] overflow-y-auto py-12 pr-6 space-y-6
+                  className="h-[300px] sm:h-[350px] md:h-[400px] lg:h-[500px] overflow-y-auto py-6 sm:py-8 lg:py-12 pr-2 sm:pr-4 lg:pr-6 space-y-3 sm:space-y-4 lg:space-y-6
                     [&::-webkit-scrollbar]:hidden
                     [&]:scrollbar-hide
                     scroll-smooth"
@@ -323,20 +334,21 @@ export default function MusicSharePage() {
                         duration: 0.4,
                         ease: [0.16, 1, 0.3, 1]
                       }}
-                      className={`transition-all duration-400 leading-relaxed ${
+                      onClick={() => handleLyricClick(line.time)}
+                      className={`transition-all duration-400 leading-relaxed cursor-pointer hover:opacity-80 active:scale-95 ${
                         index === currentLyricIndex
-                          ? 'text-foreground font-semibold text-2xl md:text-3xl'
-                          : 'text-muted-foreground text-xl md:text-2xl'
+                          ? 'text-foreground font-semibold text-lg sm:text-xl md:text-2xl lg:text-3xl'
+                          : 'text-muted-foreground text-base sm:text-lg md:text-xl lg:text-2xl'
                       }`}
                     >
                       {line.text}
                     </motion.div>
                   ))}
-                  <div className="h-48" /> {/* 底部留白 */}
+                  <div className="h-24 sm:h-32 lg:h-48" /> {/* 底部留白 */}
                 </div>
 
                 {/* 底部渐变遮罩 */}
-                <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none" />
               </div>
             ) : (
               <div className="flex-1 flex items-center justify-center">
@@ -352,9 +364,9 @@ export default function MusicSharePage() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="lg:col-span-1 order-1 lg:order-2 flex flex-col"
           >
-            <div className="sticky top-8 flex flex-col h-[600px] lg:h-[700px] space-y-8">
+            <div className="sticky top-4 sm:top-6 lg:top-8 flex flex-col h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] space-y-4 sm:space-y-6 lg:space-y-8">
               {/* 专辑封面 */}
-              <div className="relative flex-1 w-full max-w-none">
+              <div className="relative flex-1 w-full max-w-none rounded-lg sm:rounded-xl lg:rounded-2xl overflow-hidden shadow-lg">
                 <Image
                   src={song.coverUrl}
                   alt={song.title}
@@ -365,9 +377,9 @@ export default function MusicSharePage() {
               </div>
 
               {/* 播放器控制 */}
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-5 lg:space-y-6">
                 {/* 进度条 */}
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   <div className="relative group">
                     <input
                       type="range"
@@ -375,31 +387,37 @@ export default function MusicSharePage() {
                       max={duration || 0}
                       value={currentTime}
                       onChange={handleProgressChange}
-                      className="w-full h-1.5 bg-secondary/50 rounded-full appearance-none cursor-pointer
+                      className="w-full h-2 sm:h-1.5 bg-secondary/50 rounded-full appearance-none cursor-pointer touch-manipulation
                         [&::-webkit-slider-thumb]:appearance-none 
-                        [&::-webkit-slider-thumb]:w-3.5 
-                        [&::-webkit-slider-thumb]:h-3.5 
+                        [&::-webkit-slider-thumb]:w-5 
+                        [&::-webkit-slider-thumb]:h-5 
+                        sm:[&::-webkit-slider-thumb]:w-3.5 
+                        sm:[&::-webkit-slider-thumb]:h-3.5 
                         [&::-webkit-slider-thumb]:rounded-full 
                         [&::-webkit-slider-thumb]:bg-foreground
                         [&::-webkit-slider-thumb]:shadow-md
                         [&::-webkit-slider-thumb]:transition-all
-                        [&::-webkit-slider-thumb]:scale-0
-                        group-hover:[&::-webkit-slider-thumb]:scale-100
-                        [&::-moz-range-thumb]:w-3.5 
-                        [&::-moz-range-thumb]:h-3.5 
+                        [&::-webkit-slider-thumb]:scale-100
+                        sm:[&::-webkit-slider-thumb]:scale-0
+                        sm:group-hover:[&::-webkit-slider-thumb]:scale-100
+                        [&::-moz-range-thumb]:w-5 
+                        [&::-moz-range-thumb]:h-5 
+                        sm:[&::-moz-range-thumb]:w-3.5 
+                        sm:[&::-moz-range-thumb]:h-3.5 
                         [&::-moz-range-thumb]:rounded-full 
                         [&::-moz-range-thumb]:bg-foreground
                         [&::-moz-range-thumb]:border-0
                         [&::-moz-range-thumb]:shadow-md
                         [&::-moz-range-thumb]:transition-all
-                        [&::-moz-range-thumb]:scale-0
-                        group-hover:[&::-moz-range-thumb]:scale-100"
+                        [&::-moz-range-thumb]:scale-100
+                        sm:[&::-moz-range-thumb]:scale-0
+                        sm:group-hover:[&::-moz-range-thumb]:scale-100"
                       style={{
                         background: `linear-gradient(to right, hsl(var(--foreground)) 0%, hsl(var(--foreground)) ${(currentTime / (duration || 1)) * 100}%, hsl(var(--secondary)) ${(currentTime / (duration || 1)) * 100}%, hsl(var(--secondary)) 100%)`
                       }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs font-medium tabular-nums text-muted-foreground">
+                  <div className="flex justify-between text-xs sm:text-xs font-medium tabular-nums text-muted-foreground">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
                   </div>
@@ -410,18 +428,19 @@ export default function MusicSharePage() {
                   <button
                     onClick={handlePlayPause}
                     disabled={!song.url}
-                    className="w-14 h-14 rounded-full bg-foreground text-background 
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-foreground text-background 
                       flex items-center justify-center 
                       hover:scale-105 active:scale-95
                       transition-all duration-200
                       disabled:opacity-50 disabled:cursor-not-allowed 
                       shadow-lg hover:shadow-xl
-                      disabled:hover:scale-100"
+                      disabled:hover:scale-100
+                      touch-manipulation"
                   >
                     {isPlaying ? (
-                      <Pause className="w-6 h-6 fill-background" />
+                      <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-background" />
                     ) : (
-                      <Play className="w-6 h-6 fill-background ml-0.5" />
+                      <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-background ml-0.5" />
                     )}
                   </button>
                 </div>
