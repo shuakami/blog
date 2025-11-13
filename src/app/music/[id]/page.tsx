@@ -114,28 +114,9 @@ export default function MusicSharePage() {
     }
   }, [id])
 
-  // 初始化：隐藏 footer，移动端保持滚动能力
+  // 初始化：隐藏 footer，保持页面滚动能力
   useEffect(() => {
     setHasMounted(true)
-    
-    const updateScrollBehavior = () => {
-      const isMobile = window.innerWidth < 1024 // lg breakpoint
-      
-      // 只在桌面端禁用滚动
-      if (!isMobile) {
-        document.documentElement.style.overflow = 'hidden'
-        document.body.style.overflow = 'hidden'
-      } else {
-        document.documentElement.style.overflow = ''
-        document.body.style.overflow = ''
-      }
-    }
-    
-    // 初始设置
-    updateScrollBehavior()
-    
-    // 监听窗口大小变化
-    window.addEventListener('resize', updateScrollBehavior)
     
     const footer = document.querySelector('footer')
     if (footer) {
@@ -143,9 +124,6 @@ export default function MusicSharePage() {
     }
     
     return () => {
-      window.removeEventListener('resize', updateScrollBehavior)
-      document.documentElement.style.overflow = ''
-      document.body.style.overflow = ''
       const footer = document.querySelector('footer')
       if (footer) {
         footer.style.display = ''
@@ -292,7 +270,11 @@ export default function MusicSharePage() {
   }
 
   return (
-    <div className="min-h-screen lg:flex lg:items-center lg:justify-center py-4 sm:py-8 md:py-16 relative overflow-hidden">
+    <div className="min-h-screen lg:flex lg:items-center lg:justify-center py-4 sm:py-8 md:py-16 relative">
+      {/* 移动端滚动测试元素 */}
+      <div className="lg:hidden fixed top-0 right-0 z-50 bg-red-500 text-white text-xs p-1">
+        Scroll Test
+      </div>
       {/* 高斯模糊渐变背景 */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/20 blur-3xl opacity-80" />
       <div className="absolute inset-0 bg-gradient-to-tr from-secondary/10 to-background blur-2xl opacity-60" />
@@ -382,7 +364,7 @@ export default function MusicSharePage() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="lg:col-span-1 order-1 lg:order-2 flex flex-col"
           >
-            <div className="sticky top-4 sm:top-6 lg:top-8 flex flex-col h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] space-y-4 sm:space-y-6 lg:space-y-8">
+            <div className="lg:sticky lg:top-8 flex flex-col h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] space-y-4 sm:space-y-6 lg:space-y-8">
               {/* 专辑封面 */}
               <div className="relative flex-1 w-full max-w-none rounded-lg sm:rounded-xl lg:rounded-2xl overflow-hidden shadow-lg">
                 <Image
@@ -466,6 +448,9 @@ export default function MusicSharePage() {
             </div>
           </motion.div>
         </div>
+        
+        {/* 移动端额外空间，确保可以滚动 */}
+        <div className="lg:hidden h-screen"></div>
       </div>
     </div>
   )
