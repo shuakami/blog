@@ -133,6 +133,7 @@ export const getPostBySlug = cache(async <T extends BlogPost | ArchivePost>(
 ): Promise<T | null> => {
   // 参数验证
   if (!slug || typeof slug !== 'string') {
+    console.log(`[getPostBySlug] 无效的 slug: ${slug}`);
     return null;
   }
 
@@ -145,14 +146,10 @@ export const getPostBySlug = cache(async <T extends BlogPost | ArchivePost>(
     return obsidianPost as T;
   }
 
-  // 如果原始 slug 包含特殊字符，记录日志以便调试
-  if (slug.includes('&') || slug.includes('%')) {
-    console.log(`[getPostBySlug] 原始 slug 包含特殊字符: ${slug}`);
-  }
-
   // 2. 尝试 URL 解码（如果包含编码字符）
+  let decodedSlug: string | null = null;
   try {
-    const decodedSlug = decodeURIComponent(slug);
+    decodedSlug = decodeURIComponent(slug);
     if (decodedSlug !== slug) {
       obsidianPost = await getObsidianPost(decodedSlug);
       if (obsidianPost) {
@@ -164,6 +161,7 @@ export const getPostBySlug = cache(async <T extends BlogPost | ArchivePost>(
   }
 
   // 3. 尝试 slugify 规范化（这是最可能匹配的方式，因为存储时使用了 slugify）
+  // 先对原始 slug 进行 slugify
   const normalized = slugify(slug);
   if (normalized && normalized !== slug) {
     obsidianPost = await getObsidianPost(normalized);
@@ -173,19 +171,29 @@ export const getPostBySlug = cache(async <T extends BlogPost | ArchivePost>(
   }
 
   // 4. 如果原始 slug 包含特殊字符，尝试先解码再 slugify
-  try {
-    const decodedSlug = decodeURIComponent(slug);
-    if (decodedSlug !== slug) {
-      const normalizedDecoded = slugify(decodedSlug);
-      if (normalizedDecoded && normalizedDecoded !== normalized) {
+  if (decodedSlug && decodedSlug !== slug) {
+    const normalizedDecoded = slugify(decodedSlug);
+    if (normalizedDecoded) {
+      // 如果 normalizedDecoded 和之前尝试的不同，才查找
+      if (normalizedDecoded !== normalized && normalizedDecoded !== slug && normalizedDecoded !== decodedSlug) {
         obsidianPost = await getObsidianPost(normalizedDecoded);
         if (obsidianPost) {
           return obsidianPost as T;
         }
       }
+      // 如果 normalizedDecoded === decodedSlug，说明 slugify 没有改变解码后的值
+      // 但 decodedSlug 已经在步骤 2 尝试过了，所以这里不需要再试
     }
-  } catch (e) {
-    // 忽略错误
+  }
+
+  // 5. 如果还是找不到，记录调试信息
+  if (slug.includes('&') || slug.includes('%') || /[\u4e00-\u9fa5]/.test(slug)) {
+    console.log(`[getPostBySlug] 未找到文章，尝试的 slug 变体:`, {
+      original: slug,
+      decoded: decodedSlug,
+      normalized: normalized,
+      normalizedDecoded: decodedSlug ? slugify(decodedSlug) : null,
+    });
   }
 
   return null;
