@@ -129,23 +129,60 @@ export const getArchivePosts = cache(async (page = 1) => {
  */
 export const getPostBySlug = cache(async <T extends BlogPost | ArchivePost>(
   slug: string,
-  _path?: string // �������������ԣ�����ʹ��
+  _path?: string 
 ): Promise<T | null> => {
-  // URL ���� slug���������ĵ������ַ���
-  const decodedSlug = decodeURIComponent(slug);
+  // Next.js 路由参数可能已经解码，也可能未解码
+  // 我们需要尝试多种方式查找文章
   
-  const obsidianPost = await getObsidianPost(decodedSlug);
+  // 1. 首先尝试直接使用原始 slug（Next.js 可能已经自动解码）
+  let obsidianPost = await getObsidianPost(slug);
   if (obsidianPost) {
     return obsidianPost as T;
   }
 
-  const normalized = slugify(decodedSlug);
-  if (normalized && normalized !== decodedSlug) {
-    const fallback = await getObsidianPost(normalized);
-    if (fallback) {
-      return fallback as T;
+  // 如果原始 slug 包含特殊字符，记录日志以便调试
+  if (slug.includes('&') || slug.includes('%')) {
+    console.log(`[getPostBySlug] 原始 slug 包含特殊字符: ${slug}`);
+  }
+
+  // 2. 尝试 URL 解码（如果包含编码字符）
+  try {
+    const decodedSlug = decodeURIComponent(slug);
+    if (decodedSlug !== slug) {
+      obsidianPost = await getObsidianPost(decodedSlug);
+      if (obsidianPost) {
+        return obsidianPost as T;
+      }
+    }
+  } catch (e) {
+    // decodeURIComponent 失败，继续尝试其他方式
+  }
+
+  // 3. 尝试 slugify 规范化（这是最可能匹配的方式，因为存储时使用了 slugify）
+  const normalized = slugify(slug);
+  if (normalized && normalized !== slug) {
+    obsidianPost = await getObsidianPost(normalized);
+    if (obsidianPost) {
+      return obsidianPost as T;
     }
   }
+
+  // 4. 如果原始 slug 包含特殊字符，尝试先解码再 slugify
+  try {
+    const decodedSlug = decodeURIComponent(slug);
+    if (decodedSlug !== slug) {
+      const normalizedDecoded = slugify(decodedSlug);
+      if (normalizedDecoded && normalizedDecoded !== normalized) {
+        obsidianPost = await getObsidianPost(normalizedDecoded);
+        if (obsidianPost) {
+          return obsidianPost as T;
+        }
+      }
+    }
+  } catch (e) {
+    // 忽略错误
+  }
+
   return null;
 });
 
