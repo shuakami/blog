@@ -17,10 +17,12 @@ import type { Viewport } from 'next';
 export const revalidate = 30;
 
 interface PageProps {
-  params: {
+  params: Promise<{
+    slug: string;
+  }> | {
     slug: string;
   };
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>;
 }
 
 function formatDate(dateString: string): string {
@@ -52,7 +54,8 @@ function extractEncryptParam(value?: string | string[]): string {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug, 'content');
+  const resolvedParams = await Promise.resolve(params);
+  const post = await getPostBySlug(resolvedParams.slug, 'content');
   if (!post) {
     return {
       title: '文章未找到 - Shuakami',
@@ -85,13 +88,15 @@ export const viewport: Viewport = {
 } as const;
 
 export default async function PostPage({ params, searchParams }: PageProps) {
-  const post = await getPostBySlug(params.slug, 'content');
+  const resolvedParams = await Promise.resolve(params);
+  const resolvedSearchParams = searchParams ? await Promise.resolve(searchParams) : undefined;
+  const post = await getPostBySlug(resolvedParams.slug, 'content');
 
   if (!post) {
     notFound();
   }
 
-  const encryptParam = extractEncryptParam(searchParams?.encrypt);
+  const encryptParam = extractEncryptParam(resolvedSearchParams?.encrypt);
   const isEncrypted = Boolean(post.encrypted && post.encryption?.hash);
   let authorized = true;
 
@@ -173,10 +178,15 @@ export default async function PostPage({ params, searchParams }: PageProps) {
 }
 
 export async function generateStaticParams() {
-  const { posts } = await getBlogPosts(1);
-  return posts
-    .filter((post) => post.slug && typeof post.slug === 'string')
-    .map((post) => ({
-      slug: post.slug,
-    }));
+  try {
+    const { posts } = await getBlogPosts(1);
+    return posts
+      .filter((post) => post && post.slug && typeof post.slug === 'string' && post.slug.trim().length > 0)
+      .map((post) => ({
+        slug: post.slug!,
+      }));
+  } catch (error) {
+    console.error('[generateStaticParams] Error:', error);
+    return [];
+  }
 }
