@@ -14,6 +14,7 @@ import { withLock } from './obsidian-lock';
 import type { BlogPost } from '@/types/post';
 import { replaceImagesWithOssUrls } from './image-replacer';
 import { hashPostPassword } from './post-encryption';
+import { slugify } from './slug';
 
 const FILE_PROCESS_CONCURRENCY = Number(process.env.OBSIDIAN_FILE_CONCURRENCY || 4);
 
@@ -25,10 +26,7 @@ export interface WebhookCommit {
 
 function pathToSlug(path: string): string {
   const filename = path.split('/').pop()!.replace(/\.md$/, '');
-  return filename
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w\u4e00-\u9fa5-]/g, '');
+  return slugify(filename);
 }
 
 function extractCategory(path: string): string {

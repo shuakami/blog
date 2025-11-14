@@ -2,6 +2,7 @@
 import { cache } from 'react';
 import type { BlogPost, ArchivePost } from '@/types/post';
 import { getObsidianIndex, getObsidianPost } from '@/lib/redis';
+import { slugify } from './slug';
 
 const PER_PAGE = 10 as const; // 每页文章数
 
@@ -128,14 +129,22 @@ export const getArchivePosts = cache(async (page = 1) => {
  */
 export const getPostBySlug = cache(async <T extends BlogPost | ArchivePost>(
   slug: string,
-  _path?: string // 保留参数兼容性，但不使用
+  _path?: string // �������������ԣ�����ʹ��
 ): Promise<T | null> => {
-  // URL 解码 slug（处理中文等特殊字符）
+  // URL ���� slug���������ĵ������ַ���
   const decodedSlug = decodeURIComponent(slug);
   
   const obsidianPost = await getObsidianPost(decodedSlug);
   if (obsidianPost) {
     return obsidianPost as T;
+  }
+
+  const normalized = slugify(decodedSlug);
+  if (normalized && normalized !== decodedSlug) {
+    const fallback = await getObsidianPost(normalized);
+    if (fallback) {
+      return fallback as T;
+    }
   }
   return null;
 });
@@ -153,3 +162,5 @@ export async function generateStaticParams() {
     slug: post.slug,
   }));
 }
+
+
