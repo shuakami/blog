@@ -1,6 +1,5 @@
 import type { GrayMatterFile } from 'gray-matter';
 
-// GitHub API响应类型
 export interface GitHubContent {
   name: string;
   path: string;
@@ -9,7 +8,10 @@ export interface GitHubContent {
   content?: string;
 }
 
-// 基础内容类型
+export interface PostEncryption {
+  hash: string;
+}
+
 interface BaseContent {
   slug: string;
   title: string;
@@ -18,28 +20,26 @@ interface BaseContent {
   excerpt?: string;
   coverImage?: string | null;
   author?: string;
+  encryption?: PostEncryption;
+  encrypted?: boolean;
 }
 
-// 博客文章类型
 export interface BlogPost extends BaseContent {
   tags?: string[];
-  category?: string;       // 新增：从路径提取的分类
-  source?: 'github' | 'obsidian';  // 新增：来源标识
+  category?: string;
+  source?: 'github' | 'obsidian';
 }
 
-// 归档文章类型
 export interface ArchivePost extends BaseContent {
   category?: string;
   tags?: string[];
   source?: 'github' | 'obsidian';
 }
 
-// 索引类型
 export interface ContentIndex {
   posts: Array<Omit<BlogPost | ArchivePost, 'content'>>;
 }
 
-// Matter 结果类型
 export interface MatterResult extends GrayMatterFile<string> {
   data: {
     title: string;
@@ -52,13 +52,12 @@ export interface MatterResult extends GrayMatterFile<string> {
   };
 }
 
-// 向后兼容的 Post 类型
 export interface Post extends BaseContent {
   tags?: string[];
 }
 
-// 文章索引类型
 export interface PostIndex {
   posts: Post[];
   generated: string;
 }
+

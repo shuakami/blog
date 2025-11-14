@@ -13,6 +13,7 @@ import { clearImageCache } from './image-cache';
 import { withLock } from './obsidian-lock';
 import type { BlogPost } from '@/types/post';
 import { replaceImagesWithOssUrls } from './image-replacer';
+import { hashPostPassword } from './post-encryption';
 
 const FILE_PROCESS_CONCURRENCY = Number(process.env.OBSIDIAN_FILE_CONCURRENCY || 4);
 
@@ -112,6 +113,10 @@ async function buildPostFromMarkdown(path: string) {
   const { generateExcerpt } = require('./excerpt-generator');
   const excerpt = generateExcerpt(parsed.content, parsed.data.excerpt);
 
+  const rawEncrypt = typeof parsed.data.encrypt === 'string' ? parsed.data.encrypt.trim() : '';
+  const isEncrypted = rawEncrypt.length > 0;
+  const encryption = isEncrypted ? { hash: hashPostPassword(slug, rawEncrypt) } : undefined;
+
   const post: BlogPost = {
     slug,
     title,
@@ -123,17 +128,21 @@ async function buildPostFromMarkdown(path: string) {
     excerpt,
     source: 'obsidian',
     tags: parsed.data.tags || [],
+    encryption,
+    encrypted: isEncrypted,
   };
 
-  const indexEntry = {
-    slug,
-    title: post.title,
-    date: post.date,
-    category,
-    excerpt,
-  };
+  const indexEntry = isEncrypted
+    ? undefined
+    : {
+        slug,
+        title: post.title,
+        date: post.date,
+        category,
+        excerpt,
+      };
 
-  return { slug, post, indexEntry };
+  return { slug, post, indexEntry, encrypted: isEncrypted };
 }
 
 export async function processIncrementalUpdate(
@@ -171,8 +180,9 @@ export async function processIncrementalUpdate(
 
   const toUpsert = buildResults.filter(Boolean).filter((r: any) => r.post);
   const toUnpublish = buildResults.filter(Boolean).filter((r: any) => r?.unpublished).map((r: any) => r.slug);
+  const encryptedSlugs = buildResults.filter(Boolean).filter((r: any) => r?.encrypted).map((r: any) => r.slug);
   const toRemove = removedFiles.map((p) => pathToSlug(p));
-  const purgeSlugs = Array.from(new Set([...toRemove, ...toUnpublish]));
+  const purgeSlugs = Array.from(new Set([...toRemove, ...toUnpublish, ...encryptedSlugs]));
 
   const lockStart = Date.now();
   const index = await withLock(async () => {
@@ -195,6 +205,7 @@ export async function processIncrementalUpdate(
       index.posts.forEach((p, i) => pos.set(p.slug, i));
 
       for (const r of toUpsert) {
+        if (!r.indexEntry) continue;
         const i = pos.get(r.slug);
         if (i !== undefined) {
           index.posts[i] = r.indexEntry;
