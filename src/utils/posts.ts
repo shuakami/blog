@@ -131,6 +131,11 @@ export const getPostBySlug = cache(async <T extends BlogPost | ArchivePost>(
   slug: string,
   _path?: string 
 ): Promise<T | null> => {
+  // 参数验证
+  if (!slug || typeof slug !== 'string') {
+    return null;
+  }
+
   // Next.js 路由参数可能已经解码，也可能未解码
   // 我们需要尝试多种方式查找文章
   
@@ -195,9 +200,11 @@ export async function generateStaticParams() {
     return [];
   }
   
-  return obsidianIndex.posts.map((post) => ({
-    slug: post.slug,
-  }));
+  return obsidianIndex.posts
+    .filter((post) => post.slug && typeof post.slug === 'string')
+    .map((post) => ({
+      slug: post.slug,
+    }));
 }
 
 

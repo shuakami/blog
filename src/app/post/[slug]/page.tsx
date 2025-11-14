@@ -174,7 +174,9 @@ export default async function PostPage({ params, searchParams }: PageProps) {
 
 export async function generateStaticParams() {
   const { posts } = await getBlogPosts(1);
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+  return posts
+    .filter((post) => post.slug && typeof post.slug === 'string')
+    .map((post) => ({
+      slug: post.slug,
+    }));
 }
