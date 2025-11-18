@@ -28,7 +28,9 @@ export async function getResources(): Promise<Resource[]> {
   const postsWithResources = await Promise.all(
     obsidianIndex.posts.map(async (indexEntry) => {
       const post = await getPostBySlug<BlogPost>(indexEntry.slug);
-      return post?.resource === true ? post : null;
+      // 支持 resource === true 或 resource === 'true'
+      const isResource = post?.resource === true || (post as any)?.resource === 'true';
+      return isResource ? post : null;
     })
   );
   
@@ -39,7 +41,7 @@ export async function getResources(): Promise<Resource[]> {
   const resources = resourcePosts.map((post: BlogPost) => ({
     slug: post.slug,
     title: post.title,
-    description: post.excerpt || '',
+    description: post.excerpt || post.content?.replace(/<[^>]*>/g, '').substring(0, 150) || '',
     type: post.resourceType || '数据集',
     format: post.format,
     size: post.size,

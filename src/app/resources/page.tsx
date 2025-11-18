@@ -21,7 +21,7 @@ export default async function ResourcesPage() {
           资源
         </h1>
         <p className="text-base sm:text-lg text-black/50 dark:text-white/50 mb-6 sm:mb-8 leading-relaxed">
-          精心整理的实用资源和数据集，全部免费开放使用
+          整理的实用资源和数据集，全部免费开放使用
         </p>
         <div className="w-12 sm:w-16 h-[2px] bg-black dark:bg-white" />
       </header>
