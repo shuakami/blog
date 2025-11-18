@@ -34,33 +34,7 @@ export default async function ResourcesPage() {
           </p>
         </div>
       ) : (
-        <>
-          <div className="mb-12 sm:mb-16 p-5 sm:p-6 rounded-xl bg-black/[0.02] dark:bg-white/[0.02]">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="space-y-1">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-black dark:text-white">
-                  {resources.length}
-                </h3>
-                <p className="text-sm text-black/60 dark:text-white/60">资源总数</p>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-black dark:text-white">
-                  {new Set(resources.map(r => r.type)).size}+
-                </h3>
-                <p className="text-sm text-black/60 dark:text-white/60">数据类型</p>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-black dark:text-white">100%</h3>
-                <p className="text-sm text-black/60 dark:text-white/60">免费开放</p>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-black dark:text-white">持续更新</h3>
-                <p className="text-sm text-black/60 dark:text-white/60">维护状态</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-0">
+        <div className="space-y-0">
             {resources.map((resource, index) => (
               <article
                 key={index}
@@ -163,8 +137,7 @@ export default async function ResourcesPage() {
                 </div>
               </article>
             ))}
-          </div>
-        </>
+        </div>
       )}
     </div>
   );
