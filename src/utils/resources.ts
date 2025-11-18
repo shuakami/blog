@@ -58,5 +58,17 @@ export async function getResources(): Promise<Resource[]> {
 
 export async function getResourceBySlug(slug: string): Promise<Resource | null> {
   const resources = await getResources();
-  return resources.find(r => r.slug === slug) || null;
+  console.log('[getResourceBySlug] Looking for slug:', slug);
+  console.log('[getResourceBySlug] Available slugs:', resources.map(r => r.slug));
+  
+  // 尝试多种匹配方式
+  const decodedSlug = decodeURIComponent(slug);
+  const found = resources.find(r => 
+    r.slug === slug || 
+    r.slug === decodedSlug ||
+    encodeURIComponent(r.slug) === slug
+  );
+  
+  console.log('[getResourceBySlug] Found:', found ? found.title : 'null');
+  return found || null;
 }

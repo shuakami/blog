@@ -6,6 +6,7 @@ import { getResourceBySlug, getResources } from '@/utils/resources';
 
 export async function generateStaticParams() {
   const resources = await getResources();
+  console.log('[Resources] Generating static params for:', resources.map(r => r.slug));
   return resources.map((resource) => ({
     slug: resource.slug,
   }));
@@ -33,7 +34,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ResourceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  console.log('[Resource Detail] Requested slug:', slug);
+  console.log('[Resource Detail] Decoded slug:', decodeURIComponent(slug));
+  
   const resource = await getResourceBySlug(slug);
+  console.log('[Resource Detail] Found resource:', resource ? resource.title : 'null');
 
   if (!resource) {
     notFound();
