@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Download, Tag } from 'lucide-react';
 import { getResourceBySlug, getResources } from '@/utils/resources';
+import { CodeCopyButton } from '@/components/CodeCopyButton';
 
 export async function generateStaticParams() {
   const resources = await getResources();
@@ -145,9 +146,10 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
             详细说明
           </h2>
           <div 
-            className="prose prose-neutral dark:prose-invert max-w-none"
+            className="prose dark:prose-invert max-w-none markdown-body"
             dangerouslySetInnerHTML={{ __html: resource.sample }}
           />
+          <CodeCopyButton />
         </section>
       )}
 

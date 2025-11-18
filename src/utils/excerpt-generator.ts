@@ -1,6 +1,5 @@
 /**
  * 高性能摘要生成器
- * 优化：合并正则、减少遍历次数
  */
 
 const EXCERPT_LENGTH = 200;
@@ -15,11 +14,12 @@ export function generateExcerpt(content: string, customExcerpt?: string): string
 
   let excerpt = content;
 
-  // 第一遍：移除大块内容（代码块、注释）
+  // 第一遍：移除大块内容（代码块、注释、标题）
   excerpt = excerpt
     .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/```[\s\S]*?```/g, '')
-    .replace(/~~~[\s\S]*?~~~/g, '');
+    .replace(/~~~[\s\S]*?~~~/g, '')
+    .replace(/^#{1,6}\s+.+$/gm, ''); // 移除 markdown 标题
 
   // 第二遍：处理行内元素（合并正则，减少遍历）
   excerpt = excerpt
