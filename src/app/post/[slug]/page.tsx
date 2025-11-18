@@ -181,7 +181,7 @@ export async function generateStaticParams() {
   try {
     const { posts } = await getBlogPosts(1);
     return posts
-      .filter((post) => post && post.slug && typeof post.slug === 'string' && post.slug.trim().length > 0)
+      .filter((post) => post?.slug && typeof post.slug === 'string' && post.slug.trim().length > 0)
       .map((post) => ({
         slug: post.slug!,
       }));

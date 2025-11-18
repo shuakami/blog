@@ -128,6 +128,14 @@ async function buildPostFromMarkdown(path: string) {
     tags: parsed.data.tags || [],
     encryption,
     encrypted: isEncrypted,
+    // 资源相关字段
+    resource: parsed.data.resource === true,
+    resourceType: parsed.data.resourceType,
+    format: parsed.data.format,
+    size: parsed.data.size,
+    downloadUrl: parsed.data.downloadUrl,
+    resourceDetails: parsed.data.resourceDetails,
+    usage: parsed.data.usage,
   };
 
   const indexEntry = isEncrypted

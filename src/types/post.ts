@@ -28,6 +28,14 @@ export interface BlogPost extends BaseContent {
   tags?: string[];
   category?: string;
   source?: 'github' | 'obsidian';
+  // 资源相关字段
+  resource?: boolean;
+  resourceType?: string;
+  format?: string;
+  size?: string;
+  downloadUrl?: string;
+  resourceDetails?: Record<string, string>;
+  usage?: string[];
 }
 
 export interface ArchivePost extends BaseContent {

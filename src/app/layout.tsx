@@ -62,6 +62,7 @@ const navItems: NavItem[] = [
   { label: "首页", href: "/", enabled: true },
   { label: "归档", href: "/archive", enabled: true },
   { label: "作品", href: "/works", enabled: true },
+  { label: "资源", href: "/resources", enabled: true },
   { label: "音乐", href: "/music", enabled: true },
   { label: "关于", href: "/about", enabled: true },
   { label: "好兄弟们", href: "/friends", enabled: true },
@@ -102,7 +103,7 @@ export default function RootLayout({
                     document.documentElement.classList.add('layout-' + layout);
                     
                     // 应用背景类
-                    const NO_BG_PAGES = ['/music', '/works', '/friends'];
+                    const NO_BG_PAGES = ['/music', '/works', '/friends', '/resources'];
                     const shouldDisableBg = NO_BG_PAGES.some(page => path.startsWith(page));
                     
                     if (!shouldDisableBg && backgroundStyle && backgroundStyle !== 'none') {
