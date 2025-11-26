@@ -4,8 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 :root {
     --transition-duration: 200ms;
     --font-geist-sans: '';
@@ -13,10 +11,7 @@
     --font-noto-sans-sc: '';
 }
 
-/* .dark 变量由 shadcn/ui 系统统一管理（见下方 @layer base）*/
-  
-
-  @keyframes fadeIn {
+@keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
@@ -40,7 +35,6 @@
                 color var(--transition-duration) ease;
   }
 
-/* 滚动条样式 */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -57,6 +51,16 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-black/20 dark:bg-white/20;
+}
+
+html.christmas ::-webkit-scrollbar-thumb {
+  background-color: rgba(196, 30, 58, 0.3);
+}
+html.christmas ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(196, 30, 58, 0.6);
+}
+html.christmas.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(212, 175, 55, 0.3);
 }
 
 @layer base {
@@ -113,6 +117,25 @@
         --chart-4: 280 65% 60%;
         --chart-5: 340 75% 55%;
     }
+
+    html.christmas {
+        --background: 40 20% 97%; 
+        --foreground: 160 30% 15%; 
+        --primary: 350 75% 45%; 
+        --border: 45 30% 85%;
+        --muted: 40 20% 92%;
+        --card: 40 20% 98%;
+        --accent: 350 80% 97%;
+    }
+    html.christmas.dark {
+        --background: 165 40% 8%; 
+        --foreground: 45 20% 85%; 
+        --primary: 350 60% 60%;
+        --border: 165 30% 18%;
+        --muted: 165 30% 12%;
+        --card: 165 30% 10%;
+        --accent: 165 30% 15%;
+    }
 }
 @layer base {
   * {
@@ -136,15 +159,17 @@
   .dark body {
     background-color: #121212;
     }
+
+  html.christmas body {
+    background-color: hsl(var(--background));
+  }
   
-  /* Sidebar 初始化期间的动画处理 */
   html.sidebar-initializing main,
   html.sidebar-initializing footer {
     padding-left: 24px !important;
     transition: padding-left 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
   
-  /* 角色背景 - 使用 body 自身 */
   body.background-character {
     background-image: url('/friends/assets/avatars/background_character_2.png');
     }
@@ -153,12 +178,10 @@
     background-image: url('/friends/assets/avatars/background_character_dark.png');
     }
   
-  /* 纯净模式 - 清除背景图片 */
   body:not(.background-character):not(.background-luoxiaohei) {
     background-image: none;
     }
   
-  /* 彩绘背景层 - 使用 ::after 实现交叉渐变 */
   body::after {
     content: '';
     position: fixed;
@@ -177,12 +200,10 @@
     transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
   
-  /* 显示彩绘背景 */
   body.background-luoxiaohei::after {
     opacity: 1;
     }
   
-  /* 遮罩层 */
   body::before {
     content: '';
     position: fixed;
@@ -199,13 +220,19 @@
   .dark body::before {
     background-color: rgba(18, 18, 18, 0.90);
     }
+
+  html.christmas body::before {
+    background-color: rgba(253, 251, 247, 0.94);
+  }
+  html.christmas.dark body::before {
+    background-color: rgba(10, 20, 15, 0.96);
+  }
   
   body > * {
     position: relative;
     z-index: 1;
     }
   
-  /* 彩绘背景的遮罩更不透明 */
   body.background-luoxiaohei::before {
     background-color: rgba(255, 255, 255, 0.93) !important;
     }
@@ -214,7 +241,6 @@
     background-color: rgba(18, 18, 18, 0.93) !important;
     }
   
-  /* 暗色模式下彩绘背景时，header和sidebar完全透明 */
   .dark body.background-luoxiaohei header {
     background-color: transparent !important;
     backdrop-filter: blur(20px) !important;
@@ -225,13 +251,11 @@
     backdrop-filter: blur(20px) !important;
     }
   
-  /* 页面布局模式 */
   main > div,
   .article-content-width {
     transition: max-width 0.5s cubic-bezier(0.32, 0.72, 0, 1);
     }
   
-  /* 默认布局（服务端渲染使用） - 使用 !important 覆盖 Tailwind 类 */
   main > div {
     max-width: 1280px !important;
     }
@@ -251,7 +275,6 @@
     max-width: 1536px !important;
     }
   
-  /* 文章内容宽度 */
   .article-content-width {
     max-width: 48rem !important;
     }
@@ -270,4 +293,47 @@
   body.layout-wide .article-content-width {
     max-width: 56rem !important;
     }
+}
+
+html.christmas::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+      45deg,
+      #C41E3A,
+      #C41E3A 10px,
+      #ffffff 10px,
+      #ffffff 14px,
+      #1A472A,
+      #1A472A 24px,
+      #ffffff 24px,
+      #ffffff 28px
+  );
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  pointer-events: none;
+}
+html.christmas.dark::before {
+  background: repeating-linear-gradient(
+      45deg,
+      #8B0000, 
+      #8B0000 10px,
+      #D4AF37 10px,
+      #D4AF37 14px,
+      #0F1F18 14px,
+      #0F1F18 24px
+  );
+}
+
+html.christmas ::selection {
+  background-color: #C41E3A;
+  color: #ffffff;
+}
+html.christmas.dark ::selection {
+  background-color: #D4AF37;
+  color: #0F1F18;
 }

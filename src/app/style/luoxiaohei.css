@@ -1,7 +1,7 @@
 /* 
  * Luoxiaohei / Code Theme
  * Version: 0.02
- * Release Date: November 2, 2024
+ * Release Date: 2025/11/26
  * Author: Shuakami
  */
 
@@ -23,7 +23,16 @@
   --code-tag-attr: #986801;
 }
 
-/* 修改暗色主题选择器 */
+html.christmas :root {
+  --code-text: #2A2F2A;
+  --code-keyword: #C41E3A; /* Red for keywords */
+  --code-string: #1A472A;  /* Forest Green for strings */
+  --code-function: #D4AF37; /* Gold for functions */
+  --code-comment: #9CA3AF;
+  --code-tag-name: #C41E3A;
+  --code-type: #B58603;
+}
+
 :root[data-theme="dark"],  /* 支持 data-theme 属性 */
 :root[class~="dark"],      /* 支持 class="dark" */
 [data-theme="dark"],       /* 支持任意元素的 data-theme */
@@ -44,7 +53,15 @@
   --code-tag-attr: #D19A66;
 }
 
-/* 添加系统暗色模式支持 */
+html.christmas.dark :root {
+  --code-text: #E8EBE8;
+  --code-keyword: #FF6B6B; /* Soft Red */
+  --code-string: #7EE081;  /* Soft Green */
+  --code-function: #F1D302; /* Bright Gold */
+  --code-comment: #52665B;
+  --code-type: #D4AF37;
+}
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --code-text: #E6E6E6;
@@ -157,4 +174,13 @@
 
 .token.inserted {
   color: var(--code-string);
+}
+
+html.christmas .markdown-body pre {
+  border-color: rgba(26, 71, 42, 0.1);
+  background-color: rgba(26, 71, 42, 0.02);
+}
+html.christmas.dark .markdown-body pre {
+  border-color: rgba(212, 175, 55, 0.1);
+  background-color: rgba(10, 20, 15, 0.5);
 }

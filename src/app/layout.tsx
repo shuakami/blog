@@ -7,6 +7,7 @@ import { LayoutClient } from '@/components/LayoutClient';
 import type { NavItem } from '@/lib/types';
 import { MusicPlayerProvider } from '@/hooks/use-music-player';
 import { GlobalMusicPlayer } from '@/components/music/global-music-player';
+import { ChristmasEffect } from '@/components/ChristmasEffect';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -74,7 +75,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning className="christmas">
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -143,6 +144,7 @@ export default function RootLayout({
           <MusicPlayerProvider>
             <LayoutClient navItems={navItems} siteName="Shuakami">{children}</LayoutClient>
             <GlobalMusicPlayer />
+            <ChristmasEffect zIndex={0} showCursorHat={true} />
           </MusicPlayerProvider>
         </ThemeProvider>
       </body>
