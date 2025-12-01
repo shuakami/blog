@@ -31,6 +31,7 @@ export interface ObsidianIndex {
     category: string;
     excerpt: string;
     tags?: string[];
+    resource?: boolean;
   }>;
   generated: string;
 }

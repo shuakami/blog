@@ -25,8 +25,11 @@ export const getBlogPosts = cache(async (page = 1) => {
     };
   }
 
+  // 过滤掉资源文章
+  const regularPosts = obsidianIndex.posts.filter(p => !p.resource);
+
   // 按日期排序
-  const sorted = [...obsidianIndex.posts].sort(
+  const sorted = [...regularPosts].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
@@ -83,8 +86,11 @@ export const getArchivePosts = cache(async (page = 1) => {
     };
   }
 
+  // 过滤掉资源文章
+  const regularPosts = obsidianIndex.posts.filter(p => !p.resource);
+
   // 按日期排序
-  const sorted = [...obsidianIndex.posts].sort(
+  const sorted = [...regularPosts].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 

@@ -146,6 +146,7 @@ async function buildPostFromMarkdown(path: string) {
         date: post.date,
         category,
         excerpt,
+        resource: post.resource,
       };
 
   return { slug, post, indexEntry, encrypted: isEncrypted };

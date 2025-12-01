@@ -28,26 +28,28 @@ async function buildSearchIndex() {
       return [];
     }
     
-    // 处理 Obsidian 数据
-    const indexData = obsidianIndex.posts.map((post: any) => {
-      return {
-        slug: post.slug,
-        title: (post.title || '').toLowerCase(),
-        excerpt: (post.excerpt || '').toLowerCase(),
-        category: (post.category || '').toLowerCase(),
-        tags: [],
-        content: (post.excerpt || '').toLowerCase(),
-        date: post.date,
-        // 原始数据用于返回
-        original: {
-          title: post.title || 'Untitled',
-          excerpt: post.excerpt || '',
-          category: post.category || '未分类',
+    // 处理 Obsidian 数据，过滤掉资源文章
+    const indexData = obsidianIndex.posts
+      .filter((post: any) => !post.resource)  // 排除资源文章
+      .map((post: any) => {
+        return {
+          slug: post.slug,
+          title: (post.title || '').toLowerCase(),
+          excerpt: (post.excerpt || '').toLowerCase(),
+          category: (post.category || '').toLowerCase(),
           tags: [],
-          coverImage: null,
-        }
-      };
-    }).filter(Boolean);
+          content: (post.excerpt || '').toLowerCase(),
+          date: post.date,
+          // 原始数据用于返回
+          original: {
+            title: post.title || 'Untitled',
+            excerpt: post.excerpt || '',
+            category: post.category || '未分类',
+            tags: [],
+            coverImage: null,
+          }
+        };
+      }).filter(Boolean);
     
     // 更新缓存
     searchIndexCache = {
