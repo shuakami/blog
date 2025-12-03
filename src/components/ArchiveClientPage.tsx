@@ -35,16 +35,23 @@ function groupPostsByYear(posts: any[]) {
 // 估算字数：在无 wordCount 且未提供 content 的情况下使用
 function estimateWordsFromExcerpt(excerpt?: string): number {
   if (!excerpt) return 0;
-  // 对中文内容：近似以字符数计；英文内容：按空格拆分计词
-  // 为保持一致性，这里统一以“字符数”估计（更稳定）
-  return excerpt.length;
+  
+  // 去除多余空白
+  const text = excerpt.replace(/\s+/g, ' ').trim();
+  
+  // 计算字数：中文字符 + 英文单词
+  const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
+  const englishWords = text.match(/[a-zA-Z]+/g) || [];
+  
+  return chineseChars.length + englishWords.length;
 }
 
-// 兜底计算（仅当提供了 HTML content 才使用，避免大正则）
+// 兜底计算
 function wordsFromHtml(html?: string): number {
   if (!html) return 0;
-  // 去标签的低成本方法：简单扫描剔除 <...> 段
-  let cnt = 0;
+  
+  // 1. 去除 HTML 标签
+  let text = '';
   let inTag = false;
   for (let i = 0; i < html.length; i++) {
     const ch = html.charCodeAt(i);
@@ -53,10 +60,20 @@ function wordsFromHtml(html?: string): number {
     } else if (ch === 62 /* > */) {
       inTag = false;
     } else if (!inTag) {
-      cnt++;
+      text += html[i];
     }
   }
-  return cnt;
+  
+  // 2. 去除多余空白字符
+  text = text.replace(/\s+/g, ' ').trim();
+  
+  // 3. 计算字数：中文字符 + 英文单词
+  // 中文字符（包括中文标点）
+  const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
+  // 英文单词（连续的字母）
+  const englishWords = text.match(/[a-zA-Z]+/g) || [];
+  
+  return chineseChars.length + englishWords.length;
 }
 
 export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {

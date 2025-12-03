@@ -82,6 +82,9 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
+                  // 安全检查
+                  if (!document.documentElement || !document.body) return;
+                  
                   const path = window.location.pathname;
                   
                   // 立即读取并应用布局和背景配置，避免闪烁
@@ -101,36 +104,44 @@ export default function RootLayout({
                       layout = 'compact';
                     }
                     
-                    document.documentElement.classList.add('layout-' + layout);
+                    if (document.documentElement) {
+                      document.documentElement.classList.add('layout-' + layout);
+                    }
                     
                     // 应用背景类
                     const NO_BG_PAGES = ['/music', '/works', '/friends', '/resources'];
                     const shouldDisableBg = NO_BG_PAGES.some(page => path.startsWith(page));
                     
-                    if (!shouldDisableBg && backgroundStyle && backgroundStyle !== 'none') {
+                    if (!shouldDisableBg && backgroundStyle && backgroundStyle !== 'none' && document.body) {
                       document.body.classList.add('background-' + backgroundStyle);
                     }
                   } else {
                     // 默认布局
-                    document.documentElement.classList.add('layout-default');
+                    if (document.documentElement) {
+                      document.documentElement.classList.add('layout-default');
+                    }
                   }
                   
                   // 立即读取 sidebar 状态并应用样式变量，避免 padding 闪烁
                   const sidebarOpen = localStorage.getItem('sidebar-open');
-                  if (sidebarOpen === 'true' && window.innerWidth >= 768) {
-                    // 桌面端 sidebar 打开时，立即设置 padding
-                    document.documentElement.style.setProperty('--sidebar-padding', '216px');
-                  } else {
-                    document.documentElement.style.setProperty('--sidebar-padding', '24px');
+                  if (document.documentElement) {
+                    if (sidebarOpen === 'true' && window.innerWidth >= 768) {
+                      // 桌面端 sidebar 打开时，立即设置 padding
+                      document.documentElement.style.setProperty('--sidebar-padding', '216px');
+                    } else {
+                      document.documentElement.style.setProperty('--sidebar-padding', '24px');
+                    }
+                    
+                    // 标记 sidebar 未初始化，禁用 transition
+                    document.documentElement.classList.add('sidebar-initializing');
                   }
-                  
-                  // 标记 sidebar 未初始化，禁用 transition
-                  document.documentElement.classList.add('sidebar-initializing');
                 } catch (e) {
                   console.error('Failed to apply layout:', e);
-                  document.documentElement.classList.add('layout-default');
-                  document.documentElement.style.setProperty('--sidebar-padding', '24px');
-                  document.documentElement.classList.add('sidebar-initializing');
+                  if (document.documentElement) {
+                    document.documentElement.classList.add('layout-default');
+                    document.documentElement.style.setProperty('--sidebar-padding', '24px');
+                    document.documentElement.classList.add('sidebar-initializing');
+                  }
                 }
               })();
             `,
