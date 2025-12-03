@@ -32,68 +32,14 @@ function groupPostsByYear(posts: any[]) {
   return Object.entries(groups).sort((a, b) => Number(b[0]) - Number(a[0]));
 }
 
-// 估算字数：在无 wordCount 且未提供 content 的情况下使用
-function estimateWordsFromExcerpt(excerpt?: string): number {
-  if (!excerpt) return 0;
-  
-  // 去除多余空白
-  const text = excerpt.replace(/\s+/g, ' ').trim();
-  
-  // 计算字数：中文字符 + 英文单词
-  const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
-  const englishWords = text.match(/[a-zA-Z]+/g) || [];
-  
-  return chineseChars.length + englishWords.length;
-}
-
-// 兜底计算
-function wordsFromHtml(html?: string): number {
-  if (!html) return 0;
-  
-  // 1. 去除 HTML 标签
-  let text = '';
-  let inTag = false;
-  for (let i = 0; i < html.length; i++) {
-    const ch = html.charCodeAt(i);
-    if (ch === 60 /* < */) {
-      inTag = true;
-    } else if (ch === 62 /* > */) {
-      inTag = false;
-    } else if (!inTag) {
-      text += html[i];
-    }
-  }
-  
-  // 2. 去除多余空白字符
-  text = text.replace(/\s+/g, ' ').trim();
-  
-  // 3. 计算字数：中文字符 + 英文单词
-  // 中文字符（包括中文标点）
-  const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
-  // 英文单词（连续的字母）
-  const englishWords = text.match(/[a-zA-Z]+/g) || [];
-  
-  return chineseChars.length + englishWords.length;
-}
-
 export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // 预处理：补充 year、wordCount（尽量不依赖 content）
+  // 预处理：补充 year
   const prepared = useMemo(() => {
     return posts.map((p) => {
       const year = new Date(p.date).getFullYear();
-      // 优先使用 wordCount/wc 字段，都不存在时才尝试计算
-      let wc = p.wordCount ?? p.wc;
-      if (wc == null || wc === 0) {
-        // content 如果为空，使用 excerpt 估算
-        if (p.content && p.content.trim().length > 0) {
-          wc = wordsFromHtml(p.content);
-        }
-        if (!wc || wc === 0) {
-          wc = estimateWordsFromExcerpt(p.excerpt);
-        }
-      }
+      const wc = p.wordCount || 0;
       return { ...p, __year: year, __wc: wc };
     });
   }, [posts]);

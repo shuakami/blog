@@ -61,6 +61,7 @@ export const getBlogPosts = cache(async (page = 1) => {
         coverImage: null,
         author: 'Shuakami',
         content: '',
+        wordCount: p.wordCount,
         source: 'obsidian',
       };
     });

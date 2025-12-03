@@ -30,6 +30,7 @@ export interface ObsidianIndex {
     date: string;
     category: string;
     excerpt: string;
+    wordCount?: number;
     tags?: string[];
     resource?: boolean;
   }>;

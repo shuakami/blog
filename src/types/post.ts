@@ -18,6 +18,7 @@ interface BaseContent {
   date: string;
   content: string;
   excerpt?: string;
+  wordCount?: number;
   coverImage?: string | null;
   author?: string;
   encryption?: PostEncryption;

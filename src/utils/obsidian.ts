@@ -54,6 +54,41 @@ function shouldExclude(path: string): boolean {
   );
 }
 
+/**
+ * 计算 Markdown 内容的字数
+ * - 去除 Markdown 语法
+ * - 统计中文字符 + 英文单词
+ */
+function calculateWordCount(markdown: string): number {
+  if (!markdown || markdown.trim().length === 0) return 0;
+  
+  // 1. 去除代码块
+  let text = markdown.replace(/```[\s\S]*?```/g, '');
+  text = text.replace(/`[^`]+`/g, '');
+  
+  // 2. 去除链接但保留文本 [text](url) -> text
+  text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  
+  // 3. 去除图片 ![alt](url)
+  text = text.replace(/!\[[^\]]*\]\([^)]+\)/g, '');
+  
+  // 4. 去除 Markdown 标记
+  text = text.replace(/^#{1,6}\s+/gm, ''); // 标题
+  text = text.replace(/[*_~`]/g, ''); // 粗体、斜体、删除线、代码
+  text = text.replace(/^[-*+]\s+/gm, ''); // 列表
+  text = text.replace(/^\d+\.\s+/gm, ''); // 有序列表
+  text = text.replace(/^>\s+/gm, ''); // 引用
+  
+  // 5. 去除多余空白
+  text = text.replace(/\s+/g, ' ').trim();
+  
+  // 6. 计算字数：中文字符 + 英文单词
+  const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
+  const englishWords = text.match(/[a-zA-Z]+/g) || [];
+  
+  return chineseChars.length + englishWords.length;
+}
+
 async function mapLimit<T, R>(
   items: T[],
   limit: number,
@@ -110,6 +145,9 @@ async function buildPostFromMarkdown(path: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { generateExcerpt } = require('./excerpt-generator');
   const excerpt = generateExcerpt(parsed.content, parsed.data.excerpt);
+  
+  // 计算字数
+  const wordCount = calculateWordCount(parsed.content);
 
   const rawEncrypt = typeof parsed.data.encrypt === 'string' ? parsed.data.encrypt.trim() : '';
   const isEncrypted = rawEncrypt.length > 0;
@@ -124,6 +162,7 @@ async function buildPostFromMarkdown(path: string) {
     content: html,
     category,
     excerpt,
+    wordCount,
     source: 'obsidian',
     tags: parsed.data.tags || [],
     encryption,
@@ -146,6 +185,7 @@ async function buildPostFromMarkdown(path: string) {
         date: post.date,
         category,
         excerpt,
+        wordCount,
         resource: post.resource,
       };
 
