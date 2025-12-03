@@ -3,11 +3,16 @@ import { NextRequest, NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+// 开发环境禁用 SSL 验证（生产环境不应这样做）
+if (process.env.NODE_ENV === 'development') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+}
+
 // 硬编码音乐配置
 const MUSIC_CONFIG = {
   playlistId: '8308939217',
   neteaseBaseUrl: 'https://music-api.sdjz.wiki',
-  wyapiBaseUrl: 'https://wyapi.toubiec.cn',
+  wyapiBaseUrl: 'https://wyapi-1.toubiec.cn',
   isEnabled: true,
 }
 

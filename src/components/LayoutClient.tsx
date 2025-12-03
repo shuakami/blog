@@ -42,7 +42,9 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
     
     // 延迟启用 transition，让初始动画有时间播放
     setTimeout(() => {
-      document.documentElement.classList.remove('sidebar-initializing')
+      if (document.documentElement) {
+        document.documentElement.classList.remove('sidebar-initializing')
+      }
     }, 400) // 与 Sidebar 动画时间一致
   }, [])
 
@@ -54,7 +56,9 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
       ? `${sidebarWidth + gutter}px` 
       : `${gutter}px`
     
-    document.documentElement.style.setProperty('--sidebar-padding', paddingValue)
+    if (document.documentElement) {
+      document.documentElement.style.setProperty('--sidebar-padding', paddingValue)
+    }
   }, [isSidebarOpen, isMobile, isInitialized])
   
   // 检测移动端

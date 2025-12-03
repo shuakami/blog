@@ -67,28 +67,32 @@ export default function AppearanceSettings() {
     localStorage.setItem("appearance-config", JSON.stringify(config));
     
     // 应用背景样式（特定页面强制禁用背景）
-    document.body.classList.remove("background-character", "background-luoxiaohei");
-    
-    if (shouldDisableBackground || config.backgroundStyle === "none") {
-      // 不添加任何背景 class，保持纯净
-    } else if (config.backgroundStyle === "luoxiaohei") {
-      document.body.classList.add("background-luoxiaohei");
-    } else if (config.backgroundStyle === "character") {
-      document.body.classList.add("background-character");
+    if (document.body) {
+      document.body.classList.remove("background-character", "background-luoxiaohei");
+      
+      if (shouldDisableBackground || config.backgroundStyle === "none") {
+        // 不添加任何背景 class，保持纯净
+      } else if (config.backgroundStyle === "luoxiaohei") {
+        document.body.classList.add("background-luoxiaohei");
+      } else if (config.backgroundStyle === "character") {
+        document.body.classList.add("background-character");
+      }
     }
     
     // 应用布局模式
-    document.documentElement.classList.remove("layout-default", "layout-wide", "layout-compact");
-    
-    // 根据页面类型应用强制布局或用户选择的布局
-    let layoutToApply = config.layoutMode;
-    if (shouldForceWideLayout) {
-      layoutToApply = "wide";
-    } else if (shouldForceCompactLayout) {
-      layoutToApply = "compact";
+    if (document.documentElement) {
+      document.documentElement.classList.remove("layout-default", "layout-wide", "layout-compact");
+      
+      // 根据页面类型应用强制布局或用户选择的布局
+      let layoutToApply = config.layoutMode;
+      if (shouldForceWideLayout) {
+        layoutToApply = "wide";
+      } else if (shouldForceCompactLayout) {
+        layoutToApply = "compact";
+      }
+      
+      document.documentElement.classList.add(`layout-${layoutToApply}`);
     }
-    
-    document.documentElement.classList.add(`layout-${layoutToApply}`);
   }, [config, mounted, shouldDisableBackground, shouldForceWideLayout, shouldForceCompactLayout]);
 
   useEffect(() => {
