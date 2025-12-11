@@ -1,5 +1,6 @@
 // src/utils/obsidian.ts
 import matter from 'gray-matter';
+import yaml from 'js-yaml';
 import { markdownToHtml } from './markdown';
 import { getFileContent } from './gitee';
 import {
@@ -123,7 +124,11 @@ async function mapLimit<T, R>(
 
 async function buildPostFromMarkdown(path: string) {
   const content = await getFileContent(path);
-  const parsed = matter(content);
+  const parsed = matter(content, {
+    engines: {
+      yaml: (s: string) => yaml.load(s) as Record<string, any>
+    }
+  });
 
   const slug = pathToSlug(path);
   const fileName = path.split('/').pop()?.replace(/\.md$/, '') || '未命名';
