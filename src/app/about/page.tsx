@@ -87,19 +87,21 @@ export default async function AboutPage() {
       const position = weekIndex * 16;
       return { ...month, position };
     })
-    .filter(Boolean) as { key: string; name: string; firstDay: string; position: number }[];
+    .filter((item): item is { key: string; name: string; firstDay: string; position: number } => item !== null);
 
-  const visibleMonthLabels = positionedMonthLabels.reduce(
-    (acc: typeof positionedMonthLabels, current) => {
-      if (!acc.length) return [current];
-      const last = acc[acc.length - 1];
-      if (current.position - last.position > 35) {
-        acc.push(current);
-      }
-      return acc;
-    },
-    []
-  );
+  const visibleMonthLabels = positionedMonthLabels.length > 0 
+    ? positionedMonthLabels.reduce(
+        (acc: typeof positionedMonthLabels, current) => {
+          if (!acc.length) return [current];
+          const last = acc[acc.length - 1];
+          if (current.position - last.position > 35) {
+            acc.push(current);
+          }
+          return acc;
+        },
+        []
+      )
+    : [];
 
   return (
     <div className="max-w-4xl mx-auto px-4 md:px-6 py-16 md:py-24">
