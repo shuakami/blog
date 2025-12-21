@@ -39,6 +39,6 @@ export function useGitHubStats() {
 }
 
 export function getRepoStats(stats: GitHubStats | undefined, repoName: string) {
-  if (!stats) return null;
+  if (!stats || !stats.repos) return null;
   return stats.repos.find(r => r.name.toLowerCase() === repoName.toLowerCase());
 }

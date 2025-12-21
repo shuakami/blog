@@ -23,71 +23,123 @@ interface GitHubStats {
 }
 
 async function fetchGitHubData(): Promise<GitHubStats> {
-  const headers = {
-    'Authorization': `Bearer ${GITHUB_TOKEN}`,
-    'Content-Type': 'application/json',
-  };
+  // 如果有 token，使用 GraphQL API
+  if (GITHUB_TOKEN) {
+    try {
+      const headers = {
+        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Content-Type': 'application/json',
+      };
 
-  // GraphQL 查询获取用户仓库和贡献数据
-  const query = `
-    query($username: String!) {
-      user(login: $username) {
-        repositories(first: 100, ownerAffiliations: OWNER, orderBy: {field: STARGAZERS, direction: DESC}) {
-          nodes {
-            name
-            stargazerCount
-            forkCount
+      const query = `
+        query($username: String!) {
+          user(login: $username) {
+            repositories(first: 100, ownerAffiliations: OWNER, orderBy: {field: STARGAZERS, direction: DESC}) {
+              nodes {
+                name
+                stargazerCount
+                forkCount
+              }
+            }
+            contributionsCollection {
+              contributionCalendar {
+                totalContributions
+              }
+            }
           }
         }
-        contributionsCollection {
-          contributionCalendar {
-            totalContributions
+      `;
+
+      const response = await fetch('https://api.github.com/graphql', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query,
+          variables: { username: GITHUB_USERNAME }
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (!data.errors) {
+          const user = data.data.user;
+          const repos = user.repositories.nodes;
+          
+          let totalStars = 0;
+          let totalForks = 0;
+          const repoStats: RepoStats[] = [];
+
+          for (const repo of repos) {
+            totalStars += repo.stargazerCount;
+            totalForks += repo.forkCount;
+            repoStats.push({
+              name: repo.name,
+              stars: repo.stargazerCount,
+              forks: repo.forkCount,
+            });
           }
+
+          return {
+            totalStars,
+            totalForks,
+            contributions: user.contributionsCollection.contributionCalendar.totalContributions,
+            repos: repoStats,
+            updatedAt: new Date().toISOString(),
+          };
         }
       }
+    } catch (e) {
+      console.error('GraphQL API failed, falling back to REST:', e);
     }
-  `;
-
-  const response = await fetch('https://api.github.com/graphql', {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      query,
-      variables: { username: GITHUB_USERNAME }
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`GitHub API error: ${response.status}`);
   }
 
-  const data = await response.json();
-  
-  if (data.errors) {
-    throw new Error(data.errors[0].message);
+  // Fallback: 使用公开的 REST API
+  const reposResponse = await fetch(
+    `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=stars`
+  );
+
+  if (!reposResponse.ok) {
+    throw new Error(`GitHub REST API error: ${reposResponse.status}`);
   }
 
-  const user = data.data.user;
-  const repos = user.repositories.nodes;
+  const repos = await reposResponse.json();
   
   let totalStars = 0;
   let totalForks = 0;
   const repoStats: RepoStats[] = [];
 
   for (const repo of repos) {
-    totalStars += repo.stargazerCount;
-    totalForks += repo.forkCount;
+    totalStars += repo.stargazers_count || 0;
+    totalForks += repo.forks_count || 0;
     repoStats.push({
       name: repo.name,
-      stars: repo.stargazerCount,
-      forks: repo.forkCount,
+      stars: repo.stargazers_count || 0,
+      forks: repo.forks_count || 0,
     });
+  }
+
+  // 获取贡献数据（使用第三方 API）
+  let contributions = 0;
+  try {
+    const contribResponse = await fetch(
+      `https://github-contributions-api.jogruber.de/v4/${GITHUB_USERNAME}?y=last`
+    );
+    if (contribResponse.ok) {
+      const contribData = await contribResponse.json();
+      contributions = (contribData.contributions || []).reduce(
+        (sum: number, c: { count: number }) => sum + c.count, 
+        0
+      );
+    }
+  } catch {
+    // 忽略贡献数据获取失败
   }
 
   return {
     totalStars,
     totalForks,
-    contributions: user.contributionsCollection.contributionCalendar.totalContributions,
+    contributions,
     repos: repoStats,
     updatedAt: new Date().toISOString(),
   };
