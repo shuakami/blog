@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   },
 };
 
+// 每小时重新验证数据
+export const revalidate = 3600;
+
 // GitHub Contributions types
 type Contribution = {
   date: string;
@@ -39,14 +42,14 @@ const getColorClassByCount = (count: number, maxContributions: number) => {
 };
 
 export default async function AboutPage() {
-  // Fetch GitHub contributions
-  let contributions: Contribution[] = [];
-  let totalContributions = 0;
-  
   // Fetch GitHub stats (stars, contributions)
   const githubStats = await getGitHubStats();
   const totalStars = githubStats?.totalStars ?? 476;
   const yearContributions = githubStats?.contributions ?? 2132;
+  
+  // Fetch GitHub contributions for the grid
+  let contributions: Contribution[] = [];
+  let totalContributions = 0;
   
   try {
     const res = await fetch(
