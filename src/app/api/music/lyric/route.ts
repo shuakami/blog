@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'development') {
 const MUSIC_CONFIG = {
   playlistId: '8308939217',
   neteaseBaseUrl: 'https://music-api.sdjz.wiki',
-  wyapiBaseUrl: 'https://wyapi-1.toubiec.cn',
+  wyapiBaseUrl: 'https://api.sdjz.wiki', // CDN 加速代理 wyapi-1.toubiec.cn
   isEnabled: true,
 }
 
