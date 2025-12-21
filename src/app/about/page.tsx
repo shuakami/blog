@@ -322,7 +322,7 @@ export default async function AboutPage() {
                     <p className="text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">年度贡献</p>
                 </div>
                   <div className="space-y-1 min-w-0">
-                    <h4 className="text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">548万+</h4>
+                    <h4 className="text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">1850万+</h4>
                     <p className="text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">API 调用量</p>
                 </div>
                 </div>

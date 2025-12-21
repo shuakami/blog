@@ -71,7 +71,7 @@ const works: Work[] = [
     ranking: 'https://cn.bing.com/search?q=%E5%85%8D%E8%B4%B9api',
     opensource: false,
     stats: [
-      { label: 'API 调用量', value: '548万+' },
+      { label: 'API 调用量', value: '1850万+' },
       { label: '服务用户', value: '7,400+' },
       { label: '接口数量', value: '77个' }
     ],
@@ -234,6 +234,21 @@ const works: Work[] = [
       { label: 'MCP协议', value: '支持' }
     ],
     highlights: ['AI驱动SSH', 'Tmux集成', 'DevOps自动化']
+  },
+  {
+    title: 'kkp',
+    description: '一键杀端口的跨平台CLI工具。开发时经常遇到端口被占用？kkp 让你用一条命令快速解决。支持 Windows/macOS/Linux，极简设计，零配置即用。',
+    repo: 'shuakami/kkp',
+    tags: ['TypeScript', 'CLI', 'Cross-platform', 'DevTools'],
+    year: '2025',
+    preview: 'https://uapis.cn/static/uploads/9b40b69a53_gzizOvk5gt2P.webp',
+    website: 'https://www.npmjs.com/package/@sdjz/kkp',
+    stats: [
+      { label: 'GitHub Stars', value: <RepoStatsValue repoName="kkp" type="stars" fallback={5} /> },
+      { label: 'GitHub Forks', value: <RepoStatsValue repoName="kkp" type="forks" fallback={0} /> },
+      { label: '支持平台', value: '3个' }
+    ],
+    highlights: ['一键杀端口', '跨平台支持', '零配置']
   },
 ];
 
