@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Noto_Sans_SC } from "next/font/google";
 import { ThemeProvider } from 'next-themes'
 import { LayoutClient } from '@/components/LayoutClient';
-import type { NavItem } from '@/lib/types';
+import { NAV_ITEMS } from '@/lib/navigation';
 import { MusicPlayerProvider } from '@/hooks/use-music-player';
 import { GlobalMusicPlayer } from '@/components/music/global-music-player';
 import { ChristmasEffect } from '@/components/ChristmasEffect';
@@ -58,16 +58,8 @@ export const metadata: Metadata = {
   },
 };
 
-// 导航项配置
-const navItems: NavItem[] = [
-  { label: "首页", href: "/", enabled: true },
-  { label: "归档", href: "/archive", enabled: true },
-  { label: "作品", href: "/works", enabled: true },
-  { label: "资源", href: "/resources", enabled: true },
-  { label: "音乐", href: "/music", enabled: true },
-  { label: "关于", href: "/about", enabled: true },
-  { label: "好兄弟们", href: "/friends", enabled: true },
-]
+// 导航项配置从统一配置文件导入
+const navItems = NAV_ITEMS;
 
 export default function RootLayout({
   children,
@@ -95,8 +87,8 @@ export default function RootLayout({
                     // 应用布局类 - 支持强制布局
                     let layout = layoutMode || 'default';
                     
-                    // 音乐页面强制宽屏布局
-                    if (path.startsWith('/music')) {
+                    // 音乐页面、游戏页面强制宽屏布局
+                    if (path.startsWith('/music') || path.startsWith('/games')) {
                       layout = 'wide';
                     }
                     // 作品页面强制紧凑布局
@@ -109,7 +101,7 @@ export default function RootLayout({
                     }
                     
                     // 应用背景类
-                    const NO_BG_PAGES = ['/music', '/works', '/friends', '/resources'];
+                    const NO_BG_PAGES = ['/music', '/works', '/friends', '/resources', '/games'];
                     const shouldDisableBg = NO_BG_PAGES.some(page => path.startsWith(page));
                     
                     if (!shouldDisableBg && backgroundStyle && backgroundStyle !== 'none' && document.body) {

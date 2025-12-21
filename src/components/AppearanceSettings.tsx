@@ -16,10 +16,10 @@ interface AppearanceConfig {
 }
 
 // 这些页面禁用背景图片
-const NO_BACKGROUND_PAGES = ['/music', '/works', '/friends'];
+const NO_BACKGROUND_PAGES = ['/music', '/works', '/friends', '/resources', '/games'];
 
-// 这些页面强制使用宽屏布局（音乐页面）
-const FORCE_WIDE_LAYOUT_PAGES = ['/music'];
+// 这些页面强制使用宽屏布局（音乐页面、游戏页面）
+const FORCE_WIDE_LAYOUT_PAGES = ['/music', '/games'];
 
 // 这些页面强制使用紧凑布局（作品页面）
 const FORCE_COMPACT_LAYOUT_PAGES = ['/works'];

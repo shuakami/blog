@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Route } from 'next';
-import { NAV_ITEMS } from './SideNav';
+import { NAV_ITEMS_LEGACY as NAV_ITEMS } from '@/lib/navigation';
 import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 
 export default function MobileNav() {

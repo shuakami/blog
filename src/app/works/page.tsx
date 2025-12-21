@@ -4,6 +4,8 @@ import { ImageCarousel } from '@/components/ImageCarousel';
 import ProjectBanner from '@/components/ProjectBanner';
 import CialloParticleBanner from '@/components/CialloParticleBanner';
 import WorksNavigator from '@/components/WorksNavigator';
+import { GitHubStatsHeader } from '@/components/GitHubStatsDisplay';
+import { RepoStatsValue } from '@/components/RepoStatsValue';
 import React from 'react';
 
 export const metadata: Metadata = {
@@ -32,8 +34,8 @@ interface Work {
   customBanner?: React.ReactNode; // 自定义Banner（用于渐变背景+icon+文字）
   // 项目数据/亮点
   stats?: {
-    label: string; // 例如："调用次数"、"用户数"、"接口数量"
-    value: string; // 例如："548万"、"7455"、"77个"
+    label: string;
+    value: string | React.ReactNode;
   }[];
   highlights?: string[]; // 核心亮点，例如：["自研限流器", "10个商业接口"]
   opensource?: boolean; // 是否开源
@@ -81,11 +83,11 @@ const works: Work[] = [
     repo: 'shuakami/qq-chat-exporter',
     tags: ['TypeScript', 'Agent', 'React', 'Node.js'],
     year: '2025 - 至今',
-    preview: 'https://uapis.cn/static/uploads/b0e8cb70e59ee007f68ced7bbd8974e8.png',
+    preview: 'https://uapis.cn/static/uploads/9b40136f08_slabUbc1YxgT.webp',
     website: 'https://qce.sdjz.wiki',
     stats: [
-      { label: 'GitHub Stars', value: '338' },
-      { label: 'GitHub Forks', value: '20' },
+      { label: 'GitHub Stars', value: <RepoStatsValue repoName="qq-chat-exporter" type="stars" fallback={338} /> },
+      { label: 'GitHub Forks', value: <RepoStatsValue repoName="qq-chat-exporter" type="forks" fallback={20} /> },
       { label: '支持格式', value: '3种' }
     ],
     highlights: ['支持NTQQ', '美观UI界面', '新手友好']
@@ -119,9 +121,8 @@ const works: Work[] = [
         linearTo="#0e7490"
         radialColor="#06b6d4"
       />,
-      'https://uapis.cn/static/uploads/cbec854d4bef2918bc3173121adfc110.jpg',
-      'https://uapis.cn/static/uploads/b8a75abe18d46e3e38a11947e6646b66.jpg',
-      'https://uapis.cn/static/uploads/3083f80cb86e1e6700cf71972a5078cf.jpg'
+      'https://uapis.cn/static/uploads/9b40156814_qHUBoLcHkD83.webp',
+      'https://uapis.cn/static/uploads/9b401604de_pyzc3urW3gpg.webp'
     ],
     stats: [
       { label: '图片生成', value: '100ms' },
@@ -138,12 +139,12 @@ const works: Work[] = [
     tags: ['Python', 'ChatGPT', 'NLP', 'AI'],
     year: '2024',
     previews: [
-      'https://uapis.cn/static/uploads/60b7c761b90221bb68f72a20f0852e2e.png',
-      'https://uapis.cn/static/uploads/8a1bc513b065b8bfa8761cc6c33f2d22.png'
+      'https://uapis.cn/static/uploads/9b40177c4f_RQt4VGle16ZU.webp',
+      'https://uapis.cn/static/uploads/9b40179249_50rY9g3itwpy.webp'
     ],
     stats: [
-      { label: 'GitHub Stars', value: '33' },
-      { label: 'GitHub Forks', value: '4' },
+      { label: 'GitHub Stars', value: <RepoStatsValue repoName="amyalmond_bot" type="stars" fallback={33} /> },
+      { label: 'GitHub Forks', value: <RepoStatsValue repoName="amyalmond_bot" type="forks" fallback={4} /> },
       { label: '支持', value: '任意大模型' }
     ],
     highlights: ['极其智能', '长期记忆管理', '多语言支持']
@@ -153,7 +154,7 @@ const works: Work[] = [
     description: '一家基于《THE FINALS》游戏的虚拟公司网站，我参与了网站的制作。使用Framer Motion实现了流畅的帧动画滚动效果，配合Three.js打造沉浸式粒子背景，为用户带来极具视觉冲击力的交互体验。',
     tags: ['Next.js', 'Framer Motion', 'Three.js', 'Animation'],
     year: '2024 - 至今',
-    preview: 'https://uapis.cn/static/uploads/c88e2500d41a862f38937fb9ce830b67.png',
+    preview: 'https://uapis.cn/static/uploads/9b40181453_U9KJYRA5abMn.webp',
     website: 'https://vaiiya.org/',
     opensource: false,
     stats: [
@@ -168,7 +169,7 @@ const works: Work[] = [
     description: '极其极简、精致的在线剪切板。它还可以当图床、短链接。速度极致，动画轻巧，每个细节都做的恰到好处。',
     tags: ['Next.js', 'React', 'UI/UX', 'Web App'],
     year: '2024 - 至今',
-    preview: 'https://uapis.cn/static/uploads/8f6bc70d021d1597971a8df2feadc090.png',
+    preview: 'https://uapis.cn/static/uploads/9b401844e1_ODeri7SLeH4p.webp',
     website: 'https://paste.sdjz.wiki/',
     ranking: 'https://cn.bing.com/search?q=%E5%9C%A8%E7%BA%BF%E5%89%AA%E5%88%87%E6%9D%BF',
     opensource: false,
@@ -200,8 +201,8 @@ const works: Work[] = [
       />
     ),
     stats: [
-      { label: 'GitHub Stars', value: '40' },
-      { label: 'GitHub Forks', value: '6' },
+      { label: 'GitHub Stars', value: <RepoStatsValue repoName="mcp-mail" type="stars" fallback={40} /> },
+      { label: 'GitHub Forks', value: <RepoStatsValue repoName="mcp-mail" type="forks" fallback={6} /> },
       { label: 'MCP协议', value: '支持' }
     ],
     highlights: ['AI驱动邮件', '智能分类', '自动回复']
@@ -228,8 +229,8 @@ const works: Work[] = [
       />
     ),
     stats: [
-      { label: 'GitHub Stars', value: '30' },
-      { label: 'GitHub Forks', value: '5' },
+      { label: 'GitHub Stars', value: <RepoStatsValue repoName="mcp-ssh" type="stars" fallback={30} /> },
+      { label: 'GitHub Forks', value: <RepoStatsValue repoName="mcp-ssh" type="forks" fallback={5} /> },
       { label: 'MCP协议', value: '支持' }
     ],
     highlights: ['AI驱动SSH', 'Tmux集成', 'DevOps自动化']
@@ -261,9 +262,7 @@ export default function WorksPage() {
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-black dark:text-white mb-3 sm:mb-4">
           作品
         </h1>
-        <p className="text-base sm:text-lg text-black/50 dark:text-white/50 mb-6 sm:mb-8 leading-relaxed">
-          我一共获得了 476 颗星标，做的项目已经有 7,000+ 位用户在使用，过去一年贡献了 2,132 次代码
-        </p>
+        <GitHubStatsHeader />
         <div className="w-12 sm:w-16 h-[2px] bg-black dark:bg-white" />
       </header>
 

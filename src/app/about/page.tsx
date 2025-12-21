@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ContributionGrid from '@/components/ContributionGrid';
 import { BadgeCheck } from 'lucide-react';
+import { getGitHubStats } from '@/lib/github';
 
 export const metadata: Metadata = {
   title: '关于 - Shuakami',
@@ -41,6 +42,11 @@ export default async function AboutPage() {
   // Fetch GitHub contributions
   let contributions: Contribution[] = [];
   let totalContributions = 0;
+  
+  // Fetch GitHub stats (stars, contributions)
+  const githubStats = await getGitHubStats();
+  const totalStars = githubStats?.totalStars ?? 476;
+  const yearContributions = githubStats?.contributions ?? 2132;
   
   try {
     const res = await fetch(
@@ -299,7 +305,7 @@ export default async function AboutPage() {
                 {/* 左侧数据 */}
                 <div className="flex flex-wrap gap-x-6 gap-y-4 md:gap-x-8 md:gap-y-6 lg:gap-x-12">
                   <div className="space-y-1 min-w-0">
-                    <h4 className="text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">476+</h4>
+                    <h4 className="text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">{totalStars.toLocaleString()}+</h4>
                     <p className="text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">GitHub Stars</p>
                   </div>
                   <div className="space-y-1 min-w-0">
@@ -307,7 +313,7 @@ export default async function AboutPage() {
                     <p className="text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">项目用户</p>
                   </div>
                   <div className="space-y-1 min-w-0">
-                    <h4 className="text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">2,132</h4>
+                    <h4 className="text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">{yearContributions.toLocaleString()}</h4>
                     <p className="text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">年度贡献</p>
                 </div>
                   <div className="space-y-1 min-w-0">

@@ -24,6 +24,9 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
   
   // 某些页面可能不需要显示侧边栏
   const isAuthPage = pathname === "/login" || pathname === "/setup"
+  
+  // 全屏页面（无 padding，无 max-width 限制）
+  const isFullscreenPage = pathname === "/games"
 
   // 初始化：从 localStorage 读取侧边栏状态
   useEffect(() => {
@@ -100,14 +103,16 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
 
   return (
     <div className="relative min-h-dvh w-full text-foreground">
-      <Header
-        isSidebarOpen={isSidebarOpen}
-        onToggleSidebar={handleToggleSidebar}
-        title={siteName}
-        showSidebarToggle={!isAuthPage}
-      />
+      {!isFullscreenPage && (
+        <Header
+          isSidebarOpen={isSidebarOpen}
+          onToggleSidebar={handleToggleSidebar}
+          title={siteName}
+          showSidebarToggle={!isAuthPage}
+        />
+      )}
       
-      {!isAuthPage && (
+      {!isAuthPage && !isFullscreenPage && (
         <Sidebar 
           isOpen={isSidebarOpen} 
           width={sidebarWidth} 
@@ -116,25 +121,29 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
         />
       )}
       
-      <main
-        className={cn(
-          "relative w-full",
-          isAuthPage ? "" : "pt-16",
-          // 移动端：左右 padding 更小
-          isAuthPage ? "" : "px-4 md:pr-6",
-          // 桌面端：使用 CSS 变量控制 padding-left
-          !isAuthPage && !isMobile && "md:transition-[padding-left] md:duration-300 md:ease-out",
-        )}
-        style={{ 
-          paddingLeft: !isMobile && !isAuthPage 
-            ? 'var(--sidebar-padding)' 
-            : undefined 
-        }}
-      >
-        {children}
-      </main>
+      {isFullscreenPage ? (
+        <main className="relative w-full">
+          {children}
+        </main>
+      ) : (
+        <main
+          className={cn(
+            "relative w-full",
+            isAuthPage ? "" : "pt-16",
+            isAuthPage ? "" : "px-4 md:pr-6",
+            !isAuthPage && !isMobile && "md:transition-[padding-left] md:duration-300 md:ease-out",
+          )}
+          style={{ 
+            paddingLeft: !isMobile && !isAuthPage 
+              ? 'var(--sidebar-padding)' 
+              : undefined 
+          }}
+        >
+          {children}
+        </main>
+      )}
       
-      {!isAuthPage && (
+      {!isAuthPage && !isFullscreenPage && (
         <footer
           className={cn(
             "relative w-full",

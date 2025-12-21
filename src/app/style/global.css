@@ -53,6 +53,14 @@
   @apply bg-black/20 dark:bg-white/20;
 }
 
+/* 深色页面隐藏滚动条 */
+html.dark-scrollbar ::-webkit-scrollbar {
+  display: none;
+}
+html.dark-scrollbar {
+  scrollbar-width: none;
+}
+
 html.christmas ::-webkit-scrollbar-thumb {
   background-color: rgba(196, 30, 58, 0.3);
 }
@@ -260,6 +268,11 @@ html.christmas.dark ::-webkit-scrollbar-thumb {
     max-width: 1280px !important;
     }
   
+  /* 全屏页面不限制宽度 */
+  main > div.fullscreen-page {
+    max-width: none !important;
+    }
+  
   html.layout-compact main > div,
   body.layout-compact main > div {
     max-width: 960px !important;
@@ -273,6 +286,16 @@ html.christmas.dark ::-webkit-scrollbar-thumb {
   html.layout-wide main > div,
   body.layout-wide main > div {
     max-width: 1536px !important;
+    }
+  
+  /* 全屏页面覆盖所有布局模式 */
+  html.layout-compact main > div.fullscreen-page,
+  html.layout-default main > div.fullscreen-page,
+  html.layout-wide main > div.fullscreen-page,
+  body.layout-compact main > div.fullscreen-page,
+  body.layout-default main > div.fullscreen-page,
+  body.layout-wide main > div.fullscreen-page {
+    max-width: none !important;
     }
   
   .article-content-width {
@@ -336,4 +359,22 @@ html.christmas ::selection {
 html.christmas.dark ::selection {
   background-color: #D4AF37;
   color: #0F1F18;
+}
+
+/* Games页面苹果风格滚动阻尼 */
+.fullscreen-page {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+@supports (scroll-snap-type: y mandatory) {
+  .fullscreen-page {
+    scroll-snap-type: y proximity;
+  }
+  
+  .fullscreen-page > section {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
 }

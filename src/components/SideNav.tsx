@@ -1,14 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Route } from 'next';
-
-export const NAV_ITEMS = [
-  { name: '首页', path: '/' },
-  { name: '归档', path: '/archive' },
-  { name: '作品', path: '/works' },
-  { name: '关于', path: '/about' },
-  { name: '好兄弟们', path: '/friends' },
-];
+import { NAV_ITEMS_LEGACY as NAV_ITEMS } from '@/lib/navigation';
 
 export default function SideNav() {
   return (

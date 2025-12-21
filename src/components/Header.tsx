@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Route } from "next";
 import { useState, useEffect } from "react";
-import { NAV_ITEMS } from './SideNav';
+import { NAV_ITEMS_LEGACY as NAV_ITEMS } from '@/lib/navigation';
 import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 
 const HEADER_CLASS = "fixed top-0 left-0 right-0 z-50 bg-white/40 dark:bg-black/40 backdrop-blur-md border-b border-black/5 dark:border-white/10";
