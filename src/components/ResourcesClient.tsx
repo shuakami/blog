@@ -221,7 +221,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
 
       {/* 命令列表 */}
       {activeTab === 'commands' && (
-        <div className="space-y-4">
+        <div className="space-y-4 py-6">
           {commandResources.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-black/60 dark:text-white/60">暂无收藏的命令</p>
