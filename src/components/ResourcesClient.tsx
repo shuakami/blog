@@ -115,7 +115,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
               {normalResources.map((resource, index) => (
                 <article
                   key={index}
-                  className="group py-8 sm:py-12 md:py-16 border-b border-black/[0.06] dark:border-white/[0.06] last:border-0"
+                  className="group py-6 border-b border-black/[0.06] dark:border-white/[0.06] last:border-0"
                 >
                   <div className="space-y-4 sm:space-y-5">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
