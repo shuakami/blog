@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 interface Resource {
@@ -47,7 +47,16 @@ function extractDescriptionFromHtml(html: string): string {
 }
 
 export default function ResourcesClient({ resources }: ResourcesClientProps) {
-  const [activeTab, setActiveTab] = useState<'resources' | 'commands'>('resources');
+  const [activeTab, setActiveTab] = useState<'resources' | 'commands'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('resources-tab') as 'resources' | 'commands') || 'resources';
+    }
+    return 'resources';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('resources-tab', activeTab);
+  }, [activeTab]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // 分离普通资源和命令资源
