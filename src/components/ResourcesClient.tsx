@@ -69,7 +69,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
       </header>
 
       {/* Tab 切换 */}
-      <div className="flex gap-1 p-1 mb-8 bg-black/[0.04] dark:bg-white/[0.06] rounded-full w-fit">
+      <div className="flex gap-1 p-1 mb-6 bg-black/[0.04] dark:bg-white/[0.06] rounded-full w-fit">
         <button
           onClick={() => setActiveTab('resources')}
           className={`px-5 py-2 text-sm font-medium rounded-full transition-all ${
