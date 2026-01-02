@@ -58,11 +58,11 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
 
   return (
     <div className="max-w-4xl mx-auto px-6 sm:px-8 md:px-6 py-12 sm:py-16 md:py-24">
-      <header className="mb-12 sm:mb-16">
+      <header className="mb-6">
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-black dark:text-white mb-3 sm:mb-4">
           资源
         </h1>
-        <p className="text-base sm:text-lg text-black/50 dark:text-white/50 mb-6 sm:mb-8 leading-relaxed">
+        <p className="text-base sm:text-lg text-black/50 dark:text-white/50 mb-6 leading-relaxed">
           整理的实用资源和数据集，全部免费开放使用
         </p>
         <div className="w-12 sm:w-16 h-[2px] bg-black dark:bg-white" />
