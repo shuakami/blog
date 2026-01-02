@@ -37,3 +37,6 @@ next-env.d.ts
 
 # old content (deprecated, now using Obsidian/Redis)
 /blog-content-main
+
+# kiro
+.kiro
