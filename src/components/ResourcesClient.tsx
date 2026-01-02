@@ -242,7 +242,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                       onClick={() => copyToClipboard(code, cmd.slug)}
                       className={`flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                         copiedId === cmd.slug
-                          ? 'bg-green-500/10 text-green-600 dark:text-green-400'
+                          ? 'bg-black/[0.06] dark:bg-white/[0.08] text-black/60 dark:text-white/60'
                           : 'bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white hover:bg-black/[0.10] dark:hover:bg-white/[0.12]'
                       }`}
                     >
