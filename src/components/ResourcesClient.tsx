@@ -272,8 +272,8 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                       )}
                     </button>
                   </div>
-                  <div className="px-5 py-3 bg-[#1a1a1a] dark:bg-[#0d0d0d] border-t border-black/[0.06] dark:border-white/[0.06] overflow-x-auto">
-                    <pre className="text-sm text-[#e6e6e6] font-mono whitespace-pre-wrap break-all">
+                  <div className="px-5 py-3 bg-black/[0.03] dark:bg-white/[0.03] border-t border-black/[0.06] dark:border-white/[0.06] overflow-x-auto">
+                    <pre className="text-sm text-black/80 dark:text-white/80 font-mono whitespace-pre-wrap break-all">
                       <code>{code}</code>
                     </pre>
                   </div>
