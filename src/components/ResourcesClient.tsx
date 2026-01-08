@@ -246,9 +246,11 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                 >
                   <div className="px-5 py-4 flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-medium text-black dark:text-white mb-1">
-                        {cmd.title}
-                      </h3>
+                      <Link href={`/resources/${cmd.slug}` as any}>
+                        <h3 className="text-base font-medium text-black dark:text-white mb-1 hover:text-black/70 dark:hover:text-white/70 transition-colors cursor-pointer">
+                          {cmd.title}
+                        </h3>
+                      </Link>
                       {description && (
                         <p className="text-sm text-black/50 dark:text-white/50">
                           {description}
