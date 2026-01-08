@@ -24,17 +24,18 @@ export async function getResources(): Promise<Resource[]> {
     return [];
   }
   
-  // 获取所有文章的完整信息来检查resource字段
+  // 直接从索引过滤资源文章
+  const resourceIndexEntries = obsidianIndex.posts.filter(p => p.resource === true);
+  
+  // 获取完整文章数据
   const postsWithResources = await Promise.all(
-    obsidianIndex.posts.map(async (indexEntry) => {
+    resourceIndexEntries.map(async (indexEntry) => {
       const post = await getPostBySlug<BlogPost>(indexEntry.slug);
-      // 支持 resource === true 或 resource === 'true'
-      const isResource = post?.resource === true || (post as any)?.resource === 'true';
-      return isResource ? post : null;
+      return post;
     })
   );
   
-  // 筛选出资源文章
+  // 筛选出成功获取的文章
   const resourcePosts = postsWithResources.filter((post): post is BlogPost => post !== null);
   
   // 转换为资源格式
