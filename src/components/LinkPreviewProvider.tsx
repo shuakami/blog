@@ -253,7 +253,7 @@ export function LinkPreviewProvider({ children }: LinkPreviewProviderProps) {
               }
             }}
           >
-            <div className="w-[340px] max-w-[90vw] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-black/[0.08] dark:border-white/[0.08] overflow-hidden backdrop-blur-xl transition-colors duration-200 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]">
+            <div className="w-[340px] max-w-[90vw] bg-white dark:bg-neutral-900 rounded-xl shadow-2xl border border-black/[0.08] dark:border-white/[0.08] overflow-hidden backdrop-blur-xl transition-colors duration-200 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]">
               {loading ? (
                 <div className="p-4">
                   <div className="flex items-start gap-3 mb-2">

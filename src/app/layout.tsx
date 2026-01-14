@@ -70,6 +70,11 @@ export default function RootLayout({
     <html lang="zh-CN" suppressHydrationWarning className="christmas">
       <head>
         <script
+          src="https://stats.axtn.net/api/script.js"
+          data-site-id="2dd9cfab9c53"
+          defer
+        />
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
