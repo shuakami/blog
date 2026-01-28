@@ -11,10 +11,15 @@ interface LiveCodeRendererProps {
 export function LiveCodeRenderer({ code, className = '' }: LiveCodeRendererProps) {
   const rendered = useMemo(() => {
     try {
-      // 提取组件名（在清理前）
-      const funcMatch = code.match(/(?:export\s+)?function\s+(\w+)/);
-      const constMatch = code.match(/(?:export\s+)?(?:const|let)\s+(\w+)\s*[=:]/);
-      const componentName = funcMatch?.[1] || constMatch?.[1] || 'Component';
+      // 提取组件名（优先找 export 的，或最后一个大写开头的函数）
+      const exportFuncMatch = code.match(/export\s+(?:default\s+)?function\s+(\w+)/);
+      const exportConstMatch = code.match(/export\s+(?:default\s+)?(?:const|let)\s+(\w+)/);
+      
+      // 找所有函数声明，取最后一个大写开头的（通常是主组件）
+      const allFuncs = [...code.matchAll(/function\s+([A-Z]\w*)\s*\(/g)];
+      const lastFunc = allFuncs.length > 0 ? allFuncs[allFuncs.length - 1][1] : null;
+      
+      const componentName = exportFuncMatch?.[1] || exportConstMatch?.[1] || lastFunc || 'Component';
 
       // 清理代码：移除 'use client'、import、export 关键字
       let cleanCode = code
