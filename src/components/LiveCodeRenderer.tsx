@@ -16,8 +16,12 @@ export function LiveCodeRenderer({ code, className = '' }: LiveCodeRendererProps
       const exportConstMatch = code.match(/export\s+(?:default\s+)?(?:const|let)\s+(\w+)/);
       
       // 找所有函数声明，取最后一个大写开头的（通常是主组件）
-      const allFuncs = [...code.matchAll(/function\s+([A-Z]\w*)\s*\(/g)];
-      const lastFunc = allFuncs.length > 0 ? allFuncs[allFuncs.length - 1][1] : null;
+      let lastFunc: string | null = null;
+      const funcRegex = /function\s+([A-Z]\w*)\s*\(/g;
+      let match;
+      while ((match = funcRegex.exec(code)) !== null) {
+        lastFunc = match[1];
+      }
       
       const componentName = exportFuncMatch?.[1] || exportConstMatch?.[1] || lastFunc || 'Component';
 
