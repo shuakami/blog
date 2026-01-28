@@ -20,6 +20,7 @@
     "@radix-ui/react-scroll-area": "^1.2.2",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@types/rss": "^0.0.32",
     "autoprefixer": "10.4.14",
     "axios": "^1.12.0",
