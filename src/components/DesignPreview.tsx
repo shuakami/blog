@@ -8,11 +8,18 @@ interface DesignPreviewProps {
   title: string;
 }
 
-// 解码 HTML 实体
+// 解码 HTML 实体（纯 JS 实现，避免 SSR 问题）
 function decodeHtmlEntities(text: string): string {
-  const textarea = document.createElement('textarea');
-  textarea.innerHTML = text;
-  return textarea.value;
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, '/')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(Number(dec)));
 }
 
 // 从 HTML 内容中提取代码块
