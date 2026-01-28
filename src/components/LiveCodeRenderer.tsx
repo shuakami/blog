@@ -16,9 +16,12 @@ export function LiveCodeRenderer({ code, className = '' }: LiveCodeRendererProps
       const constMatch = code.match(/(?:export\s+)?(?:const|let)\s+(\w+)\s*[=:]/);
       const componentName = funcMatch?.[1] || constMatch?.[1] || 'Component';
 
-      // 清理代码：移除 'use client'、export 关键字
+      // 清理代码：移除 'use client'、import、export 关键字
       let cleanCode = code
         .replace(/['"]use client['"];?\n?/g, '')
+        .replace(/^import\s+.*?['"]\s*;?\s*$/gm, '') // 移除 import 语句
+        .replace(/^import\s*\{[^}]*\}\s*from\s*['"][^'"]*['"]\s*;?\s*$/gm, '') // 移除 named import
+        .replace(/^import\s+\*\s+as\s+\w+\s+from\s*['"][^'"]*['"]\s*;?\s*$/gm, '') // 移除 * as import
         .replace(/export\s+default\s+\w+;?\s*$/gm, '')
         .replace(/export\s+\{[^}]*\};?\s*$/gm, '')
         .replace(/export\s+(?=function|const|let|class)/g, ''); // 移除 export 关键字但保留声明
