@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { LiveCodeRenderer } from './LiveCodeRenderer';
 
 interface Resource {
   title: string;
@@ -27,7 +28,7 @@ function decodeHtmlEntities(text: string): string {
   return textarea.value;
 }
 
-// 从 HTML 内容中提取代码块
+// 从 HTML 内容中提取代码块（支持 tsx/jsx/typescript）
 function extractCodeFromHtml(html: string): string {
   const match = html.match(/<code[^>]*>([\s\S]*?)<\/code>/);
   if (match) {
@@ -47,21 +48,29 @@ function extractDescriptionFromHtml(html: string): string {
 }
 
 export default function ResourcesClient({ resources }: ResourcesClientProps) {
-  const [activeTab, setActiveTab] = useState<'resources' | 'commands'>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('resources-tab') as 'resources' | 'commands') || 'resources';
-    }
-    return 'resources';
-  });
+  const [activeTab, setActiveTab] = useState<'resources' | 'commands' | 'design'>('resources');
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('resources-tab', activeTab);
-  }, [activeTab]);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+    const saved = localStorage.getItem('resources-tab') as 'resources' | 'commands' | 'design';
+    if (saved) {
+      setActiveTab(saved);
+    }
+    setIsHydrated(true);
+  }, []);
 
-  // 分离普通资源和命令资源
-  const normalResources = resources.filter(r => r.type !== 'command');
+  useEffect(() => {
+    if (isHydrated) {
+      localStorage.setItem('resources-tab', activeTab);
+    }
+  }, [activeTab, isHydrated]);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [designFilter, setDesignFilter] = useState<string | null>(null);
+
+  // 分离普通资源、命令资源和设计资源
+  const normalResources = resources.filter(r => r.type !== 'command' && r.type !== 'design');
   const commandResources = resources.filter(r => r.type === 'command');
+  const designResources = resources.filter(r => r.type === 'design');
 
   const copyToClipboard = async (command: string, id: string) => {
     try {
@@ -72,6 +81,28 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
       console.error('复制失败:', err);
     }
   };
+
+  // 在 hydration 完成前不渲染内容，避免闪烁
+  if (!isHydrated) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 sm:px-8 md:px-6 py-12 sm:py-16 md:py-24">
+        <header className="mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-black dark:text-white mb-3 sm:mb-4">
+            资源
+          </h1>
+          <p className="text-base sm:text-lg text-black/50 dark:text-white/50 mb-6 leading-relaxed">
+            整理的实用资源和数据集，全部免费开放使用
+          </p>
+          <div className="w-12 sm:w-16 h-[2px] bg-black dark:bg-white" />
+        </header>
+        <div className="h-12 w-48 bg-black/[0.04] dark:bg-white/[0.06] rounded-full mb-6" />
+        <div className="space-y-4">
+          <div className="h-32 bg-black/[0.02] dark:bg-white/[0.02] rounded-xl" />
+          <div className="h-32 bg-black/[0.02] dark:bg-white/[0.02] rounded-xl" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-6 sm:px-8 md:px-6 py-12 sm:py-16 md:py-24">
@@ -106,6 +137,16 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
           }`}
         >
           命令
+        </button>
+        <button
+          onClick={() => setActiveTab('design')}
+          className={`px-5 py-2 text-sm font-medium rounded-full transition-all ${
+            activeTab === 'design'
+              ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
+              : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
+          }`}
+        >
+          设计
         </button>
       </div>
 
@@ -291,6 +332,113 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                 </div>
               );
             })
+          )}
+        </div>
+      )}
+
+      {/* 设计组件列表 */}
+      {activeTab === 'design' && (
+        <div className="py-6">
+          {designResources.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-black/60 dark:text-white/60">暂无设计组件</p>
+            </div>
+          ) : (
+            <>
+              {/* Tag 筛选 */}
+              {(() => {
+                const allTags = Array.from(new Set(designResources.flatMap(r => r.tags || [])));
+                if (allTags.length === 0) return null;
+                return (
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <button
+                      onClick={() => setDesignFilter(null)}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                        designFilter === null
+                          ? 'bg-black dark:bg-white text-white dark:text-black'
+                          : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
+                      }`}
+                    >
+                      全部
+                    </button>
+                    {allTags.map(tag => (
+                      <button
+                        key={tag}
+                        onClick={() => setDesignFilter(tag)}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                          designFilter === tag
+                            ? 'bg-black dark:bg-white text-white dark:text-black'
+                            : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
+                        }`}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
+              
+              {/* 组件网格 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {designResources
+                  .filter(r => !designFilter || (r.tags || []).includes(designFilter))
+                  .map((component) => {
+                    const code = extractCodeFromHtml(component.sample || '');
+                    const description = extractDescriptionFromHtml(component.sample || '') || component.description;
+                    return (
+                      <div
+                        key={component.slug}
+                        className="rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] overflow-hidden"
+                      >
+                        {/* 预览区域 - 可点击跳转 */}
+                        <Link
+                          href={`/resources/${component.slug}` as any}
+                          className="aspect-square flex items-center justify-center p-6 text-black dark:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors block"
+                        >
+                          {code ? (
+                            <LiveCodeRenderer code={code} />
+                          ) : (
+                            <span className="text-black/30 dark:text-white/30 text-sm">无预览</span>
+                          )}
+                        </Link>
+                        {/* 底部信息栏 */}
+                        <div className="px-4 py-3 border-t border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between">
+                          <Link href={`/resources/${component.slug}` as any} className="min-w-0 flex-1">
+                            <h3 className="text-sm font-medium text-black dark:text-white truncate hover:text-black/70 dark:hover:text-white/70 transition-colors">
+                              {component.title}
+                            </h3>
+                            {description && (
+                              <p className="text-xs text-black/40 dark:text-white/40 truncate">
+                                {description}
+                              </p>
+                            )}
+                          </Link>
+                          <button
+                            onClick={() => copyToClipboard(code, component.slug)}
+                            className={`p-2 rounded-full transition-colors flex-shrink-0 ml-2 ${
+                              copiedId === component.slug
+                                ? 'text-black/40 dark:text-white/40'
+                                : 'text-black/50 dark:text-white/50 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'
+                            }`}
+                            title={copiedId === component.slug ? '已复制' : '复制代码'}
+                          >
+                            {copiedId === component.slug ? (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            ) : (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </>
           )}
         </div>
       )}

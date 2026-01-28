@@ -1,0 +1,58 @@
+'use client';
+
+import React, { useMemo } from 'react';
+import { transform } from 'sucrase';
+
+interface LiveCodeRendererProps {
+  code: string;
+  className?: string;
+}
+
+export function LiveCodeRenderer({ code, className = '' }: LiveCodeRendererProps) {
+  const rendered = useMemo(() => {
+    try {
+      // 提取组件名（在清理前）
+      const funcMatch = code.match(/(?:export\s+)?function\s+(\w+)/);
+      const constMatch = code.match(/(?:export\s+)?(?:const|let)\s+(\w+)\s*[=:]/);
+      const componentName = funcMatch?.[1] || constMatch?.[1] || 'Component';
+
+      // 清理代码：移除 'use client'、export 关键字
+      let cleanCode = code
+        .replace(/['"]use client['"];?\n?/g, '')
+        .replace(/export\s+default\s+\w+;?\s*$/gm, '')
+        .replace(/export\s+\{[^}]*\};?\s*$/gm, '')
+        .replace(/export\s+(?=function|const|let|class)/g, ''); // 移除 export 关键字但保留声明
+
+      // 编译 TSX → JS
+      const compiled = transform(cleanCode, {
+        transforms: ['typescript', 'jsx'],
+        jsxRuntime: 'classic',
+        jsxPragma: 'React.createElement',
+        jsxFragmentPragma: 'React.Fragment',
+      }).code;
+
+      // 沙箱执行
+      const fn = new Function(
+        'React',
+        `${compiled}; return typeof ${componentName} !== 'undefined' ? ${componentName} : null;`
+      );
+      
+      const Component = fn(React);
+      
+      if (!Component) {
+        return <div className="text-red-500 text-sm">组件未找到</div>;
+      }
+
+      return <Component />;
+    } catch (err) {
+      console.error('LiveCodeRenderer error:', err);
+      return (
+        <div className="text-red-500 text-xs p-2">
+          渲染失败: {err instanceof Error ? err.message : '未知错误'}
+        </div>
+      );
+    }
+  }, [code]);
+
+  return <div className={className}>{rendered}</div>;
+}

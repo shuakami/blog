@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Download, Tag } from 'lucide-react';
 import { getResourceBySlug, getResources } from '@/utils/resources';
 import { CodeCopyButton } from '@/components/CodeCopyButton';
+import { DesignPreview } from '@/components/DesignPreview';
 
 export async function generateStaticParams() {
   const resources = await getResources();
@@ -142,14 +143,20 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
 
       {resource.sample && (
         <section className="mb-12">
-          <h2 className="text-xl sm:text-2xl font-medium text-black dark:text-white mb-6">
-            详细说明
-          </h2>
-          <div 
-            className="prose dark:prose-invert max-w-none markdown-body"
-            dangerouslySetInnerHTML={{ __html: resource.sample }}
-          />
-          <CodeCopyButton />
+          {resource.type === 'design' ? (
+            <DesignPreview code={resource.sample} title={resource.title} />
+          ) : (
+            <>
+              <h2 className="text-xl sm:text-2xl font-medium text-black dark:text-white mb-6">
+                详细说明
+              </h2>
+              <div 
+                className="prose dark:prose-invert max-w-none markdown-body"
+                dangerouslySetInnerHTML={{ __html: resource.sample }}
+              />
+              <CodeCopyButton />
+            </>
+          )}
         </section>
       )}
 
