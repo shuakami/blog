@@ -11,21 +11,28 @@ interface DesignPreviewProps {
 // 解码 HTML 实体（纯 JS 实现，避免 SSR 问题）
 function decodeHtmlEntities(text: string): string {
   return text
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(Number(dec)))
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
     .replace(/&#39;/g, "'")
     .replace(/&#x27;/g, "'")
     .replace(/&#x2F;/g, '/')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(Number(dec)));
+    .replace(/&nbsp;/g, ' ');
 }
 
 // 从 HTML 内容中提取代码块
 function extractCodeFromHtml(html: string): string {
-  const match = html.match(/<code[^>]*>([\s\S]*?)<\/code>/);
+  // 尝试匹配 <pre><code> 或单独的 <code>
+  const preCodeMatch = html.match(/<pre[^>]*>\s*<code[^>]*>([\s\S]*?)<\/code>\s*<\/pre>/);
+  const codeMatch = html.match(/<code[^>]*>([\s\S]*?)<\/code>/);
+  
+  const match = preCodeMatch || codeMatch;
   if (match) {
+    // 移除所有 HTML 标签（如 <span> 高亮标签）
     const code = match[1].replace(/<[^>]*>/g, '').trim();
     return decodeHtmlEntities(code);
   }
