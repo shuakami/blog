@@ -36,12 +36,14 @@ export function LiveCodeRenderer({ code, className = '' }: LiveCodeRendererProps
         .replace(/export\s+(?=function|const|let|class)/g, ''); // 移除 export 关键字但保留声明
 
       // 编译 TSX → JS
+      console.log('[LiveCodeRenderer] cleanCode:', cleanCode);
       const compiled = transform(cleanCode, {
         transforms: ['typescript', 'jsx'],
         jsxRuntime: 'classic',
         jsxPragma: 'React.createElement',
         jsxFragmentPragma: 'React.Fragment',
       }).code;
+      console.log('[LiveCodeRenderer] compiled:', compiled);
 
       // 沙箱执行
       const fn = new Function(
