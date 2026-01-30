@@ -91,9 +91,11 @@ export async function POST(req: NextRequest) {
 
       revalidatePath('/', 'page');
       revalidatePath('/archive', 'page');
+      revalidatePath('/resources', 'page');
 
       for (const slug of changedSlugs) {
         revalidatePath(`/post/${slug}`, 'page');
+        revalidatePath(`/resources/${slug}`, 'page');
       }
 
       const revEnd = Date.now();

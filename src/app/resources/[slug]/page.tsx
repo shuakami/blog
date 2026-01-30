@@ -6,6 +6,12 @@ import { getResourceBySlug, getResources } from '@/utils/resources';
 import { CodeCopyButton } from '@/components/CodeCopyButton';
 import { DesignPreview } from '@/components/DesignPreview';
 
+// ISR: 每60秒重新验证一次
+export const revalidate = 60;
+
+// 允许动态生成新的资源页面
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
   const resources = await getResources();
   console.log('[Resources] Generating static params for:', resources.map(r => r.slug));
