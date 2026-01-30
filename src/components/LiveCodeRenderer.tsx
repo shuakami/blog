@@ -76,5 +76,5 @@ export function LiveCodeRenderer({ code, className = '' }: LiveCodeRendererProps
     }
   }, [code]);
 
-  return <div className={`w-full flex items-center justify-center ${className}`}>{rendered}</div>;
+  return <div className={`w-full flex items-center justify-center ${className}`} onClick={(e) => e.stopPropagation()}>{rendered}</div>;
 }
