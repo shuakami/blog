@@ -21,7 +21,7 @@ const inflightImg  = new Map<string, Promise<Buffer>>();
 
 const giteeAxios = axios.create({
   baseURL: GITEE_API,
-  timeout: 10_000,
+  timeout: 15_000,
   httpAgent: new http.Agent({ keepAlive: true, maxSockets: 50, keepAliveMsecs: 10_000 }),
   httpsAgent: new https.Agent({ keepAlive: true, maxSockets: 50, keepAliveMsecs: 10_000 }),
   headers: {
@@ -43,14 +43,15 @@ function isRetryableError(err: any): boolean {
   const code = err?.code;
   const status = err?.response?.status;
   if (status && status >= 500) return true;
-  return ['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'ENOTFOUND'].includes(code);
+  // ECONNABORTED = axios timeout, 加入重试列表
+  return ['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'ENOTFOUND', 'ECONNABORTED'].includes(code);
 }
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function getWithRetry<T>(url: string, params: Record<string, any>, maxTries = 2): Promise<T> {
+async function getWithRetry<T>(url: string, params: Record<string, any>, maxTries = 5): Promise<T> {
   let attempt = 0;
   let lastErr: any;
   while (attempt < maxTries) {
@@ -66,8 +67,9 @@ async function getWithRetry<T>(url: string, params: Record<string, any>, maxTrie
     } catch (err: any) {
       lastErr = err;
       if (attempt >= maxTries || !isRetryableError(err)) break;
-      const backoff = 150 * attempt * attempt + Math.floor(Math.random() * 100);
-      console.warn(`[Gitee API] Retry ${attempt}/${maxTries} after ${backoff}ms: ${url}`);
+      // 指数退避: 1s, 2s, 4s, 8s...
+      const backoff = Math.min(1000 * Math.pow(2, attempt - 1), 16000) + Math.floor(Math.random() * 500);
+      console.warn(`[Gitee API] Retry ${attempt}/${maxTries} after ${backoff}ms: ${url} (${err?.code || err?.message})`);
       await sleep(backoff);
     }
   }
