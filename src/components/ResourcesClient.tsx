@@ -403,7 +403,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                         {/* 预览区域 - 可点击跳转 */}
                         <Link
                           href={`/resources/${component.slug}` as any}
-                          onClick={(e) => {
+                          onClickCapture={(e) => {
                             if (shouldBlockPreviewNavigation(e.target)) {
                               e.preventDefault();
                               e.stopPropagation();
