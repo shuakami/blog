@@ -406,7 +406,6 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                           onClickCapture={(e) => {
                             if (shouldBlockPreviewNavigation(e.target)) {
                               e.preventDefault();
-                              e.stopPropagation();
                             }
                           }}
                           className="aspect-square flex items-center justify-center p-6 text-black dark:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors block"
