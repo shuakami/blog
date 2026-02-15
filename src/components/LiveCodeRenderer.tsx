@@ -12,6 +12,50 @@ interface LiveCodeRendererProps {
   className?: string;
 }
 
+function pickComponentName(source: string): string | null {
+  const defaultFnMatches = Array.from(
+    source.matchAll(/export\s+default\s+function\s+([A-Z]\w*)\s*\(/g)
+  );
+  if (defaultFnMatches.length > 0) {
+    return defaultFnMatches[defaultFnMatches.length - 1][1];
+  }
+
+  const defaultRefMatch = source.match(/export\s+default\s+([A-Z]\w*)\s*;?/);
+  if (defaultRefMatch?.[1]) {
+    return defaultRefMatch[1];
+  }
+
+  const exportedComponents: string[] = [];
+  Array.from(source.matchAll(/export\s+function\s+([A-Z]\w*)\s*\(/g)).forEach((m) => {
+    exportedComponents.push(m[1]);
+  });
+  Array.from(source.matchAll(/export\s+(?:const|let)\s+([A-Z]\w*)\s*=/g)).forEach((m) => {
+    exportedComponents.push(m[1]);
+  });
+  Array.from(source.matchAll(/export\s+class\s+([A-Z]\w*)\s+/g)).forEach((m) => {
+    exportedComponents.push(m[1]);
+  });
+
+  if (exportedComponents.length > 0) {
+    const demoLike = exportedComponents.filter((name) =>
+      /(Demo|Preview|Example|Playground|Sample)$/i.test(name)
+    );
+    if (demoLike.length > 0) {
+      return demoLike[demoLike.length - 1];
+    }
+    return exportedComponents[exportedComponents.length - 1];
+  }
+
+  const declaredComponents = Array.from(
+    source.matchAll(/function\s+([A-Z]\w*)\s*\(/g)
+  ).map((m) => m[1]);
+  if (declaredComponents.length > 0) {
+    return declaredComponents[declaredComponents.length - 1];
+  }
+
+  return null;
+}
+
 function extractImportedIdentifiers(source: string): string[] {
   const names = new Set<string>();
   const importRegex = /^import\s+(.+?)\s+from\s+['"][^'"]+['"]\s*;?\s*$/gm;
@@ -74,20 +118,7 @@ export function LiveCodeRenderer({ code, className = '' }: LiveCodeRendererProps
   const rendered = useMemo(() => {
     try {
       const importedIdentifiers = extractImportedIdentifiers(code);
-
-      // 提取组件名（优先找 export 的，或最后一个大写开头的函数）
-      const exportFuncMatch = code.match(/export\s+(?:default\s+)?function\s+(\w+)/);
-      const exportConstMatch = code.match(/export\s+(?:default\s+)?(?:const|let)\s+(\w+)/);
-      
-      // 找所有函数声明，取最后一个大写开头的（通常是主组件）
-      let lastFunc: string | null = null;
-      const funcRegex = /function\s+([A-Z]\w*)\s*\(/g;
-      let match: RegExpExecArray | null;
-      while ((match = funcRegex.exec(code)) !== null) {
-        lastFunc = match[1];
-      }
-      
-      const componentName = exportFuncMatch?.[1] || exportConstMatch?.[1] || lastFunc || 'Component';
+      const componentName = pickComponentName(code) || 'Component';
 
       // 清理代码：移除 'use client'、import、export 关键字
       let cleanCode = code
