@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import colors from "tailwindcss/colors";
 
 export default {
   content: [
@@ -7,6 +8,15 @@ export default {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   mode: 'jit',
+  safelist: [
+    {
+      pattern: /^(bg|text|border)-(zinc|gray|teal|rose|amber|green)-(50|100|200|300|400|500|600|700|800|900)$/,
+      variants: ['hover', 'dark', 'dark:hover'],
+    },
+    'gap-[0.16em]',
+    'min-w-[1.6ch]',
+    'pr-[0.08em]',
+  ],
   theme: {
   	colors: {
   		transparent: 'transparent',
@@ -134,6 +144,8 @@ export default {
   			'900': 'hsl(336, 65%, 45%)',
   			'1000': 'hsl(333, 74%, 15%)'
   		},
+  		zinc: colors.zinc,
+  		rose: colors.rose,
   		success: {
   			lighter: '#d3e5ff',
   			light: '#3291ff',
