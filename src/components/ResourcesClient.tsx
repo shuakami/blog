@@ -82,6 +82,16 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
     }
   };
 
+  const shouldBlockPreviewNavigation = (target: EventTarget | null) => {
+    const node = target as HTMLElement | null;
+    if (!node) return false;
+    return Boolean(
+      node.closest(
+        'button, [role="button"], input, textarea, select, label, a, [data-prevent-preview-nav="true"]'
+      )
+    );
+  };
+
   // 在 hydration 完成前不渲染内容，避免闪烁
   if (!isHydrated) {
     return (
@@ -393,6 +403,12 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                         {/* 预览区域 - 可点击跳转 */}
                         <Link
                           href={`/resources/${component.slug}` as any}
+                          onClick={(e) => {
+                            if (shouldBlockPreviewNavigation(e.target)) {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }
+                          }}
                           className="aspect-square flex items-center justify-center p-6 text-black dark:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors block"
                         >
                           {code ? (
