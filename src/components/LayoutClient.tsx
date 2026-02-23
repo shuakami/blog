@@ -26,7 +26,7 @@ export function LayoutClient({ children, navItems, siteName = "Shuakami" }: Layo
   const isAuthPage = pathname === "/login" || pathname === "/setup"
   
   // 全屏页面（无 padding，无 max-width 限制）
-  const isFullscreenPage = pathname === "/games"
+  const isFullscreenPage = pathname === "/games" || pathname === "/designs"
 
   // 初始化：从 localStorage 读取侧边栏状态
   useEffect(() => {

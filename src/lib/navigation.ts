@@ -5,6 +5,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: '首页', href: '/', enabled: true },
   { label: '归档', href: '/archive', enabled: true },
   { label: '作品', href: '/works', enabled: true },
+  { label: '设计', href: '/designs', enabled: true },
   { label: '游戏', href: '/games', enabled: true },
   { label: '资源', href: '/resources', enabled: true },
   { label: '音乐', href: '/music', enabled: true },

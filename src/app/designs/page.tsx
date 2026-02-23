@@ -1,0 +1,469 @@
+'use client';
+
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import designsData from './designs-data.json';
+
+interface Design {
+  id: string;
+  url: string;
+  type: string;
+  mood: string;
+  styles: string[];
+  tags: string[];
+  quality: number;
+  highlights: string[];
+  user: string;
+  user_name: string;
+}
+
+export default function DesignsPage() {
+  const router = useRouter();
+  const allDesigns: Design[] = designsData as Design[];
+
+  const [entered, setEntered] = useState(false);
+  const [selected, setSelected] = useState<Design | null>(null);
+  const [exiting, setExiting] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [prevIndex, setPrevIndex] = useState<number | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [filter, setFilter] = useState<string | null>(null);
+  const [showCategories, setShowCategories] = useState(false);
+  const [flippedId, setFlippedId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // 入场动画延迟
+  useEffect(() => {
+    const timer = setTimeout(() => setEntered(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 筛选后的设计
+  const designs = filter
+    ? allDesigns.filter(d => d.type === filter || d.styles.includes(filter))
+    : allDesigns;
+
+  // 获取所有类型
+  const types = [...new Set(allDesigns.map(d => d.type))].filter(Boolean);
+
+  // 切换图片
+  const scrollTo = useCallback((index: number, animate = false) => {
+    if (isTransitioning || index < 0 || index >= designs.length) return;
+
+    const startIndex = activeIndex;
+
+    const doScroll = (targetIndex: number, shouldAnimate: boolean) => {
+      if (shouldAnimate && Math.abs(targetIndex - startIndex) > 1) {
+        // 多步动画滚动
+        const direction = targetIndex > startIndex ? 1 : -1;
+        const steps = Math.abs(targetIndex - startIndex);
+        const baseDelay = Math.max(80, 200 - steps * 15);
+
+        setIsTransitioning(true);
+
+        let currentStep = 0;
+        const animateStep = () => {
+          currentStep++;
+          const newIndex = startIndex + (direction * currentStep);
+          setActiveIndex(newIndex);
+
+          if (currentStep < steps) {
+            const delay = baseDelay * (1 - (currentStep / steps) * 0.5);
+            setTimeout(animateStep, delay);
+          } else {
+            setTimeout(() => setIsTransitioning(false), 150);
+          }
+        };
+
+        animateStep();
+      } else {
+        // 单步切换
+        setIsTransitioning(true);
+        setActiveIndex(targetIndex);
+        setTimeout(() => setIsTransitioning(false), 250);
+      }
+    };
+
+    doScroll(index, animate);
+  }, [isTransitioning, designs, activeIndex]);
+
+  // 滚轮控制
+  useEffect(() => {
+    let lastScroll = 0;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const now = Date.now();
+      if (now - lastScroll < 200) return;
+      lastScroll = now;
+
+      if (e.deltaY > 0) scrollTo(activeIndex + 1);
+      else scrollTo(activeIndex - 1);
+    };
+    window.addEventListener('wheel', onWheel, { passive: false });
+    return () => window.removeEventListener('wheel', onWheel);
+  }, [activeIndex, scrollTo]);
+
+  // 键盘控制
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') scrollTo(activeIndex + 1);
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') scrollTo(activeIndex - 1);
+      if (e.key === 'Enter') setSelected(designs[activeIndex]);
+      if (e.key === 'Escape') setSelected(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeIndex, scrollTo, designs]);
+
+  useEffect(() => {
+    document.documentElement.classList.add('dark-scrollbar');
+    document.documentElement.classList.add('hide-top-bar');
+    return () => {
+      document.documentElement.classList.remove('dark-scrollbar');
+      document.documentElement.classList.remove('hide-top-bar');
+    };
+  }, []);
+
+  const exit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setExiting(true);
+    localStorage.setItem('sidebar-open', 'false');
+    setTimeout(() => router.push('/'), 500);
+  };
+
+  const current = designs[activeIndex];
+
+  return (
+    <motion.div
+      ref={containerRef}
+      className="fullscreen-page fixed inset-0 overflow-hidden"
+      style={{ background: '#000' }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: exiting ? 0 : 1 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {/* 主图 - 翻转卡片 */}
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center p-8 md:p-20"
+        style={{ perspective: 2000 }}
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: entered ? 1 : 0, y: entered ? 0 : 40 }}
+        transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {designs.map((d, i) => {
+          const isActive = i === activeIndex;
+          const isPrev = i === activeIndex - 1;
+          const isNext = i === activeIndex + 1;
+          const wasActive = prevIndex !== null && i === prevIndex;
+          const shouldRender = isActive || isPrev || isNext || wasActive;
+
+          if (!shouldRender) return null;
+
+          return (
+            <motion.div
+              key={d.id}
+              className="absolute cursor-pointer"
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{
+                opacity: isActive ? 1 : 0,
+                scale: isActive ? 1 : 0.95,
+                y: isActive ? 0 : isPrev || wasActive ? -30 : 30,
+              }}
+              transition={{
+                duration: 0.9,
+                ease: [0.32, 0.72, 0, 1],
+              }}
+              style={{
+                zIndex: isActive ? 2 : 1,
+                pointerEvents: isActive ? 'auto' : 'none',
+                perspective: 2000,
+              }}
+            >
+              {/* 翻转容器 - 独立动画 */}
+              <motion.div
+                animate={{ rotateY: flippedId === d.id ? 180 : 0 }}
+                transition={{ duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
+                onClick={() => isActive && setFlippedId(flippedId === d.id ? null : d.id)}
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                {/* 正面 - 图片 */}
+                <img
+                  src={d.url}
+                  alt=""
+                  className="max-w-full max-h-[70vh] object-contain"
+                  draggable={false}
+                  style={{ backfaceVisibility: 'hidden' }}
+                />
+
+                {/* 背面 - 详情 */}
+                <div
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{
+                    backfaceVisibility: 'hidden',
+                    transform: 'rotateY(180deg)',
+                  }}
+                >
+                <div className="bg-neutral-900 rounded-lg p-8 md:p-12 max-w-lg w-full h-full flex flex-col justify-center">
+                  <div className="text-white text-2xl font-light mb-4">{d.type}</div>
+                  <div className="text-white/40 text-sm mb-6">{d.mood} · @{d.user_name}</div>
+
+                  {d.highlights.length > 0 && (
+                    <div className="mb-6">
+                      {d.highlights.map((h, idx) => (
+                        <p key={idx} className="text-white/60 text-sm leading-relaxed mb-2">{h}</p>
+                      ))}
+                    </div>
+                  )}
+
+                  {d.styles.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {d.styles.map(s => (
+                        <span key={s} className="px-3 py-1 rounded-full bg-white/10 text-white/50 text-xs">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-8 text-white/20 text-xs">点击翻回</div>
+                </div>
+              </div>
+              </motion.div>
+            </motion.div>
+          );
+        })}
+      </motion.div>
+
+      {/* 左侧信息 */}
+      <motion.div
+        className="absolute left-8 md:left-12 top-1/2 -translate-y-1/2 z-10"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: entered ? 1 : 0, x: entered ? 0 : -20 }}
+        transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <motion.div
+          key={current.id}
+          initial={false}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
+        >
+          <motion.div
+            className="text-white/80 text-lg md:text-xl font-light"
+            key={`type-${current.id}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            {current.type}
+          </motion.div>
+          <motion.div
+            className="text-white/30 text-sm mt-2"
+            key={`mood-${current.id}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+          >
+            {current.mood}
+          </motion.div>
+          {current.quality >= 9 && (
+            <motion.div
+              className="mt-4 w-1 h-8 bg-white/40"
+              initial={{ scaleY: 0 }}
+              animate={{ scaleY: 1 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              style={{ originY: 0 }}
+            />
+          )}
+        </motion.div>
+      </motion.div>
+
+      {/* 右侧缩略图列表 */}
+      <motion.div
+        className="absolute right-6 md:right-10 top-1/2 z-10"
+        style={{ transform: 'translateY(-50%)' }}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: entered ? 1 : 0, x: entered ? 0 : 20 }}
+        transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="relative h-[250px] w-[80px] overflow-hidden">
+          <motion.div
+            className="absolute flex flex-col gap-3 items-end right-0"
+            animate={{ y: -activeIndex * 50 }}
+            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+            style={{ top: 95 }}
+          >
+            {designs.map((d, i) => {
+              const isActive = i === activeIndex;
+              return (
+                <motion.div
+                  key={d.id}
+                  className="cursor-pointer overflow-hidden rounded-sm flex-shrink-0"
+                  animate={{
+                    width: isActive ? 80 : 50,
+                    height: isActive ? 60 : 38,
+                    opacity: isActive ? 1 : 0.4,
+                  }}
+                  transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                  onClick={() => scrollTo(i, true)}
+                  whileHover={{ opacity: 0.8 }}
+                >
+                  <img
+                    src={d.url}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    draggable={false}
+                  />
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* 顶部 */}
+      <motion.div
+        className="absolute top-8 left-8 md:left-12 z-20"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: entered ? 1 : 0, x: entered ? 0 : -20 }}
+        transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <a
+          href="/"
+          onClick={exit}
+          className="text-white/40 hover:text-white transition-colors duration-300"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </a>
+      </motion.div>
+
+      {/* 左下角分类按钮 + 随机按钮 */}
+      <motion.div
+        className="absolute bottom-8 left-8 md:left-12 z-20 flex items-center gap-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: entered ? 1 : 0, y: entered ? 0 : 20 }}
+        transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <button
+          className="text-white/30 hover:text-white transition-colors text-[12px] uppercase tracking-[0.2em]"
+          onClick={() => setShowCategories(true)}
+        >
+          {filter || 'All'}
+        </button>
+        <button
+          className="text-white/20 hover:text-white transition-colors"
+          onClick={() => {
+            if (isTransitioning) return;
+            const randomIdx = Math.floor(Math.random() * designs.length);
+            setPrevIndex(activeIndex);
+            setIsTransitioning(true);
+            setActiveIndex(randomIdx);
+            setTimeout(() => {
+              setIsTransitioning(false);
+              setPrevIndex(null);
+            }, 900);
+          }}
+          title="随机"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+          </svg>
+        </button>
+      </motion.div>
+
+      {/* 全屏分类选择 */}
+      <AnimatePresence>
+        {showCategories && (
+          <motion.div
+            className="fixed inset-0 z-[400] flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div
+              className="absolute inset-0 bg-black"
+              style={{ opacity: 0.97 }}
+              onClick={() => setShowCategories(false)}
+            />
+
+            <div className="relative z-10 w-full h-full flex items-center justify-center overflow-hidden px-8 md:px-16">
+              <div className="flex flex-wrap justify-center items-center gap-x-12 md:gap-x-20 gap-y-6 md:gap-y-10 max-w-6xl">
+                <div className="group relative">
+                  <button
+                    onClick={() => { setFilter(null); setActiveIndex(0); setShowCategories(false); }}
+                  >
+                    <span className={`text-5xl md:text-7xl lg:text-8xl font-extralight tracking-tighter transition-all duration-500 ${
+                      !filter ? 'text-white' : 'text-white/15 group-hover:text-white/50'
+                    }`}>
+                      All
+                    </span>
+                  </button>
+                  <span className={`absolute -top-2 -right-6 text-xs transition-all duration-500 ${
+                    !filter ? 'text-white/50' : 'text-white/20'
+                  }`}>
+                    {allDesigns.length}
+                  </span>
+                </div>
+
+                {types.map((t) => {
+                  const typeDesigns = allDesigns.filter(d => d.type === t);
+                  const count = typeDesigns.length;
+                  return (
+                    <div key={t} className="group relative">
+                      <button
+                        onClick={() => { setFilter(t); setActiveIndex(0); setShowCategories(false); }}
+                      >
+                        <span className={`text-5xl md:text-7xl lg:text-8xl font-extralight tracking-tighter transition-all duration-500 ${
+                          filter === t ? 'text-white' : 'text-white/15 group-hover:text-white/50'
+                        }`}>
+                          {t}
+                        </span>
+                      </button>
+                      <span className={`absolute -top-2 -right-6 text-xs transition-all duration-500 ${
+                        filter === t ? 'text-white/50' : 'text-white/20'
+                      }`}>
+                        {count}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <button
+              className="absolute top-8 right-8 z-20 text-white/20 hover:text-white transition-colors duration-300"
+              onClick={() => setShowCategories(false)}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        className="absolute top-8 right-8 md:right-12 z-20 text-white/30 text-sm tabular-nums"
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: entered ? 1 : 0, x: entered ? 0 : 20 }}
+        transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <motion.span
+          key={`${filter}-${activeIndex}`}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {String(activeIndex + 1).padStart(3, '0')}
+        </motion.span>
+        {' / '}
+        {String(designs.length).padStart(3, '0')}
+      </motion.div>
+
+      {/* 详情弹窗 - 已移除，改用翻转 */}
+    </motion.div>
+  );
+}

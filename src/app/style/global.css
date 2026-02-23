@@ -340,6 +340,9 @@ html.christmas::before {
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   pointer-events: none;
 }
+html.christmas.hide-top-bar::before {
+  display: none;
+}
 html.christmas.dark::before {
   background: repeating-linear-gradient(
       45deg,
