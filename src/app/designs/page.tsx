@@ -93,6 +93,8 @@ export default function DesignsPage() {
 
   // 滚轮控制
   useEffect(() => {
+    if (showSearch || showCategories) return;
+
     let lastScroll = 0;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -105,10 +107,12 @@ export default function DesignsPage() {
     };
     window.addEventListener('wheel', onWheel, { passive: false });
     return () => window.removeEventListener('wheel', onWheel);
-  }, [activeIndex, scrollTo]);
+  }, [activeIndex, scrollTo, showSearch, showCategories]);
 
   // 触摸滑动控制（移动端）
   useEffect(() => {
+    if (showSearch || showCategories) return;
+
     let touchStartY = 0;
     let touchEndY = 0;
 
@@ -132,7 +136,7 @@ export default function DesignsPage() {
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchend', onTouchEnd);
     };
-  }, [activeIndex, scrollTo]);
+  }, [activeIndex, scrollTo, showSearch, showCategories]);
 
   // 键盘控制
   useEffect(() => {
@@ -530,7 +534,11 @@ export default function DesignsPage() {
               </div>
 
               {/* 搜索结果 */}
-              <div className="flex-1 overflow-auto px-4 py-8">
+              <div
+                className="flex-1 overflow-y-auto px-4 py-8"
+                onWheel={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+              >
                 <div className="max-w-4xl mx-auto">
                   {searchQuery.length > 0 && (() => {
                     const query = searchQuery.toLowerCase();
