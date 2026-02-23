@@ -104,6 +104,33 @@ export default function DesignsPage() {
     return () => window.removeEventListener('wheel', onWheel);
   }, [activeIndex, scrollTo]);
 
+  // 触摸滑动控制（移动端）
+  useEffect(() => {
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      touchEndY = e.changedTouches[0].clientY;
+      const diff = touchStartY - touchEndY;
+
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) scrollTo(activeIndex + 1);
+        else scrollTo(activeIndex - 1);
+      }
+    };
+
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [activeIndex, scrollTo]);
+
   // 键盘控制
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -145,7 +172,7 @@ export default function DesignsPage() {
     >
       {/* 主图 - 翻转卡片 */}
       <motion.div
-        className="absolute inset-0 flex items-center justify-center p-8 md:p-20"
+        className="absolute inset-0 flex items-center justify-center p-4 md:p-20"
         style={{ perspective: 2000 }}
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: entered ? 1 : 0, y: entered ? 0 : 40 }}
@@ -191,7 +218,7 @@ export default function DesignsPage() {
                 <img
                   src={d.url}
                   alt=""
-                  className="max-w-full max-h-[70vh] object-contain"
+                  className="max-w-[calc(100vw-2rem)] md:max-w-full max-h-[50vh] md:max-h-[70vh] object-contain"
                   draggable={false}
                   style={{ backfaceVisibility: 'hidden' }}
                 />
@@ -204,29 +231,29 @@ export default function DesignsPage() {
                     transform: 'rotateY(180deg)',
                   }}
                 >
-                <div className="bg-neutral-900 rounded-lg p-8 md:p-12 max-w-lg w-full h-full flex flex-col justify-center">
-                  <div className="text-white text-2xl font-light mb-4">{d.type}</div>
-                  <div className="text-white/40 text-sm mb-6">{d.mood} · @{d.user_name}</div>
+                <div className="bg-neutral-900 rounded-lg p-6 md:p-12 max-w-lg w-full h-full flex flex-col justify-center">
+                  <div className="text-white text-xl md:text-2xl font-light mb-3 md:mb-4">{d.type}</div>
+                  <div className="text-white/40 text-xs md:text-sm mb-4 md:mb-6">{d.mood} · @{d.user_name}</div>
 
                   {d.highlights.length > 0 && (
-                    <div className="mb-6">
+                    <div className="mb-4 md:mb-6">
                       {d.highlights.map((h, idx) => (
-                        <p key={idx} className="text-white/60 text-sm leading-relaxed mb-2">{h}</p>
+                        <p key={idx} className="text-white/60 text-xs md:text-sm leading-relaxed mb-2">{h}</p>
                       ))}
                     </div>
                   )}
 
                   {d.styles.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 md:gap-2">
                       {d.styles.map(s => (
-                        <span key={s} className="px-3 py-1 rounded-full bg-white/10 text-white/50 text-xs">
+                        <span key={s} className="px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-white/10 text-white/50 text-[10px] md:text-xs">
                           {s}
                         </span>
                       ))}
                     </div>
                   )}
 
-                  <div className="mt-8 text-white/20 text-xs">点击翻回</div>
+                  <div className="mt-6 md:mt-8 text-white/20 text-[10px] md:text-xs">点击翻回</div>
                 </div>
               </div>
               </motion.div>
@@ -235,9 +262,9 @@ export default function DesignsPage() {
         })}
       </motion.div>
 
-      {/* 左侧信息 */}
+      {/* 左侧信息 - 移动端隐藏 */}
       <motion.div
-        className="absolute left-8 md:left-12 top-1/2 -translate-y-1/2 z-10"
+        className="hidden md:block absolute left-8 md:left-12 top-1/2 -translate-y-1/2 z-10"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: entered ? 1 : 0, x: entered ? 0 : -20 }}
         transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
@@ -278,9 +305,9 @@ export default function DesignsPage() {
         </motion.div>
       </motion.div>
 
-      {/* 右侧缩略图列表 */}
+      {/* 右侧缩略图列表 - 移动端隐藏 */}
       <motion.div
-        className="absolute right-6 md:right-10 top-1/2 z-10"
+        className="hidden md:block absolute right-6 md:right-10 top-1/2 z-10"
         style={{ transform: 'translateY(-50%)' }}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: entered ? 1 : 0, x: entered ? 0 : 20 }}
@@ -323,7 +350,7 @@ export default function DesignsPage() {
 
       {/* 顶部 */}
       <motion.div
-        className="absolute top-8 left-8 md:left-12 z-20"
+        className="absolute top-4 left-4 md:top-8 md:left-12 z-20"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: entered ? 1 : 0, x: entered ? 0 : -20 }}
         transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -341,13 +368,13 @@ export default function DesignsPage() {
 
       {/* 左下角分类按钮 + 随机按钮 */}
       <motion.div
-        className="absolute bottom-8 left-8 md:left-12 z-20 flex items-center gap-4"
+        className="absolute bottom-4 left-4 md:bottom-8 md:left-12 z-20 flex items-center gap-3 md:gap-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: entered ? 1 : 0, y: entered ? 0 : 20 }}
         transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
         <button
-          className="text-white/30 hover:text-white transition-colors text-[12px] uppercase tracking-[0.2em]"
+          className="text-white/30 hover:text-white transition-colors text-[10px] md:text-[12px] uppercase tracking-[0.2em]"
           onClick={() => setShowCategories(true)}
         >
           {filter || 'All'}
@@ -389,19 +416,19 @@ export default function DesignsPage() {
               onClick={() => setShowCategories(false)}
             />
 
-            <div className="relative z-10 w-full h-full flex items-center justify-center overflow-hidden px-8 md:px-16">
-              <div className="flex flex-wrap justify-center items-center gap-x-12 md:gap-x-20 gap-y-6 md:gap-y-10 max-w-6xl">
+            <div className="relative z-10 w-full h-full flex items-center justify-center overflow-hidden px-4 md:px-16">
+              <div className="flex flex-wrap justify-center items-center gap-x-6 md:gap-x-20 gap-y-4 md:gap-y-10 max-w-6xl">
                 <div className="group relative">
                   <button
                     onClick={() => { setFilter(null); setActiveIndex(0); setShowCategories(false); }}
                   >
-                    <span className={`text-5xl md:text-7xl lg:text-8xl font-extralight tracking-tighter transition-all duration-500 ${
+                    <span className={`text-3xl md:text-7xl lg:text-8xl font-extralight tracking-tighter transition-all duration-500 ${
                       !filter ? 'text-white' : 'text-white/15 group-hover:text-white/50'
                     }`}>
                       All
                     </span>
                   </button>
-                  <span className={`absolute -top-2 -right-6 text-xs transition-all duration-500 ${
+                  <span className={`absolute -top-1 -right-4 md:-top-2 md:-right-6 text-[10px] md:text-xs transition-all duration-500 ${
                     !filter ? 'text-white/50' : 'text-white/20'
                   }`}>
                     {allDesigns.length}
@@ -416,13 +443,13 @@ export default function DesignsPage() {
                       <button
                         onClick={() => { setFilter(t); setActiveIndex(0); setShowCategories(false); }}
                       >
-                        <span className={`text-5xl md:text-7xl lg:text-8xl font-extralight tracking-tighter transition-all duration-500 ${
+                        <span className={`text-3xl md:text-7xl lg:text-8xl font-extralight tracking-tighter transition-all duration-500 ${
                           filter === t ? 'text-white' : 'text-white/15 group-hover:text-white/50'
                         }`}>
                           {t}
                         </span>
                       </button>
-                      <span className={`absolute -top-2 -right-6 text-xs transition-all duration-500 ${
+                      <span className={`absolute -top-1 -right-4 md:-top-2 md:-right-6 text-[10px] md:text-xs transition-all duration-500 ${
                         filter === t ? 'text-white/50' : 'text-white/20'
                       }`}>
                         {count}
@@ -434,10 +461,10 @@ export default function DesignsPage() {
             </div>
 
             <button
-              className="absolute top-8 right-8 z-20 text-white/20 hover:text-white transition-colors duration-300"
+              className="absolute top-4 right-4 md:top-8 md:right-8 z-20 text-white/20 hover:text-white transition-colors duration-300"
               onClick={() => setShowCategories(false)}
             >
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="md:w-7 md:h-7">
                 <path d="M18 6L6 18M6 6l12 12"/>
               </svg>
             </button>
@@ -446,7 +473,7 @@ export default function DesignsPage() {
       </AnimatePresence>
 
       <motion.div
-        className="absolute top-8 right-8 md:right-12 z-20 text-white/30 text-sm tabular-nums"
+        className="absolute top-4 right-4 md:top-8 md:right-12 z-20 text-white/30 text-xs md:text-sm tabular-nums"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: entered ? 1 : 0, x: entered ? 0 : 20 }}
         transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
