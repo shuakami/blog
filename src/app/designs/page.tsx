@@ -30,8 +30,11 @@ export default function DesignsPage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [filter, setFilter] = useState<string | null>(null);
   const [showCategories, setShowCategories] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [flippedId, setFlippedId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // 入场动画延迟
   useEffect(() => {
@@ -382,6 +385,19 @@ export default function DesignsPage() {
         <button
           className="text-white/20 hover:text-white transition-colors"
           onClick={() => {
+            setShowSearch(true);
+            setTimeout(() => searchInputRef.current?.focus(), 100);
+          }}
+          title="搜索"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </button>
+        <button
+          className="text-white/20 hover:text-white transition-colors"
+          onClick={() => {
             if (isTransitioning) return;
             const randomIdx = Math.floor(Math.random() * designs.length);
             setPrevIndex(activeIndex);
@@ -463,6 +479,137 @@ export default function DesignsPage() {
             <button
               className="absolute top-4 right-4 md:top-8 md:right-8 z-20 text-white/20 hover:text-white transition-colors duration-300"
               onClick={() => setShowCategories(false)}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="md:w-7 md:h-7">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 搜索模态框 */}
+      <AnimatePresence>
+        {showSearch && (
+          <motion.div
+            className="fixed inset-0 z-[400] flex flex-col"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div
+              className="absolute inset-0 bg-black"
+              style={{ opacity: 0.97 }}
+              onClick={() => { setShowSearch(false); setSearchQuery(''); }}
+            />
+
+            <div className="relative z-10 flex flex-col h-full">
+              {/* 搜索输入框 */}
+              <div className="flex items-center justify-center pt-20 md:pt-32 px-4">
+                <div className="relative w-full max-w-2xl">
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="搜索类型、风格、标签..."
+                    className="w-full bg-transparent border-b border-white/20 focus:border-white/50 outline-none text-white text-2xl md:text-4xl font-light py-4 placeholder:text-white/20 transition-colors"
+                  />
+                  {searchQuery && (
+                    <button
+                      className="absolute right-0 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+                      onClick={() => setSearchQuery('')}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* 搜索结果 */}
+              <div className="flex-1 overflow-auto px-4 py-8">
+                <div className="max-w-4xl mx-auto">
+                  {searchQuery.length > 0 && (() => {
+                    const query = searchQuery.toLowerCase();
+                    const results = allDesigns.filter(d =>
+                      d.type?.toLowerCase().includes(query) ||
+                      d.mood?.toLowerCase().includes(query) ||
+                      d.styles?.some(s => s.toLowerCase().includes(query)) ||
+                      d.tags?.some(t => t.toLowerCase().includes(query)) ||
+                      d.highlights?.some(h => h.toLowerCase().includes(query)) ||
+                      d.user_name?.toLowerCase().includes(query)
+                    );
+
+                    if (results.length === 0) {
+                      return (
+                        <div className="text-center text-white/30 text-lg py-20">
+                          没有找到相关设计
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                        {results.slice(0, 20).map((d) => {
+                          const idx = designs.findIndex(design => design.id === d.id);
+                          return (
+                            <motion.div
+                              key={d.id}
+                              className="cursor-pointer group"
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3 }}
+                              onClick={() => {
+                                if (idx !== -1) {
+                                  setActiveIndex(idx);
+                                  setShowSearch(false);
+                                  setSearchQuery('');
+                                } else {
+                                  setFilter(null);
+                                  const allIdx = allDesigns.findIndex(design => design.id === d.id);
+                                  if (allIdx !== -1) {
+                                    setActiveIndex(allIdx);
+                                  }
+                                  setShowSearch(false);
+                                  setSearchQuery('');
+                                }
+                              }}
+                            >
+                              <div className="aspect-[4/3] overflow-hidden rounded-sm mb-2">
+                                <img
+                                  src={d.url}
+                                  alt=""
+                                  className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300"
+                                />
+                              </div>
+                              <div className="text-white/50 text-xs group-hover:text-white/80 transition-colors truncate">
+                                {d.type}
+                              </div>
+                              <div className="text-white/30 text-[10px] truncate">
+                                @{d.user_name}
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+
+                  {searchQuery.length === 0 && (
+                    <div className="text-center text-white/20 text-sm py-20">
+                      输入关键词搜索设计
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <button
+              className="absolute top-4 right-4 md:top-8 md:right-8 z-20 text-white/20 hover:text-white transition-colors duration-300"
+              onClick={() => { setShowSearch(false); setSearchQuery(''); }}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="md:w-7 md:h-7">
                 <path d="M18 6L6 18M6 6l12 12"/>
