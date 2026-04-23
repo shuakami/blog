@@ -16,6 +16,7 @@ import type { BlogPost } from '@/types/post';
 import { replaceImagesWithOssUrls } from './image-replacer';
 import { hashPostPassword } from './post-encryption';
 import { slugify } from './slug';
+import { resolveAuthorProfile } from './author-profile';
 
 const FILE_PROCESS_CONCURRENCY = Number(process.env.OBSIDIAN_FILE_CONCURRENCY || 4);
 
@@ -157,6 +158,7 @@ async function buildPostFromMarkdown(path: string) {
   const rawEncrypt = typeof parsed.data.encrypt === 'string' ? parsed.data.encrypt.trim() : '';
   const isEncrypted = rawEncrypt.length > 0;
   const encryption = isEncrypted ? { hash: hashPostPassword(slug, rawEncrypt) } : undefined;
+  const authorProfile = resolveAuthorProfile(parsed.data.author, parsed.data.authorAvatar);
 
   const post: BlogPost = {
     slug,
@@ -170,6 +172,8 @@ async function buildPostFromMarkdown(path: string) {
     wordCount,
     source: 'obsidian',
     tags: parsed.data.tags || [],
+    author: authorProfile.name,
+    authorAvatar: authorProfile.avatar,
     encryption,
     encrypted: isEncrypted,
     // 资源相关字段

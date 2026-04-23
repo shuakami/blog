@@ -21,6 +21,7 @@ interface BaseContent {
   wordCount?: number;
   coverImage?: string | null;
   author?: string;
+  authorAvatar?: string;
   encryption?: PostEncryption;
   encrypted?: boolean;
 }
@@ -58,6 +59,7 @@ export interface MatterResult extends GrayMatterFile<string> {
     category?: string;
     tags?: string[];
     author?: string;
+    authorAvatar?: string;
   };
 }
 
@@ -69,4 +71,3 @@ export interface PostIndex {
   posts: Post[];
   generated: string;
 }
-

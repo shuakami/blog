@@ -12,6 +12,7 @@ import { CopyUrlButton } from '@/components/CopyUrlButton';
 import PostNavigator from '@/components/PostNavigator';
 import { ImagePreview } from '@/components/ImagePreview';
 import { LinkPreviewProvider } from '@/components/LinkPreviewProvider';
+import { resolveAuthorProfile } from '@/utils/author-profile';
 import type { Metadata } from 'next';
 import type { Viewport } from 'next';
 
@@ -65,6 +66,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const description = post.excerpt || '一篇纪录思考的文章。';
+  const authorProfile = resolveAuthorProfile(post.author, post.authorAvatar);
 
   return {
     title: `${post.title} - Shuakami`,
@@ -74,7 +76,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       type: 'article',
       publishedTime: post.date,
-      authors: ['Shuakami'],
+      authors: [authorProfile.name],
     },
     twitter: {
       card: 'summary_large_image',
@@ -115,6 +117,7 @@ export default async function PostPage({ params, searchParams }: PageProps) {
 
   const readingTime = calculateReadingTime(post.content);
   const headings = extractHeadings(post.content);
+  const authorProfile = resolveAuthorProfile(post.author, post.authorAvatar);
 
   return (
     <article className="w-full mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-12 sm:pb-16">
@@ -134,14 +137,14 @@ export default async function PostPage({ params, searchParams }: PageProps) {
 
         <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
           <Image
-            src="https://uapis.cn/api/v1/avatar/gravatar?email=shuakami%40sdjz.wiki&s=80&d=mp&r=g"
-            alt="Author avatar"
+            src={authorProfile.avatar}
+            alt={`${authorProfile.name} avatar`}
             width={20}
             height={20}
             className="rounded-full"
           />
           <span className="text-sm text-black/50 dark:text-white/50">
-            {'author' in post && post.author ? post.author : 'Shuakami'}
+            {authorProfile.name}
           </span>
         </div>
 
