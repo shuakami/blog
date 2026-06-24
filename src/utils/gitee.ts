@@ -76,6 +76,36 @@ async function getWithRetry<T>(url: string, params: Record<string, any>, maxTrie
   throw lastErr;
 }
 
+async function fetchRawBuffer(downloadUrl: string, maxTries = 5): Promise<Buffer> {
+  // download_url 为绝对地址（gitee.com/.../raw/...），私有仓库需要带 access_token。
+  const sep = downloadUrl.includes('?') ? '&' : '?';
+  const urlWithToken = GITEE_PAT ? `${downloadUrl}${sep}access_token=${GITEE_PAT}` : downloadUrl;
+  let attempt = 0;
+  let lastErr: any;
+  while (attempt < maxTries) {
+    attempt++;
+    try {
+      const res = await axios.get<ArrayBuffer>(urlWithToken, {
+        responseType: 'arraybuffer',
+        timeout: 15_000,
+        httpAgent: new http.Agent({ keepAlive: true }),
+        httpsAgent: new https.Agent({ keepAlive: true }),
+        headers: { 'User-Agent': 'NextBlog-GiteeClient/1.0' },
+        maxRedirects: 5,
+        validateStatus: (status) => status >= 200 && status < 300,
+      });
+      return Buffer.from(res.data);
+    } catch (err: any) {
+      lastErr = err;
+      if (attempt >= maxTries || !isRetryableError(err)) break;
+      const backoff = Math.min(1000 * Math.pow(2, attempt - 1), 16000) + Math.floor(Math.random() * 500);
+      console.warn(`[Gitee API] Retry raw ${attempt}/${maxTries} after ${backoff}ms: ${downloadUrl} (${err?.code || err?.message})`);
+      await sleep(backoff);
+    }
+  }
+  throw lastErr;
+}
+
 export async function getFileContent(path: string): Promise<string> {
   const encodedPath = encodePath(path);
     const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}/contents/${encodedPath}`;
@@ -129,6 +159,23 @@ export async function getImageBuffer(path: string): Promise<Buffer> {
       const data = await getWithRetry<any>(url, { access_token: GITEE_PAT, ref: GITEE_BRANCH });
       if (data?.content) {
         const buf = Buffer.from(data.content, 'base64');
+        imgCache.set(cacheKey, buf);
+        return buf;
+      }
+      // Gitee 的 contents 接口对超过内联大小上限的文件不返回 content，
+      // 仅给出元数据（sha / download_url）。优先用 blobs 接口按 sha 取，
+      // 再退回 download_url 直链，确保大图也能正确替换。
+      if (data?.sha) {
+        const blobUrl = `/repos/${GITEE_OWNER}/${GITEE_REPO}/git/blobs/${data.sha}`;
+        const blob = await getWithRetry<any>(blobUrl, { access_token: GITEE_PAT });
+        if (blob?.content) {
+          const buf = Buffer.from(blob.content, 'base64');
+          imgCache.set(cacheKey, buf);
+          return buf;
+        }
+      }
+      if (data?.download_url) {
+        const buf = await fetchRawBuffer(data.download_url);
         imgCache.set(cacheKey, buf);
         return buf;
       }
