@@ -6,32 +6,30 @@ import {
   getCachedImageUrlByHash,
   cacheImageUrl,
 } from './image-cache';
-import { getImageBuffer } from './gitee';
+import { getImageBuffer, resolveVaultImagePath } from './gitee';
 
-type ImageRef = { match: string; path: string };
+type ImageRef = { match: string; ref: string };
 
 function extractImageRefs(markdown: string): ImageRef[] {
   const refs: ImageRef[] = [];
 
   const obsidianMatches = Array.from(markdown.matchAll(/!\[\[([^\]]+)\]\]/g));
   for (const match of obsidianMatches) {
-    let path = match[1];
-
-    if (!path.includes('/')) {
-      path = `Assets/Images/${path}`;
-    } else if (!path.startsWith('Assets/')) {
-      const fileName = path.split('/').pop()!;
-      path = `Assets/Images/${fileName}`;
-    }
-
-    refs.push({ match: match[0], path });
+    let ref = match[1];
+    // 去掉 Obsidian 的 |别名/尺寸 与 #锚点后缀，只保留文件引用。
+    const pipe = ref.indexOf('|');
+    if (pipe >= 0) ref = ref.slice(0, pipe);
+    const hash = ref.indexOf('#');
+    if (hash >= 0) ref = ref.slice(0, hash);
+    ref = ref.trim();
+    if (ref) refs.push({ match: match[0], ref });
   }
 
   const markdownMatches = Array.from(markdown.matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g));
   for (const match of markdownMatches) {
     const path = match[2];
     if (path.startsWith('Assets/')) {
-      refs.push({ match: match[0], path });
+      refs.push({ match: match[0], ref: path });
     }
   }
 
@@ -44,6 +42,19 @@ function extractImageRefs(markdown: string): ImageRef[] {
     }
   }
   return deduped;
+}
+
+// 旧的启发式：vault 索引取不到时（如网络故障）退回到默认的 Assets/Images 约定，
+// 保证行为不比修复前更差。
+function legacyFallbackPath(ref: string): string {
+  if (ref.startsWith('Assets/')) return ref;
+  const fileName = ref.split('/').pop()!;
+  return `Assets/Images/${fileName}`;
+}
+
+async function resolveRefPath(ref: string): Promise<string> {
+  const resolved = await resolveVaultImagePath(ref);
+  return resolved ?? legacyFallbackPath(ref);
 }
 
 function replaceImageRef(
@@ -68,8 +79,9 @@ export async function replaceImagesWithOssUrls(
   console.log(`[Image Replacer] Found ${imageRefs.length} images to process`);
 
   const replacements = await Promise.allSettled(
-    imageRefs.map(async ({ match, path }) => {
+    imageRefs.map(async ({ match, ref }) => {
       try {
+        const path = await resolveRefPath(ref);
         let cachedUrl = await getCachedImageUrl(path);
         if (cachedUrl) {
           return { match, path, url: cachedUrl };
@@ -98,7 +110,7 @@ export async function replaceImagesWithOssUrls(
 
         return { match, path, url: ossUrl };
       } catch (error) {
-        console.error(`[Image Replacer] Failed to process image ${path}:`, error);
+        console.error(`[Image Replacer] Failed to process image ${ref}:`, error);
         return null;
       }
     })

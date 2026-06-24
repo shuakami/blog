@@ -202,6 +202,69 @@ export async function getFileTree(sha: string = GITEE_BRANCH): Promise<any> {
   }
 }
 
+type VaultIndex = { byPath: Set<string>; byName: Map<string, string> };
+let vaultIndexCache: VaultIndex | null = null;
+let vaultIndexAt = 0;
+let vaultIndexInflight: Promise<VaultIndex> | null = null;
+const VAULT_INDEX_TTL = Number(process.env.GITEE_TREE_CACHE_TTL_MS || 60_000);
+
+async function buildVaultIndex(): Promise<VaultIndex> {
+  const tree = await getFileTree();
+  const byPath = new Set<string>();
+  const byName = new Map<string, string>();
+  for (const e of tree?.tree || []) {
+    if (e?.type !== 'blob' || typeof e.path !== 'string') continue;
+    const p: string = e.path;
+    byPath.add(p);
+    const name = p.split('/').pop()!;
+    const existing = byName.get(name);
+    // 同名歧义时取路径最短（最接近 vault 根）的文件，与 Obsidian 解析行为一致。
+    if (!existing || p.length < existing.length) byName.set(name, p);
+  }
+  return { byPath, byName };
+}
+
+async function getVaultIndex(): Promise<VaultIndex> {
+  const now = Date.now();
+  if (vaultIndexCache && now - vaultIndexAt < VAULT_INDEX_TTL) return vaultIndexCache;
+  if (vaultIndexInflight) return vaultIndexInflight;
+  vaultIndexInflight = (async () => {
+    try {
+      const idx = await buildVaultIndex();
+      vaultIndexCache = idx;
+      vaultIndexAt = Date.now();
+      return idx;
+    } finally {
+      vaultIndexInflight = null;
+    }
+  })();
+  return vaultIndexInflight;
+}
+
+// 把 Obsidian wikilink / 仓库相对引用解析为仓库内真实路径：
+// 先精确命中完整路径，再按文件名在整个 vault 内查找（Obsidian 的 ![[name]] 行为）。
+// 解析不到返回 null，调用方可回退到旧的启发式路径。
+export async function resolveVaultImagePath(ref: string): Promise<string | null> {
+  const clean = ref.replace(/^\.?\//, '').trim();
+  let index: VaultIndex;
+  try {
+    index = await getVaultIndex();
+  } catch (error: any) {
+    console.error('[Gitee API] Failed to build vault index:', error?.message || error);
+    return null;
+  }
+  if (index.byPath.has(clean)) return clean;
+  let decoded = clean;
+  try {
+    decoded = decodeURIComponent(clean);
+  } catch {
+    decoded = clean;
+  }
+  if (index.byPath.has(decoded)) return decoded;
+  const basename = decoded.split('/').pop()!;
+  return index.byName.get(basename) ?? null;
+}
+
 export async function getRepoInfo(): Promise<any> {
   try {
     const url = `/repos/${GITEE_OWNER}/${GITEE_REPO}`;
