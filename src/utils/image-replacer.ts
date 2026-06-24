@@ -1,5 +1,5 @@
 // src/utils/image-replacer.ts
-import { generateFileName, getOssUrl } from './dogecloud';
+import { generateFileName, uploadToDogeCloud } from './dogecloud';
 import {
   getCachedImageUrl,
   calculateImageHash,
@@ -98,15 +98,13 @@ export async function replaceImagesWithOssUrls(
 
         const originalName = path.split('/').pop()!;
         const fileName = generateFileName(hash, originalName);
-        const ossUrl = getOssUrl(fileName);
+
+        // 必须等上传真正完成再写缓存/返回 URL：webhook 跑在 serverless
+        // （nodejs runtime，maxDuration=60），响应返回后函数会被冻结，
+        // 原来 fire-and-forget 的上传永远跑不完，导致写进文章的 OSS 链接 404。
+        const ossUrl = await uploadToDogeCloud(buffer, fileName);
 
         await cacheImageUrl(path, hash, ossUrl);
-
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { uploadToDogeCloud } = require('./dogecloud');
-        uploadToDogeCloud(buffer, fileName).catch((error: Error) => {
-          console.error(`[Image Replacer] Background upload failed for ${fileName}:`, error);
-        });
 
         return { match, path, url: ossUrl };
       } catch (error) {
