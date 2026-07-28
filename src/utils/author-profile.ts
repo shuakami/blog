@@ -4,7 +4,7 @@ const DEFAULT_AUTHOR_AVATAR =
 
 const AUTHOR_AVATAR_MAP: Record<string, string> = {
   shuakami: DEFAULT_AUTHOR_AVATAR,
-  xiaoyueyoqwq: 'https://d.kstore.dev/download/4782/xiaoyueyoqwq.jpg',
+  xiaoyueyoqwq: 'https://avatars.githubusercontent.com/u/71379165?v=4',
 };
 
 export interface AuthorProfile {
