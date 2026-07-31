@@ -1,7 +1,7 @@
 {
   "version": 2,
   "buildCommand": "CI=false next build",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./*",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- .",
   "builds": [
     {
       "src": "next.config.js",
@@ -11,4 +11,4 @@
   "github": {
     "silent": true
   }
-} 
+}
