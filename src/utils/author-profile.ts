@@ -21,8 +21,16 @@ export function resolveAuthorProfile(
   authorAvatar?: string | null
 ): AuthorProfile {
   const normalizedName = author?.trim() || DEFAULT_AUTHOR_NAME;
-  const explicitAvatar = authorAvatar?.trim();
+  const mappedAvatar = AUTHOR_AVATAR_MAP[normalizeAuthorKey(normalizedName)];
 
+  if (mappedAvatar) {
+    return {
+      name: normalizedName,
+      avatar: mappedAvatar,
+    };
+  }
+
+  const explicitAvatar = authorAvatar?.trim();
   if (explicitAvatar) {
     return {
       name: normalizedName,
@@ -32,6 +40,6 @@ export function resolveAuthorProfile(
 
   return {
     name: normalizedName,
-    avatar: AUTHOR_AVATAR_MAP[normalizeAuthorKey(normalizedName)] ?? DEFAULT_AUTHOR_AVATAR,
+    avatar: DEFAULT_AUTHOR_AVATAR,
   };
 }
