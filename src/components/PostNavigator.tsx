@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform, type MotionValue } from 'framer-motion';
 import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 
 interface Heading {
@@ -13,11 +14,43 @@ interface PostNavigatorProps {
   headings: Heading[];
 }
 
-/* Right-hand tick rail. One mark per heading, the active one grows and names itself. */
+const ROW = 18;
+const REACH = 64;
+const spring = { type: 'spring', stiffness: 520, damping: 42, mass: 0.6 } as const;
+
+function Tick({ index, level, state, pointerY, calm }: { index: number; level: number; state: 'past' | 'active' | 'ahead'; pointerY: MotionValue<number>; calm: boolean }) {
+  const base = state === 'active' ? 22 : level <= 2 ? 12 : 7;
+  const center = index * ROW + ROW / 2;
+  const target = useTransform(pointerY, (y) => {
+    if (calm || y < 0) return base;
+    const d = Math.abs(y - center);
+    return base + Math.max(0, Math.cos(Math.min(d / REACH, 1) * (Math.PI / 2))) * 12;
+  });
+  const width = useSpring(target, { stiffness: 480, damping: 38, mass: 0.5 });
+  return (
+    <motion.span
+      className="block h-[1.5px] flex-none rounded-full"
+      style={{ width }}
+      animate={{
+        backgroundColor: state === 'active' ? 'var(--ink)' : state === 'past' ? 'var(--ink-2)' : 'var(--ink-3)',
+        opacity: state === 'ahead' ? 0.55 : 1,
+      }}
+      transition={{ duration: 0.3, ease: [0.2, 0, 0, 1] }}
+    />
+  );
+}
+
+/* Right-hand tick rail. Ticks swell under the pointer; hovering opens the full outline. */
 export default function PostNavigator({ headings }: PostNavigatorProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [visible, setVisible] = useState(false);
+  const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<number | null>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const labelsRef = useRef<HTMLUListElement>(null);
+  const [labelWidth, setLabelWidth] = useState(0);
+  const pointerY = useMotionValue(-1);
+  const calm = Boolean(useReducedMotion());
 
   useEffect(() => {
     const onScroll = () => {
@@ -38,6 +71,10 @@ export default function PostNavigator({ headings }: PostNavigatorProps) {
     return () => window.removeEventListener('scroll', onScroll);
   }, [headings]);
 
+  useLayoutEffect(() => {
+    setLabelWidth(labelsRef.current?.offsetWidth ?? 0);
+  }, [headings]);
+
   if (headings.length < 2) return null;
 
   const jump = (i: number) => {
@@ -47,43 +84,104 @@ export default function PostNavigator({ headings }: PostNavigatorProps) {
     window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 96, behavior: 'smooth' });
   };
 
+  const focus = hovered ?? activeIndex;
+
   return (
     <nav
       aria-label="Sections"
-      className="fixed right-6 top-1/2 z-30 hidden -translate-y-1/2 flex-col items-end gap-2 transition-opacity duration-500 ease-quint lg:flex"
+      className="fixed right-5 top-1/2 z-30 hidden -translate-y-1/2 transition-opacity duration-500 ease-quint lg:block"
       style={{ opacity: visible ? 1 : 0, pointerEvents: visible ? 'auto' : 'none' }}
-      onMouseLeave={() => setHovered(null)}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => {
+        setOpen(false);
+        setHovered(null);
+        pointerY.set(-1);
+      }}
+      onMouseMove={(e) => {
+        const top = listRef.current?.getBoundingClientRect().top;
+        if (top !== undefined) pointerY.set(e.clientY - top);
+      }}
     >
-      {headings.map((h, i) => {
-        const active = i === activeIndex;
-        const showLabel = hovered === i || (hovered === null && active);
-        return (
-          <button
-            key={h.id}
-            type="button"
-            onClick={() => jump(i)}
-            onMouseEnter={() => setHovered(i)}
-            aria-label={h.text}
-            aria-current={active ? 'true' : undefined}
-            className="group flex h-4 items-center justify-end gap-3"
-          >
-            <span
-              className="max-w-[220px] truncate text-[12px] text-ink-2 transition-all duration-300 ease-quint"
-              style={{ opacity: showLabel ? 1 : 0, transform: showLabel ? 'none' : 'translateX(4px)' }}
-            >
-              {h.text}
-            </span>
-            <span
-              className="block h-px rounded-full transition-all duration-300 ease-quint"
-              style={{
-                width: active ? 24 : h.level <= 2 ? 14 : 8,
-                background: active ? 'var(--ink)' : 'var(--ink-3)',
-                opacity: active || hovered === i ? 1 : 0.7,
-              }}
-            />
-          </button>
-        );
-      })}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            aria-hidden
+            className="absolute -inset-y-3.5 -right-3 origin-right rounded-[18px] bg-[color-mix(in_srgb,color-mix(in_srgb,var(--bg)_95%,var(--ink))_90%,transparent)] backdrop-blur-xl"
+            style={{ left: -(labelWidth + 22) }}
+            initial={{ opacity: 0, scaleX: 0.9, scaleY: 0.97 }}
+            animate={{ opacity: 1, scaleX: 1, scaleY: 1 }}
+            exit={{ opacity: 0, scaleX: 0.94, scaleY: 0.98, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }}
+            transition={spring}
+          />
+        )}
+      </AnimatePresence>
+
+      <ul
+        ref={labelsRef}
+        aria-hidden={!open}
+        className="absolute right-full top-0 flex flex-col items-end pr-1"
+        style={{ pointerEvents: open ? 'auto' : 'none' }}
+      >
+        {headings.map((h, i) => {
+          const active = i === activeIndex;
+          const delay = open ? Math.min(Math.abs(i - focus) * 0.018, 0.2) : 0;
+          return (
+            <li key={h.id} style={{ height: ROW }}>
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={() => jump(i)}
+                onMouseEnter={() => setHovered(i)}
+                className="flex h-full items-center outline-none"
+              >
+                <motion.span
+                  className={`block max-w-[15rem] truncate whitespace-nowrap text-[12.5px] leading-none tracking-[-0.01em] ${active ? 'font-semibold' : 'font-medium'}`}
+                  style={{ paddingLeft: h.level > 2 ? 10 : 0 }}
+                  initial={false}
+                  animate={{
+                    opacity: open ? 1 : 0,
+                    x: open ? 0 : 8,
+                    filter: open ? 'blur(0px)' : 'blur(3px)',
+                    color: hovered === i || (hovered === null && active) ? 'var(--ink)' : 'var(--ink-2)',
+                  }}
+                  transition={open ? { ...spring, delay, color: { duration: 0.2 } } : { duration: 0.14, ease: [0.4, 0, 1, 1] }}
+                >
+                  {h.text}
+                </motion.span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      <ul ref={listRef} className="relative flex flex-col items-end">
+        {headings.map((h, i) => {
+          const active = i === activeIndex;
+          const state = active ? 'active' : i < activeIndex ? 'past' : 'ahead';
+          return (
+            <li key={h.id} style={{ height: ROW }}>
+              <button
+                type="button"
+                onClick={() => jump(i)}
+                onMouseEnter={() => setHovered(i)}
+                onFocus={() => {
+                  setOpen(true);
+                  setHovered(i);
+                }}
+                onBlur={() => {
+                  setOpen(false);
+                  setHovered(null);
+                }}
+                aria-label={h.text}
+                aria-current={active ? 'true' : undefined}
+                className="flex h-full w-[34px] items-center justify-end outline-none"
+              >
+                <Tick index={i} level={h.level} state={state} pointerY={pointerY} calm={calm} />
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }
