@@ -529,6 +529,47 @@ html.dark-scrollbar {
   animation-delay: calc(var(--i, 0) * 45ms);
 }
 
+/* Contribution grid: cells sweep in by week, then answer the pointer. */
+.contrib-cell {
+  transition:
+    transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 240ms var(--ease-out-quint);
+}
+.contrib[data-shown='false'] .contrib-cell,
+.contrib[data-shown='false'] .contrib-month {
+  opacity: 0;
+}
+.contrib[data-shown='true'] .contrib-cell {
+  animation: cell-in 560ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--w) * 13ms + var(--d) * 24ms);
+}
+.contrib[data-shown='true'] .contrib-month {
+  animation: rise 500ms var(--ease-out-quint) backwards;
+  animation-delay: calc(var(--w) * 13ms);
+}
+@keyframes cell-in {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  55% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (hover: hover) {
+  .contrib-grid:hover .contrib-cell:not(:hover) {
+    opacity: 0.5;
+  }
+  .contrib-cell:hover {
+    transform: scale(1.5);
+    border-radius: 3px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
