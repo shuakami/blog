@@ -181,10 +181,12 @@ a {
   text-decoration: none;
 }
 
-button {
-  font: inherit;
-  letter-spacing: inherit;
-  color: inherit;
+@layer base {
+  button {
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+  }
 }
 
 :focus-visible {
