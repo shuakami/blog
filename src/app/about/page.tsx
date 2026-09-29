@@ -54,7 +54,6 @@ export default async function AboutPage() {
   return (
     <div className="site-column mx-auto px-6 pb-8 pt-14 md:px-0 md:pt-28">
       <header className="rise flex items-center gap-4" style={{ ['--i' as string]: 0 }}>
-        <Image src="/shuakami.jpg" alt="" width={56} height={56} className="h-14 w-14 rounded-[12px] object-cover" priority />
         <h1 className="text-[1.625rem] md:text-[2rem] font-bold leading-none tracking-[-0.045em] text-ink">Shuakami</h1>
       </header>
 

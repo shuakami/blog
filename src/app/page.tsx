@@ -25,10 +25,11 @@ export default async function Page() {
     <div className="site-column mx-auto px-6 pb-8 pt-14 md:px-0 md:pt-28">
       <header className="flex items-center gap-4">
         <Image
-          src="/shuakami.jpg"
+          src="/friends/assets/avatars/shuakami.jpg"
           alt=""
-          width={56}
-          height={56}
+          width={640}
+          height={640}
+          sizes="(min-width: 768px) 72px, 56px"
           priority
           className="h-14 w-14 flex-none rounded-[12px] object-cover"
         />
