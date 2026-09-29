@@ -61,7 +61,7 @@ export default async function AboutPage() {
       <Section title="Tallies" className="rise mt-12 md:mt-20">
         <dl className="grid grid-cols-2 gap-x-8 gap-y-8 pt-4 sm:grid-cols-4">
           {numbers.map((n) => (
-            <div key={n.k} className="flex flex-col-reverse gap-2">
+            <div key={n.k} className="flex flex-col-reverse justify-end gap-2">
               <dt className="text-[0.9375rem] italic text-ink-3">{n.k}</dt>
               <dd className="text-[1.75rem] md:text-[2.25rem] font-bold leading-none tracking-[-0.04em] text-ink">{n.v}</dd>
             </div>
