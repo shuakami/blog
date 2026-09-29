@@ -132,6 +132,7 @@ export default function MusicPage() {
           className="flex items-center will-change-transform"
           style={{
             gap: GAP,
+            height: BIG,
             transform: `translateX(${translate})`,
             transition: 'transform 600ms var(--ease-out-quint)',
           }}
@@ -185,7 +186,7 @@ export default function MusicPage() {
 
       <div className="site-column mx-auto mt-10 w-full px-6 md:px-0">
         <div className="flex items-start justify-between gap-6">
-          <h1 className="text-[20px] font-medium leading-tight tracking-[-0.4px] text-ink">{currentSong.title}</h1>
+          <h1 className="line-clamp-2 min-h-[2.5em] text-[20px] font-medium leading-[1.25] tracking-[-0.4px] text-ink">{currentSong.title}</h1>
           <Link href={`/music/${currentSong.id}`} className="pill pill-icon flex-none" aria-label="Open lyrics">
             <Maximize2 className="h-3.5 w-3.5" strokeWidth={1.75} />
           </Link>
