@@ -114,8 +114,8 @@ export default async function PostPage({ params, searchParams }: PageProps) {
       </nav>
 
       <header className="mt-20 flex flex-col items-center text-center md:mt-28">
-        <span className="hedera text-[1.75rem] text-ink-3" aria-hidden />
-        <h1 className="display mt-8 text-[clamp(2.5rem,4.2vw,4.5rem)] md:-mx-16">{post.title}</h1>
+        <span className="hedera text-[1.375rem] md:text-[1.75rem] text-ink-3" aria-hidden />
+        <h1 className="display mt-8 text-[clamp(1.75rem,4.2vw,4.5rem)] md:-mx-16">{post.title}</h1>
         <p className="mt-10 flex items-center gap-2.5 text-[1.0625rem] text-ink-2">
           <span className="italic">Writ by</span>
           <Image src={authorProfile.avatar} alt="" width={24} height={24} className="h-6 w-6 rounded-full object-cover" />
@@ -143,12 +143,12 @@ export default async function PostPage({ params, searchParams }: PageProps) {
         <CodeCopyButton />
       </LinkPreviewProvider>
 
-      <footer className="mt-28 flex flex-col items-center gap-4 text-center">
+      <footer className="mt-16 md:mt-28 flex flex-col items-center gap-4 text-center">
         <span className="flex items-center gap-3 text-ink-3" aria-hidden>
           <span className="hedera hedera-flip" />
           <span className="hedera" />
         </span>
-        <p className="text-[2rem] font-semibold italic tracking-[-0.03em] text-ink">Finis.</p>
+        <p className="text-[1.625rem] md:text-[2rem] font-semibold italic tracking-[-0.03em] text-ink">Finis.</p>
       </footer>
 
       <div className="mt-16 flex items-center justify-between">

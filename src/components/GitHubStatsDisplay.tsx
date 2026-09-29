@@ -19,7 +19,7 @@ export function GitHubStatsHeader({
   const contributions = stats?.contributions ?? fallbackContributions;
 
   return (
-    <p className="mt-8 text-[1.3125rem] leading-[1.6] tracking-[-0.015em] text-ink-body">
+    <p className="mt-8 text-[1.0625rem] md:text-[1.3125rem] leading-[1.6] tracking-[-0.015em] text-ink-body">
       Here be the things I have made. They have been given{' '}
       <span className={`font-semibold text-ink ${isLoading ? 'opacity-50' : ''}`}>{totalStars.toLocaleString('en-US')}</span> stars, are
       used by some <span className="font-semibold text-ink">{fallbackUsers}</span> souls, and cost me{' '}

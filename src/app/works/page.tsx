@@ -278,20 +278,20 @@ export default function WorksPage() {
   return (
     <div className="mx-auto w-full max-w-[64rem] px-6 pb-8 pt-14 md:px-12 md:pt-28">
       <header className="max-w-[46rem]">
-        <h1 className="display text-[clamp(3rem,5vw,5rem)]">Works</h1>
+        <h1 className="display text-[clamp(2.125rem,5vw,5rem)]">Works</h1>
         <GitHubStatsHeader />
       </header>
 
-      <div className="mt-24 flex flex-col">
+      <div className="mt-14 md:mt-24 flex flex-col">
         {works.map((work, index) => {
           const workId = work.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
           const href = workHref(work);
           return (
             <React.Fragment key={work.title}>
-              {index > 0 && <span className="hedera mx-auto my-24 text-[1.5rem] text-ink-3" aria-hidden />}
+              {index > 0 && <span className="hedera mx-auto my-14 md:my-24 text-[1.25rem] md:text-[1.5rem] text-ink-3" aria-hidden />}
               <article id={workId} data-work-index={index} className="scroll-mt-24">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8">
-                  <h2 className="display text-[clamp(2.25rem,3.4vw,3.5rem)]">{work.title}</h2>
+                  <h2 className="display text-[clamp(1.625rem,3.4vw,3.5rem)]">{work.title}</h2>
                   <span className="shrink-0 text-[1.0625rem] italic text-ink-3">{work.year}</span>
                 </div>
 
@@ -320,7 +320,7 @@ export default function WorksPage() {
 
                 <div className="mt-10 grid gap-10 md:grid-cols-[minmax(0,1fr)_16rem] md:gap-16">
                   <div className="flex flex-col gap-8">
-                    <p className="dropcap text-[1.25rem] leading-[1.65] tracking-[-0.012em] text-ink-body">{work.description}</p>
+                    <p className="dropcap text-[1.0625rem] md:text-[1.25rem] leading-[1.65] tracking-[-0.012em] text-ink-body">{work.description}</p>
 
                     {work.highlights && work.highlights.length > 0 && (
                       <p className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[1.0625rem] font-medium italic text-ink">
@@ -351,7 +351,7 @@ export default function WorksPage() {
                       <dl className="grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-1">
                         {work.stats.map((stat) => (
                           <div key={stat.label} className="flex flex-col gap-1.5">
-                            <dd className="text-[2rem] font-bold leading-none tracking-[-0.04em] text-ink">{stat.value}</dd>
+                            <dd className="text-[1.625rem] md:text-[2rem] font-bold leading-none tracking-[-0.04em] text-ink">{stat.value}</dd>
                             <dt className="text-[0.9375rem] italic text-ink-3">{stat.label}</dt>
                           </div>
                         ))}

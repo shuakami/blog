@@ -314,7 +314,6 @@ html.dark-scrollbar {
     font-size: 11px;
     line-height: 1;
     letter-spacing: 0.02em;
-    text-transform: uppercase;
     color: var(--ink-3);
     font-variant-numeric: tabular-nums;
   }
@@ -382,6 +381,12 @@ html.dark-scrollbar {
   -webkit-mask: url('/ornaments/hedera.svg') center / contain no-repeat;
   mask: url('/ornaments/hedera.svg') center / contain no-repeat;
 }
+@media (max-width: 767px) {
+  .hedera {
+    width: 1.8em;
+    height: 1.1em;
+  }
+}
 .hedera-flip {
   transform: scaleX(-1);
 }
@@ -404,10 +409,9 @@ html.dark-scrollbar {
   text-wrap: balance;
 }
 .caps {
-  font-size: 0.75rem;
-  font-weight: 550;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
   color: var(--ink-3);
 }
 .italic-ink {
@@ -529,4 +533,10 @@ html.dark-scrollbar {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+}
+
+@media (max-width: 767px) {
+  .dropcap::first-letter {
+    font-size: 3.3em;
+  }
 }

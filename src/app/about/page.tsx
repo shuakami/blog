@@ -55,34 +55,34 @@ export default async function AboutPage() {
     <div className="site-column mx-auto px-6 pb-8 pt-14 md:px-0 md:pt-28">
       <header className="rise flex items-center gap-4" style={{ ['--i' as string]: 0 }}>
         <Image src="/shuakami.jpg" alt="" width={56} height={56} className="h-14 w-14 rounded-[12px] object-cover" priority />
-        <h1 className="text-[2rem] font-bold leading-none tracking-[-0.045em] text-ink">Shuakami</h1>
+        <h1 className="text-[1.625rem] md:text-[2rem] font-bold leading-none tracking-[-0.045em] text-ink">Shuakami</h1>
       </header>
 
-      <Section title="Tallies" className="rise mt-20">
+      <Section title="Tallies" className="rise mt-12 md:mt-20">
         <dl className="grid grid-cols-2 gap-x-8 gap-y-8 pt-4 sm:grid-cols-4">
           {numbers.map((n) => (
             <div key={n.k} className="flex flex-col-reverse gap-2">
               <dt className="text-[0.9375rem] italic text-ink-3">{n.k}</dt>
-              <dd className="text-[2.25rem] font-bold leading-none tracking-[-0.04em] text-ink">{n.v}</dd>
+              <dd className="text-[1.75rem] md:text-[2.25rem] font-bold leading-none tracking-[-0.04em] text-ink">{n.v}</dd>
             </div>
           ))}
         </dl>
       </Section>
 
       {contributions.length > 0 && (
-        <Section title="The year gone by" className="rise mt-24" href="https://github.com/shuakami" action="GitHub">
+        <Section title="The year gone by" className="rise mt-14 md:mt-24" href="https://github.com/shuakami" action="GitHub">
           <div className="pt-4">
             <ContributionGrid contributions={contributions} maxContributions={maxContributions} />
           </div>
         </Section>
       )}
 
-      <Section title="Tools of the trade" className="rise mt-24">
+      <Section title="Tools of the trade" className="rise mt-14 md:mt-24">
         <dl className="flex flex-col gap-5 pt-4">
           {STACK.map((row) => (
             <div key={row.name} className="grid grid-cols-1 gap-2 sm:grid-cols-[6rem_1fr] sm:gap-6">
               <dt className="pt-0.5 text-[1rem] italic text-ink-3">{row.name}</dt>
-              <dd className="text-[1.125rem] font-medium leading-[1.55] text-ink">
+              <dd className="text-[1rem] md:text-[1.125rem] font-medium leading-[1.55] text-ink">
                 {row.items.map((it, i) => (
                   <span key={it} className="inline-flex items-center">
                     {it}
@@ -95,7 +95,7 @@ export default async function AboutPage() {
         </dl>
       </Section>
 
-      <Section title="Elsewhere" className="rise mt-24">
+      <Section title="Elsewhere" className="rise mt-14 md:mt-24">
         <ul className="flex flex-col pt-1">
           {LINKS.map((l) => (
             <li key={l.label}>

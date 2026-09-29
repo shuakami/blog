@@ -101,7 +101,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
 
   const header = (
     <header className="max-w-[46rem]">
-      <h1 className="display text-[clamp(3rem,5vw,5rem)]">Resources</h1>
+      <h1 className="display text-[clamp(2.125rem,5vw,5rem)]">Resources</h1>
     </header>
   );
 
@@ -113,7 +113,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
     );
   }
 
-  const empty = (text: string) => <p className="py-6 text-[1.125rem] italic text-ink-3">{text}</p>;
+  const empty = (text: string) => <p className="py-6 text-[1rem] md:text-[1.125rem] italic text-ink-3">{text}</p>;
 
   const CopyButton = ({ code, id, compact = false }: { code: string; id: string; compact?: boolean }) => {
     const copied = copiedId === id;
@@ -161,15 +161,15 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
             ? empty('The shelves stand bare.')
             : normalResources.map((resource, index) => (
                 <React.Fragment key={resource.slug}>
-                  {index > 0 && <span className="hedera mx-auto my-16 text-[1.25rem] text-ink-3" aria-hidden />}
+                  {index > 0 && <span className="hedera mx-auto my-16 text-[1.0625rem] md:text-[1.25rem] text-ink-3" aria-hidden />}
                   <article className="grid gap-8 md:grid-cols-[minmax(0,1fr)_14rem] md:gap-16">
                     <div className="flex flex-col gap-5">
                       <Link href={`/resources/${resource.slug}` as never} className="group">
-                        <h2 className="display text-[clamp(2rem,3vw,3rem)]">
+                        <h2 className="display text-[clamp(1.5rem,3vw,3rem)]">
                           {resource.title}
                         </h2>
                       </Link>
-                      <p className="text-[1.1875rem] leading-[1.65] text-ink-body">{resource.description}</p>
+                      <p className="text-[1.0625rem] md:text-[1.1875rem] leading-[1.65] text-ink-body">{resource.description}</p>
                       {resource.tags && resource.tags.length > 0 && (
                         <p className="caps flex flex-wrap gap-x-4 gap-y-1">
                           {resource.tags.map((tag) => (
@@ -189,7 +189,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                           .filter((row): row is [string, string] => Boolean(row[1]))
                           .map(([k, v]) => (
                             <div key={k} className="flex flex-col gap-1">
-                              <dd className="text-[1.25rem] font-semibold tracking-[-0.02em] text-ink">{v}</dd>
+                              <dd className="text-[1.0625rem] md:text-[1.25rem] font-semibold tracking-[-0.02em] text-ink">{v}</dd>
                               <dt className="text-[0.9375rem] italic text-ink-3">{k}</dt>
                             </div>
                           ))}
@@ -224,7 +224,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                   <article key={cmd.slug} className="flex flex-col gap-4">
                     <div className="flex items-start justify-between gap-6">
                       <div className="flex min-w-0 flex-col gap-2">
-                        <Link href={`/resources/${cmd.slug}` as never} className="ink-link self-start text-[1.5rem] font-semibold tracking-[-0.025em] text-ink">
+                        <Link href={`/resources/${cmd.slug}` as never} className="ink-link self-start text-[1.25rem] md:text-[1.5rem] font-semibold tracking-[-0.025em] text-ink">
                           {cmd.title}
                         </Link>
                         {description && <p className="text-[1.0625rem] leading-[1.6] text-ink-body">{description}</p>}
@@ -285,7 +285,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                         </Link>
                         <div className="flex items-start justify-between gap-3">
                           <Link href={`/resources/${component.slug}` as never} className="flex min-w-0 flex-col gap-1">
-                            <h3 className="truncate text-[1.125rem] font-semibold tracking-[-0.02em] text-ink">{component.title}</h3>
+                            <h3 className="truncate text-[1rem] md:text-[1.125rem] font-semibold tracking-[-0.02em] text-ink">{component.title}</h3>
                             {description && <p className="truncate text-[0.9375rem] text-ink-3">{description}</p>}
                           </Link>
                           <CopyButton code={code} id={component.slug} compact />

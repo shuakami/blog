@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { formatShortDate, toOldWords, toRoman } from '@/lib/format';
+import { formatShortDate, toOldWords } from '@/lib/format';
 import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 
 interface ArchivePostLite {
@@ -60,8 +60,8 @@ export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
     <div className="site-column mx-auto px-6 pb-8 pt-14 md:px-0 md:pt-28">
       <header className="flex flex-col gap-8">
         <div className="flex flex-col gap-4">
-          <h1 className="display text-[clamp(3rem,5vw,5rem)]">Archive</h1>
-          <p className="text-[1.125rem] italic text-ink-2">
+          <h1 className="display text-[clamp(2.125rem,5vw,5rem)]">Archive</h1>
+          <p className="text-[1rem] md:text-[1.125rem] italic text-ink-2">
             {toOldWords(posts.length).replace(/^./, (c) => c.toUpperCase())} {posts.length === 1 ? 'entry' : 'entries'}
             {words > 0 && `, some ${words.toLocaleString('en-US')} words in all`}.
           </p>
@@ -89,14 +89,13 @@ export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
       </header>
 
       {byYear.length === 0 ? (
-        <p className="mt-20 text-[1.125rem] italic text-ink-3">Nothing is filed under that name.</p>
+        <p className="mt-12 md:mt-20 text-[1rem] md:text-[1.125rem] italic text-ink-3">Nothing is filed under that name.</p>
       ) : (
-        <div className="mt-20 flex flex-col gap-20">
+        <div className="mt-12 md:mt-20 flex flex-col gap-12 md:gap-20">
           {byYear.map(([year, list], gi) => (
             <section key={year}>
               <h2 className="mb-4 flex items-baseline gap-4">
-                <span className="text-[2.5rem] font-bold leading-none tracking-[-0.04em] text-ink">{toRoman(Number(year))}</span>
-                <span className="text-[1rem] italic text-ink-3">{year}</span>
+                <span className="text-[1.875rem] md:text-[2.5rem] font-bold leading-none tracking-[-0.04em] text-ink">{year}</span>
               </h2>
               <ul className="flex flex-col">
                 {list.map((post, i) => (

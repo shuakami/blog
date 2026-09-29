@@ -68,14 +68,14 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
       </nav>
 
       <header className="mt-20 flex flex-col items-center text-center md:mt-28">
-        <span className="hedera text-[1.75rem] text-ink-3" aria-hidden />
-        <h1 className="display mt-8 text-[clamp(2.5rem,4.2vw,4.5rem)] md:-mx-16">{resource.title}</h1>
-        <p className="mt-8 max-w-[36rem] text-[1.25rem] leading-[1.6] text-ink-body">{resource.description}</p>
+        <span className="hedera text-[1.375rem] md:text-[1.75rem] text-ink-3" aria-hidden />
+        <h1 className="display mt-8 text-[clamp(1.75rem,4.2vw,4.5rem)] md:-mx-16">{resource.title}</h1>
+        <p className="mt-8 max-w-[36rem] text-[1.0625rem] md:text-[1.25rem] leading-[1.6] text-ink-body">{resource.description}</p>
         {facts.length > 0 && (
           <dl className="mt-12 flex flex-wrap justify-center gap-x-12 gap-y-6">
             {facts.map(([k, v]) => (
               <div key={k} className="flex flex-col items-center gap-1.5">
-                <dd className="text-[1.5rem] font-bold tracking-[-0.03em] text-ink">{v}</dd>
+                <dd className="text-[1.25rem] md:text-[1.5rem] font-bold tracking-[-0.03em] text-ink">{v}</dd>
                 <dt className="text-[0.9375rem] italic text-ink-3">{k}</dt>
               </div>
             ))}
@@ -84,18 +84,18 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
       </header>
 
       {resource.details && Object.keys(resource.details).length > 0 && (
-        <dl className="mt-20 grid grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2">
+        <dl className="mt-12 md:mt-20 grid grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2">
           {Object.entries(resource.details).map(([key, value]) => (
             <div key={key} className="flex flex-col gap-1">
               <dt className="text-[0.9375rem] italic text-ink-3">{key}</dt>
-              <dd className="text-[1.125rem] font-semibold text-ink">{value}</dd>
+              <dd className="text-[1rem] md:text-[1.125rem] font-semibold text-ink">{value}</dd>
             </div>
           ))}
         </dl>
       )}
 
       {resource.sample && (
-        <section className="mt-20">
+        <section className="mt-12 md:mt-20">
           {resource.type === 'design' ? (
             <DesignPreview code={resource.sample} title={resource.title} />
           ) : (
@@ -108,10 +108,10 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
       )}
 
       {((resource.usage && resource.usage.length > 0) || (resource.tags && resource.tags.length > 0)) && (
-        <footer className="mt-24 flex flex-col items-center gap-6 text-center">
-          <span className="hedera text-[1.25rem] text-ink-3" aria-hidden />
+        <footer className="mt-14 md:mt-24 flex flex-col items-center gap-6 text-center">
+          <span className="hedera text-[1.0625rem] md:text-[1.25rem] text-ink-3" aria-hidden />
           {resource.usage && resource.usage.length > 0 && (
-            <p className="max-w-[36rem] text-[1.125rem] italic leading-[1.6] text-ink-2">
+            <p className="max-w-[36rem] text-[1rem] md:text-[1.125rem] italic leading-[1.6] text-ink-2">
               Of use for {resource.usage.join(', ')}.
             </p>
           )}

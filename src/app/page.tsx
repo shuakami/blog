@@ -32,10 +32,10 @@ export default async function Page() {
           priority
           className="h-14 w-14 flex-none rounded-[12px] object-cover"
         />
-        <h1 className="text-[2rem] font-bold leading-none tracking-[-0.045em] text-ink">Shuakami</h1>
+        <h1 className="text-[1.625rem] md:text-[2rem] font-bold leading-none tracking-[-0.045em] text-ink">Shuakami</h1>
       </header>
 
-      <div className="mt-12 text-[1.3125rem] leading-[1.6] tracking-[-0.015em] text-ink-body">
+      <div className="mt-12 text-[1.0625rem] md:text-[1.3125rem] leading-[1.6] tracking-[-0.015em] text-ink-body">
         <p className="font-[450]">
           My name is Shuakami, pronounced <span className="mono whitespace-nowrap text-[0.85em] text-ink">/ʃwɑːkɑːmiː/</span>
         </p>
@@ -70,7 +70,7 @@ export default async function Page() {
         </ul>
       </div>
 
-      <Section title="Writings" href="/archive" className="mt-28">
+      <Section title="Writings" href="/archive" className="mt-16 md:mt-28">
         {writing.length === 0 ? (
           <p className="py-2 text-[1.0625rem] italic text-ink-3">Nothing yet is writ. The ink is dry, the page is patient.</p>
         ) : (
@@ -89,7 +89,7 @@ export default async function Page() {
         )}
       </Section>
 
-      <Section title="Works" href="/works" className="mt-24">
+      <Section title="Works" href="/works" className="mt-14 md:mt-24">
         <ul className="flex flex-col">
           {SELECTED_WORK.map((item, i) => {
             const external = item.href.startsWith('http');
@@ -102,7 +102,7 @@ export default async function Page() {
                   className="group grid grid-cols-[3.5rem_minmax(0,1fr)] items-baseline gap-x-4 gap-y-1 py-3 sm:grid-cols-[3.5rem_minmax(0,1fr)_auto]"
                 >
                   <span className="text-[0.9375rem] italic text-ink-3">{item.year}</span>
-                  <span className="flex items-center gap-1.5 text-[1.1875rem] font-semibold tracking-[-0.015em] text-ink">
+                  <span className="flex items-center gap-1.5 text-[1.0625rem] md:text-[1.1875rem] font-semibold tracking-[-0.015em] text-ink">
                     {item.title}
                     {external && (
                       <ArrowUpRight

@@ -73,5 +73,5 @@ export function formatFolioDate(input: string | Date) {
   const parts = PARTS.formatToParts(date);
   const day = Number(parts.find((p) => p.type === 'day')?.value);
   const year = Number(parts.find((p) => p.type === 'year')?.value);
-  return `The ${ordinal(day)} of ${MONTH.format(date)}, ${toRoman(year)}`;
+  return `The ${ordinal(day)} of ${MONTH.format(date)}, ${year}`;
 }

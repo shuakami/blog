@@ -80,7 +80,7 @@ export default function SearchPage() {
 
   return (
     <div className="site-column mx-auto px-6 pb-8 pt-14 md:px-0 md:pt-28">
-      <h1 className="display text-[clamp(3rem,5vw,5rem)]">Search</h1>
+      <h1 className="display text-[clamp(2.125rem,5vw,5rem)]">Search</h1>
 
       <label className="mt-14 flex items-center gap-4 rounded-[14px] bg-[rgba(var(--ink-rgb),0.05)] px-5 py-4 focus-within:bg-[rgba(var(--ink-rgb),0.075)]">
         <Search className="h-5 w-5 flex-none text-ink-3" strokeWidth={2} />
@@ -92,7 +92,7 @@ export default function SearchPage() {
           placeholder="Seek, and ye shall find"
           aria-label="Search"
           style={{ outline: 'none' }}
-          className="min-w-0 flex-1 appearance-none border-0 bg-transparent shadow-none focus-visible:outline-none text-[1.375rem] font-medium tracking-[-0.02em] text-ink outline-none placeholder:font-normal placeholder:italic placeholder:text-ink-3"
+          className="min-w-0 flex-1 appearance-none border-0 bg-transparent shadow-none focus-visible:outline-none text-[1.125rem] md:text-[1.375rem] font-medium tracking-[-0.02em] text-ink outline-none placeholder:font-normal placeholder:italic placeholder:text-ink-3"
         />
         {query && (
           <button type="button" onClick={clear} className="flex-none text-ink-3 hover:text-ink" aria-label="Clear">
@@ -122,7 +122,7 @@ export default function SearchPage() {
               >
                 <Link href={`/post/${r.slug}` as never} className="-mx-4 flex flex-col gap-2 rounded-[12px] px-4 py-4 hover:bg-[rgba(var(--ink-rgb),0.04)]">
                   <span className="flex items-baseline justify-between gap-6">
-                    <span className="text-[1.25rem] font-semibold leading-[1.35] tracking-[-0.02em] text-ink">{highlight(r.title, query.trim())}</span>
+                    <span className="text-[1.0625rem] md:text-[1.25rem] font-semibold leading-[1.35] tracking-[-0.02em] text-ink">{highlight(r.title, query.trim())}</span>
                     <time className="flex-none text-[0.9375rem] italic text-ink-3" dateTime={r.date}>
                       {formatShortDate(r.date)}
                     </time>

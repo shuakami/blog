@@ -383,7 +383,7 @@ export default function DesignsPage() {
         transition={{ duration: 0.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
         <button
-          className="text-white/30 hover:text-white transition-colors text-[10px] md:text-[12px] uppercase tracking-[0.2em]"
+          className="text-white/30 hover:text-white transition-colors text-[11px] md:text-[13px] tracking-[0.02em]"
           onClick={() => setShowCategories(true)}
         >
           {filter || 'All'}

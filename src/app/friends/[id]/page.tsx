@@ -30,10 +30,10 @@ export default async function FriendPage({ params }: Params) {
         <span>Friends</span>
       </Link>
 
-      <header className="mt-24 flex flex-col items-center text-center">
+      <header className="mt-14 md:mt-24 flex flex-col items-center text-center">
         <Image src={friend.avatar} alt="" width={128} height={128} className="h-32 w-32 rounded-full object-cover" />
-        <h1 className="display mt-10 text-[clamp(2.75rem,5vw,4.5rem)]">{friend.name}</h1>
-        {friend.note && <p className="mt-4 text-[1.25rem] italic text-ink-2">{friend.note}</p>}
+        <h1 className="display mt-10 text-[clamp(2rem,5vw,4.5rem)]">{friend.name}</h1>
+        {friend.note && <p className="mt-4 text-[1.0625rem] md:text-[1.25rem] italic text-ink-2">{friend.note}</p>}
         <a href={friend.link} target="_blank" rel="noopener noreferrer" className="pill mt-10">
           <ArrowUpRight className="h-4 w-4" strokeWidth={1.75} />
           <span>{hostOf(friend.link)}</span>

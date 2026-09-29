@@ -13,7 +13,7 @@ export function Section({ title, href, action = 'All of it', className = '', chi
   return (
     <section className={className}>
       <div className="mb-4 flex items-end justify-between gap-6">
-        <h2 className="flex items-center gap-3 text-[1.75rem] font-semibold leading-none tracking-[-0.03em] text-ink">
+        <h2 className="flex items-center gap-3 text-[1.375rem] md:text-[1.75rem] font-semibold leading-none tracking-[-0.03em] text-ink">
           <span className="hedera text-ink-3" aria-hidden />
           {title}
         </h2>

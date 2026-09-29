@@ -1,7 +1,7 @@
 /* Article body. Set large, dark enough to read at length, ornamented instead of ruled. */
 
 .markdown-body {
-  font-size: 1.1875rem;
+  font-size: 1.0625rem;
   line-height: 1.8;
   font-weight: 450;
   letter-spacing: -0.012em;
@@ -296,3 +296,9 @@
 .markdown-body h1:hover .heading-anchor,
 .markdown-body h2:hover .heading-anchor,
 .markdown-body h3:hover .heading-anchor { opacity: 1; }
+
+@media (min-width: 768px) {
+  .markdown-body {
+    font-size: 1.1875rem;
+  }
+}
