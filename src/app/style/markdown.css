@@ -312,3 +312,109 @@
     font-size: 1.1875rem;
   }
 }
+
+/* Syntax colours for server-rendered Prism tokens. */
+.markdown-body pre {
+  --tok-comment: rgba(var(--ink-rgb), 0.42);
+  --tok-punct: rgba(var(--ink-rgb), 0.55);
+  --tok-keyword: #a4515b;
+  --tok-string: #56773a;
+  --tok-number: #b0662c;
+  --tok-func: #7d4f8f;
+  --tok-prop: #3f6a88;
+  --tok-class: #8a6a1e;
+}
+.dark .markdown-body pre {
+  --tok-comment: rgba(var(--ink-rgb), 0.4);
+  --tok-punct: rgba(var(--ink-rgb), 0.55);
+  --tok-keyword: #eb9c9c;
+  --tok-string: #b3d08f;
+  --tok-number: #f3b27e;
+  --tok-func: #d7b0ea;
+  --tok-prop: #95c3e3;
+  --tok-class: #ecd08a;
+}
+.markdown-body .token.comment,
+.markdown-body .token.prolog,
+.markdown-body .token.doctype,
+.markdown-body .token.cdata {
+  color: var(--tok-comment);
+  font-style: italic;
+}
+.markdown-body .token.punctuation,
+.markdown-body .token.operator {
+  color: var(--tok-punct);
+}
+.markdown-body .token.keyword,
+.markdown-body .token.atrule,
+.markdown-body .token.rule,
+.markdown-body .token.important,
+.markdown-body .token.deleted {
+  color: var(--tok-keyword);
+}
+.markdown-body .token.string,
+.markdown-body .token.char,
+.markdown-body .token.attr-value,
+.markdown-body .token.template-string,
+.markdown-body .token.inserted {
+  color: var(--tok-string);
+}
+.markdown-body .token.number,
+.markdown-body .token.boolean,
+.markdown-body .token.constant,
+.markdown-body .token.symbol,
+.markdown-body .token.regex,
+.markdown-body .token.unit {
+  color: var(--tok-number);
+}
+.markdown-body .token.function,
+.markdown-body .token.function-variable,
+.markdown-body .token.method {
+  color: var(--tok-func);
+}
+.markdown-body .token.property,
+.markdown-body .token.tag,
+.markdown-body .token.selector,
+.markdown-body .token.attr-name,
+.markdown-body .token.builtin,
+.markdown-body .token.entity,
+.markdown-body .token.url,
+.markdown-body .token.variable,
+.markdown-body .token.parameter {
+  color: var(--tok-prop);
+}
+.markdown-body .token.class-name,
+.markdown-body .token.namespace,
+.markdown-body .token.maybe-class-name {
+  color: var(--tok-class);
+}
+.markdown-body .token.tag > .token.punctuation,
+.markdown-body .token.attr-value > .token.punctuation {
+  color: inherit;
+  opacity: 0.7;
+}
+.markdown-body .token.important,
+.markdown-body .token.bold {
+  font-weight: 650;
+}
+.markdown-body .token.italic {
+  font-style: italic;
+}
+.markdown-body pre .code-line.highlight-line {
+  display: block;
+  margin: 0 -1.35rem;
+  padding: 0 1.35rem;
+  background: rgba(var(--ink-rgb), 0.06);
+}
+.markdown-body pre .code-line.inserted {
+  display: block;
+  margin: 0 -1.35rem;
+  padding: 0 1.35rem;
+  background: color-mix(in srgb, var(--tok-string) 12%, transparent);
+}
+.markdown-body pre .code-line.deleted {
+  display: block;
+  margin: 0 -1.35rem;
+  padding: 0 1.35rem;
+  background: color-mix(in srgb, var(--tok-keyword) 12%, transparent);
+}

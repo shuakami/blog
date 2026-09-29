@@ -149,8 +149,9 @@ html {
 }
 
 body {
-  font-family: var(--font-inter), var(--font-noto-sans-sc), system-ui, -apple-system,
-    BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'PingFang SC',
+    'Hiragino Sans GB', 'Noto Sans CJK SC', 'Noto Sans SC', 'Source Han Sans SC', 'Microsoft YaHei',
+    sans-serif;
   font-weight: 500;
   font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1, 'cv05' 1;
   font-variant-numeric: tabular-nums;

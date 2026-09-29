@@ -17,7 +17,7 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     // 允许本地/私有IP（开发环境使用代理时需要）
     dangerouslyAllowLocalIP: true,
   },
@@ -30,6 +30,10 @@ const nextConfig = {
 
   // 实验性功能
   experimental: {
+    staleTimes: {
+      dynamic: 30,
+      static: 300,
+    },
     scrollRestoration: true,
     serverActions: {
       allowedOrigins: ['localhost:3000', 'sdjz.wiki'],

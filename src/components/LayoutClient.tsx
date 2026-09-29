@@ -14,7 +14,7 @@ interface LayoutClientProps {
 
 const FULLSCREEN = ['/games', '/designs'];
 const WIDE = ['/works', '/music', '/resources', '/friends', '/search'];
-const NO_FOOTER = ['/music'];
+const NO_FOOTER = ['/music', '/search'];
 
 const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));

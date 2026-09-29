@@ -79,36 +79,47 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="site-column mx-auto px-6 pb-8 pt-14 md:px-0 md:pt-28">
-      <h1 className="display text-[clamp(2.125rem,5vw,5rem)]">Search</h1>
+    <div className="site-column mx-auto min-h-[80dvh] px-6 pb-24 pt-14 md:px-0 md:pt-28">
+      <h1 className="sr-only">Search</h1>
 
-      <label className="mt-14 flex items-center gap-4 rounded-[14px] bg-[rgba(var(--ink-rgb),0.05)] px-5 py-4 focus-within:bg-[rgba(var(--ink-rgb),0.075)]">
-        <Search className="h-5 w-5 flex-none text-ink-3" strokeWidth={2} />
+      <label className="flex items-center gap-[0.4em] text-[clamp(1.75rem,4vw,3rem)]">
+        <Search className="h-[0.62em] w-[0.62em] flex-none text-ink-3" strokeWidth={2.4} />
         <input
           ref={inputRef}
-          type="text"
+          type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') clear();
+          }}
           placeholder="Seek, and ye shall find"
           aria-label="Search"
+          enterKeyHint="search"
+          autoComplete="off"
+          spellCheck={false}
           style={{ outline: 'none' }}
-          className="min-w-0 flex-1 appearance-none border-0 bg-transparent shadow-none focus-visible:outline-none text-[1.125rem] md:text-[1.375rem] font-medium tracking-[-0.02em] text-ink outline-none placeholder:font-normal placeholder:italic placeholder:text-ink-3"
+          className="display min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 shadow-none caret-(--accent-red) outline-none focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden placeholder:font-medium placeholder:italic placeholder:tracking-[-0.03em] placeholder:text-ink-3"
         />
         {query && (
-          <button type="button" onClick={clear} className="flex-none text-ink-3 hover:text-ink" aria-label="Clear">
-            <X className="h-5 w-5" strokeWidth={2} />
+          <button
+            type="button"
+            onClick={clear}
+            className="grid h-[0.9em] w-[0.9em] flex-none place-items-center rounded-full bg-[rgba(var(--ink-rgb),0.06)] text-ink-3 hover:text-ink"
+            aria-label="Clear"
+          >
+            <X className="h-[0.45em] w-[0.45em]" strokeWidth={2.4} />
           </button>
         )}
       </label>
 
       {searched && (
-        <p className="mt-8 text-[1rem] italic text-ink-3">
+        <p className="mt-6 text-[0.9375rem] italic text-ink-3" aria-live="polite">
           {loading ? 'Searching' : results.length === 0 ? 'Nothing answereth to that name.' : `${results.length} ${results.length === 1 ? 'entry' : 'entries'}`}
         </p>
       )}
 
       {results.length > 0 && (
-        <ul className="mt-6 flex flex-col gap-2">
+        <ul className="mt-8 flex flex-col gap-1">
           <AnimatePresence mode="popLayout">
           {results.map((r, index) => {
             const excerpt = cleanExcerpt(r.excerpt || '');
@@ -120,15 +131,15 @@ export default function SearchPage() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ delay: index * 0.02, duration: 0.3 }}
               >
-                <Link href={`/post/${r.slug}` as never} className="-mx-4 flex flex-col gap-2 rounded-[12px] px-4 py-4 hover:bg-[rgba(var(--ink-rgb),0.04)]">
+                <Link href={`/post/${r.slug}` as never} className="-mx-4 flex flex-col gap-1.5 rounded-[12px] px-4 py-3.5 hover:bg-[rgba(var(--ink-rgb),0.04)]">
                   <span className="flex items-baseline justify-between gap-6">
-                    <span className="text-[1.0625rem] md:text-[1.25rem] font-semibold leading-[1.35] tracking-[-0.02em] text-ink">{highlight(r.title, query.trim())}</span>
-                    <time className="flex-none text-[0.9375rem] italic text-ink-3" dateTime={r.date}>
+                    <span className="text-[1.0625rem] md:text-[1.125rem] font-semibold leading-[1.4] tracking-[-0.015em] text-ink">{highlight(r.title, query.trim())}</span>
+                    <time className="flex-none text-[0.875rem] italic text-ink-3" dateTime={r.date}>
                       {formatShortDate(r.date)}
                     </time>
                   </span>
                   {excerpt && (
-                    <span className="line-clamp-2 text-[1rem] leading-[1.6] text-ink-2">{highlight(excerpt, query.trim())}</span>
+                    <span className="line-clamp-2 text-[0.9375rem] leading-[1.6] text-ink-2">{highlight(excerpt, query.trim())}</span>
                   )}
                 </Link>
               </motion.li>
