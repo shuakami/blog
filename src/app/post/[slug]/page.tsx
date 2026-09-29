@@ -13,7 +13,7 @@ import PostNavigator from '@/components/PostNavigator';
 import { ImagePreview } from '@/components/ImagePreview';
 import { LinkPreviewProvider } from '@/components/LinkPreviewProvider';
 import { resolveAuthorProfile } from '@/utils/author-profile';
-import { formatLongDate } from '@/lib/format';
+import { formatFolioDate, toOldWords } from '@/lib/format';
 import type { Metadata } from 'next';
 import type { Viewport } from 'next';
 
@@ -104,43 +104,56 @@ export default async function PostPage({ params, searchParams }: PageProps) {
   const authorProfile = resolveAuthorProfile(post.author, post.authorAvatar);
 
   return (
-    <article className="site-column mx-auto px-6 pb-8 pt-8 md:px-0 md:pt-16">
+    <article className="mx-auto w-full max-w-(--column-w) px-6 pb-8 pt-8 md:px-0 md:pt-14">
       <nav className="flex items-center justify-between">
         <Link href="/" className="pill" aria-label="Back to index">
-          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
+          <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
           <span>Index</span>
         </Link>
         <CopyUrlButton />
       </nav>
 
-      <header className="mt-16 flex flex-col gap-5">
-        <h1 className="text-[26px] font-medium leading-[1.2] tracking-[-0.5px] text-ink sm:text-[30px]">{post.title}</h1>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-ink-3">
-          <span className="flex items-center gap-2 text-ink-2">
-            <Image src={authorProfile.avatar} alt="" width={18} height={18} className="h-[18px] w-[18px] rounded-full object-cover" />
-            {authorProfile.name}
+      <header className="mt-20 flex flex-col items-center text-center md:mt-28">
+        <span className="hedera text-[1.75rem] text-ink-3" aria-hidden />
+        <h1 className="display mt-8 text-[clamp(2.5rem,4.2vw,4.5rem)] md:-mx-16">{post.title}</h1>
+        <p className="mt-10 flex items-center gap-2.5 text-[1.0625rem] text-ink-2">
+          <span className="italic">Writ by</span>
+          <Image src={authorProfile.avatar} alt="" width={24} height={24} className="h-6 w-6 rounded-full object-cover" />
+          <span className="font-semibold text-ink">{authorProfile.name}</span>
+        </p>
+        <div className="caps mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+          <time dateTime={post.date}>{formatFolioDate(post.date)}</time>
+          <span className="lozenge" aria-hidden />
+          <span>
+            {toOldWords(readingTime)} {readingTime === 1 ? 'minute' : 'minutes'} of reading
           </span>
-          <time dateTime={post.date} className="mono text-[12px]">
-            {formatLongDate(post.date)}
-          </time>
-          <span className="mono text-[12px]">{readingTime} min read</span>
           {post.category && (
-            <Link href={`/archive?category=${encodeURIComponent(post.category)}` as never} className="ink-link">
-              {post.category}
-            </Link>
+            <>
+              <span className="lozenge" aria-hidden />
+              <Link href={`/archive?category=${encodeURIComponent(post.category)}` as never} className="ink-link text-ink-2">
+                {post.category}
+              </Link>
+            </>
           )}
         </div>
-        <div className="hairline" />
       </header>
 
       <LinkPreviewProvider>
-        <div className="markdown-body mt-10" dangerouslySetInnerHTML={{ __html: post.content }} />
+        <div className="markdown-body mt-20 md:mt-24" dangerouslySetInnerHTML={{ __html: post.content }} />
         <CodeCopyButton />
       </LinkPreviewProvider>
 
-      <div className="mt-20 flex items-center justify-between">
+      <footer className="mt-28 flex flex-col items-center gap-4 text-center">
+        <span className="flex items-center gap-3 text-ink-3" aria-hidden>
+          <span className="hedera hedera-flip" />
+          <span className="hedera" />
+        </span>
+        <p className="text-[2rem] font-semibold italic tracking-[-0.03em] text-ink">Finis.</p>
+      </footer>
+
+      <div className="mt-16 flex items-center justify-between">
         <Link href="/archive" className="pill">
-          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
+          <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
           <span>Archive</span>
         </Link>
         <CopyUrlButton label="Share" />

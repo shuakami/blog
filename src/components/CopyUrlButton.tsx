@@ -20,14 +20,14 @@ export function CopyUrlButton({ label = 'Copy link' }: { label?: string }) {
 
   return (
     <button type="button" onClick={copy} className="pill" aria-live="polite">
-      <span className="relative block h-3.5 w-3.5">
+      <span className="relative block h-4 w-4">
         <LinkIcon
-          className="absolute inset-0 h-3.5 w-3.5 transition-all duration-300 ease-quint"
+          className="absolute inset-0 h-4 w-4 transition-all duration-300 ease-quint"
           style={{ opacity: copied ? 0 : 1, transform: copied ? 'scale(0.6)' : 'none' }}
           strokeWidth={1.75}
         />
         <Check
-          className="absolute inset-0 h-3.5 w-3.5 transition-all duration-300 ease-quint"
+          className="absolute inset-0 h-4 w-4 transition-all duration-300 ease-quint"
           style={{ opacity: copied ? 1 : 0, transform: copied ? 'none' : 'scale(0.6)', color: 'var(--accent-green)' }}
           strokeWidth={2}
         />

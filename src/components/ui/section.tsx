@@ -9,15 +9,16 @@ interface SectionProps {
   children: ReactNode;
 }
 
-/* Section heading: label, then a hairline that runs to the right edge. */
-export function Section({ title, href, action = 'All', className = '', children }: SectionProps) {
+export function Section({ title, href, action = 'All of it', className = '', children }: SectionProps) {
   return (
     <section className={className}>
-      <div className="mb-3 flex items-center gap-4">
-        <h2 className="text-[14px] font-medium text-ink">{title}</h2>
-        <div className="hairline flex-1" />
+      <div className="mb-4 flex items-end justify-between gap-6">
+        <h2 className="flex items-center gap-3 text-[1.75rem] font-semibold leading-none tracking-[-0.03em] text-ink">
+          <span className="hedera text-ink-3" aria-hidden />
+          {title}
+        </h2>
         {href && (
-          <Link href={href as never} className="ink-link text-[13px] text-ink-3 hover:text-ink">
+          <Link href={href as never} className="ink-link caps pb-0.5 hover:text-ink">
             {action}
           </Link>
         )}

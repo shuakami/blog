@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { ArrowUpRight, Check, Copy, Download } from 'lucide-react';
 import { LiveCodeRenderer } from './LiveCodeRenderer';
 
 interface Resource {
@@ -78,7 +79,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
-      console.error('复制失败:', err);
+      console.error('copy failed', err);
     }
   };
 
@@ -92,362 +93,202 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
     );
   };
 
-  // 在 hydration 完成前不渲染内容，避免闪烁
+  const tabs = [
+    { id: 'resources' as const, label: 'Resources', count: normalResources.length },
+    { id: 'commands' as const, label: 'Commands', count: commandResources.length },
+    { id: 'design' as const, label: 'Designs', count: designResources.length },
+  ];
+
+  const header = (
+    <header className="max-w-[46rem]">
+      <h1 className="display text-[clamp(3rem,5vw,5rem)]">Resources</h1>
+    </header>
+  );
+
   if (!isHydrated) {
     return (
-      <div className="max-w-4xl mx-auto px-6 sm:px-8 md:px-6 py-12 sm:py-16 md:py-24">
-        <header className="mb-6">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-black dark:text-white mb-3 sm:mb-4">
-            资源
-          </h1>
-          <p className="text-base sm:text-lg text-black/50 dark:text-white/50 mb-6 leading-relaxed">
-            整理的实用资源和数据集，全部免费开放使用
-          </p>
-          <div className="w-12 sm:w-16 h-[2px] bg-black dark:bg-white" />
-        </header>
-        <div className="h-12 w-48 bg-black/4 dark:bg-white/6 rounded-full mb-6" />
-        <div className="space-y-4">
-          <div className="h-32 bg-black/2 dark:bg-white/2 rounded-xl" />
-          <div className="h-32 bg-black/2 dark:bg-white/2 rounded-xl" />
-        </div>
+      <div className="mx-auto w-full max-w-[64rem] px-6 pb-8 pt-14 md:px-12 md:pt-28">
+        {header}
       </div>
     );
   }
 
-  return (
-    <div className="max-w-4xl mx-auto px-6 sm:px-8 md:px-6 py-12 sm:py-16 md:py-24">
-      <header className="mb-6">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-black dark:text-white mb-3 sm:mb-4">
-          资源
-        </h1>
-        <p className="text-base sm:text-lg text-black/50 dark:text-white/50 mb-6 leading-relaxed">
-          整理的实用资源和数据集，全部免费开放使用
-        </p>
-        <div className="w-12 sm:w-16 h-[2px] bg-black dark:bg-white" />
-      </header>
+  const empty = (text: string) => <p className="py-6 text-[1.125rem] italic text-ink-3">{text}</p>;
 
-      {/* Tab 切换 */}
-      <div className="flex gap-1 p-1 mb-6 bg-black/4 dark:bg-white/6 rounded-full w-fit">
-        <button
-          onClick={() => setActiveTab('resources')}
-          className={`px-5 py-2 text-sm font-medium rounded-full transition-all ${
-            activeTab === 'resources'
-              ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
-              : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
-          }`}
-        >
-          资源
-        </button>
-        <button
-          onClick={() => setActiveTab('commands')}
-          className={`px-5 py-2 text-sm font-medium rounded-full transition-all ${
-            activeTab === 'commands'
-              ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
-              : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
-          }`}
-        >
-          命令
-        </button>
-        <button
-          onClick={() => setActiveTab('design')}
-          className={`px-5 py-2 text-sm font-medium rounded-full transition-all ${
-            activeTab === 'design'
-              ? 'bg-white dark:bg-black text-black dark:text-white shadow-sm'
-              : 'text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
-          }`}
-        >
-          设计
-        </button>
+  const CopyButton = ({ code, id, compact = false }: { code: string; id: string; compact?: boolean }) => {
+    const copied = copiedId === id;
+    const Icon = copied ? Check : Copy;
+    return (
+      <button
+        type="button"
+        onClick={() => copyToClipboard(code, id)}
+        className={`pill shrink-0 ${compact ? 'pill-icon' : ''}`}
+        aria-label={copied ? 'Copied' : 'Copy'}
+        data-prevent-preview-nav="true"
+      >
+        <Icon className="h-4 w-4" strokeWidth={1.75} style={copied ? { color: 'var(--accent-green)' } : undefined} />
+        {!compact && <span>{copied ? 'Copied' : 'Copy'}</span>}
+      </button>
+    );
+  };
+
+  const designTags = Array.from(new Set(designResources.flatMap((r) => r.tags || [])));
+
+  return (
+    <div className="mx-auto w-full max-w-[64rem] px-6 pb-8 pt-14 md:px-12 md:pt-28">
+      {header}
+
+      <div className="mt-14 flex flex-wrap gap-2" role="tablist">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            aria-pressed={activeTab === tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className="pill pill-text-only"
+          >
+            {tab.label}
+            <span className="ml-1.5 text-[0.8125rem] italic text-ink-3">{tab.count}</span>
+          </button>
+        ))}
       </div>
 
-      {/* 资源列表 */}
       {activeTab === 'resources' && (
-        <>
-          {normalResources.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-black/60 dark:text-white/60 mb-4">暂无资源</p>
-              <p className="text-sm text-black/40 dark:text-white/40">
-                在 Obsidian 文章的 frontmatter 中添加 resource: true 来创建资源
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-0">
-              {normalResources.map((resource, index) => (
-                <article
-                  key={index}
-                  className="group py-6 border-b border-black/6 dark:border-white/6 last:border-0"
-                >
-                  <div className="space-y-4 sm:space-y-5">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
-                      <div className="flex-1 min-w-0">
-                        <Link href={`/resources/${resource.slug}` as any}>
-                          <h2 className="text-xl sm:text-2xl md:text-3xl font-medium text-black dark:text-white mb-2 sm:mb-2 hover:text-black/70 dark:hover:text-white/70 transition-colors cursor-pointer">
-                            {resource.title}
-                          </h2>
-                        </Link>
-                        <p className="text-sm sm:text-base text-black/60 dark:text-white/60 leading-relaxed">
-                          {resource.description}
+        <div className="mt-16 flex flex-col">
+          {normalResources.length === 0
+            ? empty('The shelves stand bare.')
+            : normalResources.map((resource, index) => (
+                <React.Fragment key={resource.slug}>
+                  {index > 0 && <span className="hedera mx-auto my-16 text-[1.25rem] text-ink-3" aria-hidden />}
+                  <article className="grid gap-8 md:grid-cols-[minmax(0,1fr)_14rem] md:gap-16">
+                    <div className="flex flex-col gap-5">
+                      <Link href={`/resources/${resource.slug}` as never} className="group">
+                        <h2 className="display text-[clamp(2rem,3vw,3rem)]">
+                          {resource.title}
+                        </h2>
+                      </Link>
+                      <p className="text-[1.1875rem] leading-[1.65] text-ink-body">{resource.description}</p>
+                      {resource.tags && resource.tags.length > 0 && (
+                        <p className="caps flex flex-wrap gap-x-4 gap-y-1">
+                          {resource.tags.map((tag) => (
+                            <span key={tag}>{tag}</span>
+                          ))}
                         </p>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0 sm:mt-1">
-                        <span className="text-xs sm:text-sm text-black/40 dark:text-white/40">
-                          {resource.type}
-                        </span>
-                        {resource.format && (
-                          <>
-                            <span className="text-xs text-black/20 dark:text-white/20">·</span>
-                            <span className="text-xs sm:text-sm text-black/40 dark:text-white/40">
-                              {resource.format}
-                            </span>
-                          </>
+                      )}
+                    </div>
+                    <aside className="flex flex-col gap-6">
+                      <dl className="grid grid-cols-2 gap-5 md:grid-cols-1">
+                        {[
+                          ['Kind', resource.type],
+                          ['Format', resource.format],
+                          ['Size', resource.size],
+                          ['Updated', resource.lastUpdated],
+                        ]
+                          .filter((row): row is [string, string] => Boolean(row[1]))
+                          .map(([k, v]) => (
+                            <div key={k} className="flex flex-col gap-1">
+                              <dd className="text-[1.25rem] font-semibold tracking-[-0.02em] text-ink">{v}</dd>
+                              <dt className="text-[0.9375rem] italic text-ink-3">{k}</dt>
+                            </div>
+                          ))}
+                      </dl>
+                      <div className="flex flex-wrap gap-2">
+                        <Link href={`/resources/${resource.slug}` as never} className="pill">
+                          <ArrowUpRight className="h-4 w-4" strokeWidth={1.75} />
+                          <span>Open</span>
+                        </Link>
+                        {resource.downloadUrl && (
+                          <a href={resource.downloadUrl} target="_blank" rel="noopener noreferrer" className="pill">
+                            <Download className="h-4 w-4" strokeWidth={1.75} />
+                            <span>Download</span>
+                          </a>
                         )}
                       </div>
-                    </div>
-
-                    <div className="rounded-lg sm:rounded-xl bg-black/2 dark:bg-white/2 px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6">
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-5 md:gap-6">
-                        <div className="flex items-center gap-6 sm:gap-8 md:gap-12">
-                          {resource.size && (
-                            <div className="space-y-0.5 sm:space-y-1">
-                              <h4 className="text-xl sm:text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">
-                                {resource.size}
-                              </h4>
-                              <p className="text-xs sm:text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">
-                                文件大小
-                              </p>
-                            </div>
-                          )}
-                          {resource.lastUpdated && (
-                            <div className="space-y-0.5 sm:space-y-1">
-                              <h4 className="text-xl sm:text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">
-                                {resource.lastUpdated}
-                              </h4>
-                              <p className="text-xs sm:text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">
-                                更新时间
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-2 md:items-end md:shrink-0 w-full sm:w-auto md:w-auto">
-                          <Link
-                            href={`/resources/${resource.slug}` as any}
-                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2.5 md:py-2 rounded-full bg-black/6 dark:bg-white/8 text-black dark:text-white text-sm font-medium hover:bg-black/10 dark:hover:bg-white/12 transition-colors whitespace-nowrap w-full sm:w-auto"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                              <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                            查看详情
-                          </Link>
-                          {resource.downloadUrl && (
-                            <a
-                              href={resource.downloadUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:bg-black/80 dark:hover:bg-white/80 active:bg-black/70 dark:active:bg-white/70 transition-colors whitespace-nowrap w-full sm:w-auto"
-                            >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="7 10 12 15 17 10" />
-                                <line x1="12" y1="15" x2="12" y2="3" />
-                              </svg>
-                              下载资源
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {resource.tags && resource.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                        {resource.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-2 sm:px-2.5 py-1 text-xs rounded-md bg-black/4 dark:bg-white/6 text-black/50 dark:text-white/50"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </article>
+                    </aside>
+                  </article>
+                </React.Fragment>
               ))}
-            </div>
-          )}
-        </>
-      )}
-
-      {/* 命令列表 */}
-      {activeTab === 'commands' && (
-        <div className="space-y-4 py-6">
-          {commandResources.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-black/60 dark:text-white/60">暂无收藏的命令</p>
-            </div>
-          ) : (
-            commandResources.map((cmd) => {
-              const code = extractCodeFromHtml(cmd.sample || '');
-              const description = extractDescriptionFromHtml(cmd.sample || '') || cmd.description;
-              return (
-                <div
-                  key={cmd.slug}
-                  className="group rounded-xl bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6 overflow-hidden"
-                >
-                  <div className="px-5 py-4 flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <Link href={`/resources/${cmd.slug}` as any}>
-                        <h3 className="text-base font-medium text-black dark:text-white mb-1 hover:text-black/70 dark:hover:text-white/70 transition-colors cursor-pointer">
-                          {cmd.title}
-                        </h3>
-                      </Link>
-                      {description && (
-                        <p className="text-sm text-black/50 dark:text-white/50">
-                          {description}
-                        </p>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => copyToClipboard(code, cmd.slug)}
-                      className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        copiedId === cmd.slug
-                          ? 'bg-black/6 dark:bg-white/8 text-black/60 dark:text-white/60'
-                          : 'bg-black/6 dark:bg-white/8 text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/12'
-                      }`}
-                    >
-                      {copiedId === cmd.slug ? (
-                        <>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                          已复制
-                        </>
-                      ) : (
-                        <>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                          </svg>
-                          复制
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <div className="px-5 py-3 bg-black/3 dark:bg-white/3 border-t border-black/6 dark:border-white/6 overflow-x-auto">
-                    <pre className="text-sm text-black/80 dark:text-white/80 font-mono whitespace-pre-wrap break-all">
-                      <code>{code}</code>
-                    </pre>
-                  </div>
-                </div>
-              );
-            })
-          )}
         </div>
       )}
 
-      {/* 设计组件列表 */}
+      {activeTab === 'commands' && (
+        <div className="mt-16 flex flex-col gap-14">
+          {commandResources.length === 0
+            ? empty('No incantations kept as yet.')
+            : commandResources.map((cmd) => {
+                const code = extractCodeFromHtml(cmd.sample || '');
+                const description = extractDescriptionFromHtml(cmd.sample || '') || cmd.description;
+                return (
+                  <article key={cmd.slug} className="flex flex-col gap-4">
+                    <div className="flex items-start justify-between gap-6">
+                      <div className="flex min-w-0 flex-col gap-2">
+                        <Link href={`/resources/${cmd.slug}` as never} className="ink-link self-start text-[1.5rem] font-semibold tracking-[-0.025em] text-ink">
+                          {cmd.title}
+                        </Link>
+                        {description && <p className="text-[1.0625rem] leading-[1.6] text-ink-body">{description}</p>}
+                      </div>
+                      <CopyButton code={code} id={cmd.slug} />
+                    </div>
+                    <pre className="overflow-x-auto rounded-[10px] bg-[rgba(var(--ink-rgb),0.04)] px-5 py-4 font-mono text-[0.875rem] leading-[1.7] text-ink whitespace-pre-wrap break-all">
+                      <code>{code}</code>
+                    </pre>
+                  </article>
+                );
+              })}
+        </div>
+      )}
+
       {activeTab === 'design' && (
-        <div className="py-6">
+        <div className="mt-16">
           {designResources.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-black/60 dark:text-white/60">暂无设计组件</p>
-            </div>
+            empty('No designs hang upon these walls.')
           ) : (
             <>
-              {/* Tag 筛选 */}
-              {(() => {
-                const allTags = Array.from(new Set(designResources.flatMap(r => r.tags || [])));
-                if (allTags.length === 0) return null;
-                return (
-                  <div className="flex flex-wrap gap-2 mb-6">
+              {designTags.length > 0 && (
+                <div className="mb-10 flex flex-wrap gap-2">
+                  <button type="button" className="pill pill-text-only" aria-pressed={designFilter === null} onClick={() => setDesignFilter(null)}>
+                    All
+                  </button>
+                  {designTags.map((tag) => (
                     <button
-                      onClick={() => setDesignFilter(null)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
-                        designFilter === null
-                          ? 'bg-black dark:bg-white text-white dark:text-black'
-                          : 'bg-black/4 dark:bg-white/6 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
-                      }`}
+                      key={tag}
+                      type="button"
+                      className="pill pill-text-only"
+                      aria-pressed={designFilter === tag}
+                      onClick={() => setDesignFilter(designFilter === tag ? null : tag)}
                     >
-                      全部
+                      {tag}
                     </button>
-                    {allTags.map(tag => (
-                      <button
-                        key={tag}
-                        onClick={() => setDesignFilter(tag)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
-                          designFilter === tag
-                            ? 'bg-black dark:bg-white text-white dark:text-black'
-                            : 'bg-black/4 dark:bg-white/6 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
-                        }`}
-                      >
-                        {tag}
-                      </button>
-                    ))}
-                  </div>
-                );
-              })()}
-              
-              {/* 组件网格 */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  ))}
+                </div>
+              )}
+              <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
                 {designResources
-                  .filter(r => !designFilter || (r.tags || []).includes(designFilter))
+                  .filter((r) => !designFilter || (r.tags || []).includes(designFilter))
                   .map((component) => {
                     const code = extractCodeFromHtml(component.sample || '');
                     const description = extractDescriptionFromHtml(component.sample || '') || component.description;
                     return (
-                      <div
-                        key={component.slug}
-                        className="rounded-2xl bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6 overflow-hidden"
-                      >
-                        {/* 预览区域 - 可点击跳转 */}
+                      <div key={component.slug} className="flex flex-col gap-4">
                         <Link
-                          href={`/resources/${component.slug}` as any}
+                          href={`/resources/${component.slug}` as never}
                           onClickCapture={(e) => {
                             if (shouldBlockPreviewNavigation(e.target)) {
                               e.preventDefault();
                             }
                           }}
-                          className="aspect-square flex items-center justify-center p-6 text-black dark:text-white hover:bg-black/2 dark:hover:bg-white/2 transition-colors block"
+                          className="flex aspect-square items-center justify-center rounded-[12px] bg-[rgba(var(--ink-rgb),0.04)] p-6 text-ink hover:bg-[rgba(var(--ink-rgb),0.07)]"
                         >
-                          {code ? (
-                            <LiveCodeRenderer code={code} />
-                          ) : (
-                            <span className="text-black/30 dark:text-white/30 text-sm">无预览</span>
-                          )}
+                          {code ? <LiveCodeRenderer code={code} /> : <span className="text-[0.9375rem] italic text-ink-3">No likeness</span>}
                         </Link>
-                        {/* 底部信息栏 */}
-                        <div className="px-4 py-3 border-t border-black/6 dark:border-white/6 flex items-center justify-between">
-                          <Link href={`/resources/${component.slug}` as any} className="min-w-0 flex-1">
-                            <h3 className="text-sm font-medium text-black dark:text-white truncate hover:text-black/70 dark:hover:text-white/70 transition-colors">
-                              {component.title}
-                            </h3>
-                            {description && (
-                              <p className="text-xs text-black/40 dark:text-white/40 truncate">
-                                {description}
-                              </p>
-                            )}
+                        <div className="flex items-start justify-between gap-3">
+                          <Link href={`/resources/${component.slug}` as never} className="flex min-w-0 flex-col gap-1">
+                            <h3 className="truncate text-[1.125rem] font-semibold tracking-[-0.02em] text-ink">{component.title}</h3>
+                            {description && <p className="truncate text-[0.9375rem] text-ink-3">{description}</p>}
                           </Link>
-                          <button
-                            onClick={() => copyToClipboard(code, component.slug)}
-                            className={`p-2 rounded-full transition-colors shrink-0 ml-2 ${
-                              copiedId === component.slug
-                                ? 'text-black/40 dark:text-white/40'
-                                : 'text-black/50 dark:text-white/50 hover:bg-black/6 dark:hover:bg-white/8'
-                            }`}
-                            title={copiedId === component.slug ? '已复制' : '复制代码'}
-                          >
-                            {copiedId === component.slug ? (
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <polyline points="20 6 9 17 4 12" />
-                              </svg>
-                            ) : (
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                              </svg>
-                            )}
-                          </button>
+                          <CopyButton code={code} id={component.slug} compact />
                         </div>
                       </div>
                     );

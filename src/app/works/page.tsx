@@ -7,13 +7,14 @@ import WorksNavigator from '@/components/WorksNavigator';
 import { GitHubStatsHeader } from '@/components/GitHubStatsDisplay';
 import { RepoStatsValue } from '@/components/RepoStatsValue';
 import React from 'react';
+import { ArrowUpRight, Code2 } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: '作品 - Shuakami',
-  description: '我做的一些有趣的东西，获得了 476 颗星标，7000+ 人在用',
+  title: 'Works',
+  description: 'Things made by Shuakami, starred four hundred times and used by seven thousand souls.',
   openGraph: {
-    title: '作品 - Shuakami',
-    description: '我做的一些有趣的东西，获得了 476 颗星标，7000+ 人在用',
+    title: 'Works',
+    description: 'Things made by Shuakami, starred four hundred times and used by seven thousand souls.',
   },
 };
 
@@ -44,9 +45,9 @@ interface Work {
 const works: Work[] = [
   {
     title: 'Uapi',
-    description: '这是一个免费API项目，目前已经有77个接口。其中包含10个商业接口。项目使用了Go/Next.js进行全栈构建，使用了自研的限流器。包含一些QQ头像、名称，QQ群信息的独家api接口。',
+    description: 'A free API with seven and seventy endpoints, ten of them fit for commerce. Built end to end in Go and Next.js, guarded by a rate limiter of mine own making, and home to some endpoints for QQ avatars, names and groups found nowhere else.',
     tags: ['Go', 'Next.js', 'API', 'Full Stack'],
-    year: '2024 - 至今',
+    year: '2024 onward',
     previews: [
       <ProjectBanner
         key="uapipro"
@@ -71,48 +72,48 @@ const works: Work[] = [
     ranking: 'https://cn.bing.com/search?q=%E5%85%8D%E8%B4%B9api',
     opensource: false,
     stats: [
-      { label: 'API 调用量', value: '1850万+' },
-      { label: '服务用户', value: '7,400+' },
-      { label: '接口数量', value: '77个' }
+      { label: 'Calls answered', value: '18.5M+' },
+      { label: 'Users served', value: '7,400+' },
+      { label: 'Endpoints', value: '77' }
     ],
-    highlights: ['必应搜索"免费API"排名第5', '独家QQ头像名称API', '自研限流器', '商业级接口']
+    highlights: ['Fifth on Bing for "免费API"', 'Exclusive QQ avatar and name API', 'Home-made rate limiter', 'Commercial grade endpoints']
   },
   {
     title: 'QQ Chat Exporter',
-    description: 'QQ聊天记录导出工具，支持聊天记录和表情包导出。可以导出消息图片、文字，支持导出为TXT/JSON/HTML等多种格式。支持最新版的NTQQ，而且有很美观的UI界面，对新手很友好。',
+    description: 'Rescueth QQ chat history, stickers and all, from the newest NTQQ. Messages, images and words go out as TXT, JSON or HTML, through an interface fair enough that a novice need fear nothing.',
     repo: 'shuakami/qq-chat-exporter',
     tags: ['TypeScript', 'Agent', 'React', 'Node.js'],
-    year: '2025 - 至今',
+    year: '2025 onward',
     preview: 'https://uapis.cn/static/uploads/9b40136f08_slabUbc1YxgT.webp',
     website: 'https://qce.sdjz.wiki',
     stats: [
       { label: 'GitHub Stars', value: <RepoStatsValue repoName="qq-chat-exporter" type="stars" fallback={338} /> },
       { label: 'GitHub Forks', value: <RepoStatsValue repoName="qq-chat-exporter" type="forks" fallback={20} /> },
-      { label: '支持格式', value: '3种' }
+      { label: 'Formats', value: '3' }
     ],
-    highlights: ['支持NTQQ', '美观UI界面', '新手友好']
+    highlights: ['Speaks NTQQ', 'A handsome interface', 'Kind to beginners']
   },
   {
     title: 'Ciallo Agent',
-    description: '自主 AI 代理框架，专门用于处理 GitHub Issue。它能够自动分析问题、定位代码、提供解决方案、甚至直接提交 PR。不是简单的聊天机器人，而是真正能独立思考和行动的智能系统。你只需要提出问题，Ciallo 会自主分析、验证、调整和执行，直到问题解决。',
+    description: 'An autonomous agent sworn to GitHub issues. It readeth the complaint, findeth the guilty code, proposeth a remedy and openeth the pull request itself. No mere chatterbox: pose the question, and Ciallo will reason, test, amend and act until the matter is mended.',
     tags: ['AI Agent', 'GitHub', 'Automation', 'Next.js'],
-    year: '2025 - 至今',
+    year: '2025 onward',
     website: 'https://agent.sdjz.wiki',
     opensource: false,
     customBanner: <CialloParticleBanner />,
     stats: [
-      { label: '核心能力', value: '自主决策' },
-      { label: '应用场景', value: 'GitHub Issue' },
-      { label: '智能程度', value: '完全自主' }
+      { label: 'Judgement', value: 'Its own' },
+      { label: 'Domain', value: 'Issues' },
+      { label: 'Autonomy', value: 'Whole' }
     ],
-    highlights: ['自动分析并解决 Issue', '直接提交 PR', '支持配置知识库', '7x24 小时在线']
+    highlights: ['Analyseth and solveth issues', 'Openeth pull requests', 'Configurable knowledge', 'Waketh at every hour']
   },
   {
     title: 'THE FINALS Bot',
-    description: '《THE FINALS》游戏的全功能多平台机器人，采用高度解耦的插件化架构。自研 PluginCore 插件系统，针对腾讯的 qqbotpy 做了完整的 messageAPI 封装，实现了独特的多提供商抽象层。浏览器池化和截图系统让图片生成速度达到 100ms。支持 QQ、QQ频道、HeyBox、Kook 四个平台，提供玩家数据、排行榜、武器统计等功能。',
+    description: 'A bot for THE FINALS that serveth four masters: QQ, QQ Channels, HeyBox and Kook. Beneath it lieth PluginCore, a loosely joined plugin system of mine own, a full wrapper over Tencent qqbotpy, and a pooled browser that paints its images in a hundred milliseconds. It telleth of players, leaderboards and weapons.',
     repo: 'xiaoyueyoqwq/thefinals_qqbot',
     tags: ['Python', 'FastAPI', 'Redis', 'Docker', 'Plugin System'],
-    year: '2024 - 至今',
+    year: '2024 onward',
     previews: [
       <ProjectBanner
         key="thefinals"
@@ -125,16 +126,16 @@ const works: Work[] = [
       'https://uapis.cn/static/uploads/9b401604de_pyzc3urW3gpg.webp'
     ],
     stats: [
-      { label: '图片生成', value: '100ms' },
-      { label: '支持平台', value: '4个' },
-      { label: '架构模式', value: '插件化' },
-      { label: '月消息量', value: '4400+' }
+      { label: 'To paint an image', value: '100ms' },
+      { label: 'Platforms', value: '4' },
+      { label: 'Architecture', value: 'Plugins' },
+      { label: 'Messages a month', value: '4,400+' }
     ],
-    highlights: ['插件化架构', 'messageAPI 封装', '多提供商支持', '浏览器池化', '极速图片生成']
+    highlights: ['Plugin architecture', 'messageAPI wrapper', 'Many providers', 'Pooled browsers', 'Swift images']
   },
   {
     title: 'AmyAlmond Bot',
-    description: '基于 ChatGPT 的智能QQ聊天机器人，专为 QQ 群聊设计。支持多语言对话、上下文感知、长期记忆管理和高级自动化任务，让群聊变得更智能有趣。',
+    description: 'A ChatGPT companion for QQ groups, that speaketh many tongues, remembereth what was said long ago, and runneth errands unbidden, so that the chatter groweth wiser and merrier.',
     repo: 'shuakami/amyalmond_bot',
     tags: ['Python', 'ChatGPT', 'NLP', 'AI'],
     year: '2024',
@@ -145,51 +146,51 @@ const works: Work[] = [
     stats: [
       { label: 'GitHub Stars', value: <RepoStatsValue repoName="amyalmond_bot" type="stars" fallback={33} /> },
       { label: 'GitHub Forks', value: <RepoStatsValue repoName="amyalmond_bot" type="forks" fallback={4} /> },
-      { label: '支持', value: '任意大模型' }
+      { label: 'Models', value: 'Any' }
     ],
-    highlights: ['极其智能', '长期记忆管理', '多语言支持']
+    highlights: ['Uncommonly clever', 'Long memory', 'Many tongues']
   },
   {
     title: 'Vaiiya',
-    description: '一家基于《THE FINALS》游戏的虚拟公司网站，我参与了网站的制作。使用Framer Motion实现了流畅的帧动画滚动效果，配合Three.js打造沉浸式粒子背景，为用户带来极具视觉冲击力的交互体验。',
+    description: 'The house of a fictional company from THE FINALS, which I helped to build. Framer Motion driveth its frame by frame scrolling, and Three.js raiseth a storm of particles behind, that the eye be struck at every turn.',
     tags: ['Next.js', 'Framer Motion', 'Three.js', 'Animation'],
-    year: '2024 - 至今',
+    year: '2024 onward',
     preview: 'https://uapis.cn/static/uploads/9b40181453_U9KJYRA5abMn.webp',
     website: 'https://vaiiya.org/',
     opensource: false,
     stats: [
-      { label: '帧动画技术', value: 'Apple级' },
-      { label: '物理效果', value: '完美阻尼' },
-      { label: '性能', value: '0卡顿' }
+      { label: 'Frame animation', value: 'Fine' },
+      { label: 'Damping', value: 'True' },
+      { label: 'Stutter', value: 'None' }
     ],
-    highlights: ['Framer Motion 帧动画', 'Three.js 粒子效果', 'THE FINALS 主题设计']
+    highlights: ['Framer Motion frames', 'Three.js particles', 'THE FINALS livery']
   },
   {
     title: 'Clipzy',
-    description: '极其极简、精致的在线剪切板。它还可以当图床、短链接。速度极致，动画轻巧，每个细节都做的恰到好处。',
+    description: 'A clipboard upon the web, spare and exquisite, that serveth also as image host and link shortener. Swift beyond reason, light of motion, and every detail set where it belongeth.',
     tags: ['Next.js', 'React', 'UI/UX', 'Web App'],
-    year: '2024 - 至今',
+    year: '2024 onward',
     preview: 'https://uapis.cn/static/uploads/9b401844e1_ODeri7SLeH4p.webp',
     website: 'https://paste.sdjz.wiki/',
     ranking: 'https://cn.bing.com/search?q=%E5%9C%A8%E7%BA%BF%E5%89%AA%E5%88%87%E6%9D%BF',
     opensource: false,
     stats: [
-      { label: '功能', value: '3合1' },
-      { label: '性能', value: '极致' },
-      { label: '设计', value: '精致' }
+      { label: 'Uses', value: 'Three in one' },
+      { label: 'Speed', value: 'Fierce' },
+      { label: 'Finish', value: 'Fine' }
     ],
-    highlights: ['必应搜索"在线剪切板"排名第6', '极致性能', '精致动画', '多功能']
+    highlights: ['Sixth on Bing for "在线剪切板"', 'Fierce performance', 'Delicate motion', 'Many uses']
   },
   {
     title: 'MCP Mail Tool',
-    description: '基于MCP协议的智能邮件管理工具，为AI提供邮件操作能力。支持自动分类、智能回复、邮件搜索，让AI帮你处理邮件，大幅提升工作效率。',
+    description: 'An MCP server that lendeth AI the power of the post. It sorteth, answereth and searcheth thy mail, that the machine may bear the burden of the inbox in thy stead.',
     repo: 'shuakami/mcp-mail',
     tags: ['TypeScript', 'Email', 'AI', 'Productivity'],
-    year: '2025 - 至今',
+    year: '2025 onward',
     customBanner: (
       <ProjectBanner
         title="MCP Mail Tool"
-        description="基于MCP协议的智能邮件管理工具"
+        description="Mail, managed by the machine"
         icon={
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
@@ -203,20 +204,20 @@ const works: Work[] = [
     stats: [
       { label: 'GitHub Stars', value: <RepoStatsValue repoName="mcp-mail" type="stars" fallback={40} /> },
       { label: 'GitHub Forks', value: <RepoStatsValue repoName="mcp-mail" type="forks" fallback={6} /> },
-      { label: 'MCP协议', value: '支持' }
+      { label: 'Protocol', value: 'MCP' }
     ],
-    highlights: ['AI驱动邮件', '智能分类', '自动回复']
+    highlights: ['AI at the post', 'Clever sorting', 'Replies unbidden']
   },
   {
     title: 'SSH MCP Tool',
-    description: '基于MCP协议的SSH管理工具，为AI提供SSH远程操作能力。支持多服务器管理、命令执行、文件传输，让AI也能管理服务器，对DevOps很有帮助。',
+    description: 'An MCP server that giveth AI the keys to SSH. It keepeth many servers, runneth commands and carrieth files between them, a faithful steward for those who toil at operations.',
     repo: 'shuakami/mcp-ssh',
     tags: ['TypeScript', 'SSH', 'DevOps', 'Automation'],
-    year: '2025 - 至今',
+    year: '2025 onward',
     customBanner: (
       <ProjectBanner
         title="SSH MCP Tool"
-        description="基于MCP协议的SSH管理工具"
+        description="Servers, kept by the machine"
         icon={
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="4 17 10 11 4 5"/>
@@ -231,13 +232,13 @@ const works: Work[] = [
     stats: [
       { label: 'GitHub Stars', value: <RepoStatsValue repoName="mcp-ssh" type="stars" fallback={30} /> },
       { label: 'GitHub Forks', value: <RepoStatsValue repoName="mcp-ssh" type="forks" fallback={5} /> },
-      { label: 'MCP协议', value: '支持' }
+      { label: 'Protocol', value: 'MCP' }
     ],
-    highlights: ['AI驱动SSH', 'Tmux集成', 'DevOps自动化']
+    highlights: ['AI at the terminal', 'Tmux within', 'Operations, automated']
   },
   {
     title: 'kkp',
-    description: '一键杀端口的跨平台CLI工具。开发时经常遇到端口被占用？kkp 让你用一条命令快速解决。支持 Windows/macOS/Linux，极简设计，零配置即用。',
+    description: 'A small assassin for occupied ports. When a port is held against thee, one command from kkp shall free it, on Windows, macOS or Linux alike, with nothing to configure.',
     repo: 'shuakami/kkp',
     tags: ['TypeScript', 'CLI', 'Cross-platform', 'DevTools'],
     year: '2025',
@@ -246,9 +247,9 @@ const works: Work[] = [
     stats: [
       { label: 'GitHub Stars', value: <RepoStatsValue repoName="kkp" type="stars" fallback={5} /> },
       { label: 'GitHub Forks', value: <RepoStatsValue repoName="kkp" type="forks" fallback={0} /> },
-      { label: '支持平台', value: '3个' }
+      { label: 'Platforms', value: '3' }
     ],
-    highlights: ['一键杀端口', '跨平台支持', '零配置']
+    highlights: ['Slayeth ports in one blow', 'Every platform', 'Nothing to configure']
   },
 ];
 
@@ -269,199 +270,116 @@ function getSocialifyUrl(repo: string) {
   return `https://socialify.git.ci/${repo}/image?${params.toString()}`;
 }
 
+function workHref(work: Work) {
+  return work.website || (work.repo ? `https://github.com/${work.repo}` : undefined);
+}
+
 export default function WorksPage() {
   return (
-    <div className="max-w-4xl mx-auto px-6 sm:px-8 md:px-6 py-12 sm:py-16 md:py-24">
-      {/* 页面标题 */}
-      <header className="mb-12 sm:mb-16">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-black dark:text-white mb-3 sm:mb-4">
-          作品
-        </h1>
+    <div className="mx-auto w-full max-w-[64rem] px-6 pb-8 pt-14 md:px-12 md:pt-28">
+      <header className="max-w-[46rem]">
+        <h1 className="display text-[clamp(3rem,5vw,5rem)]">Works</h1>
         <GitHubStatsHeader />
-        <div className="w-12 sm:w-16 h-[2px] bg-black dark:bg-white" />
       </header>
 
-      {/* 作品列表 */}
-      <div className="space-y-0">
-            {works.map((work, index) => {
-              const workId = work.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
-              return (
-              <article 
-                key={index}
-                id={workId}
-                data-work-index={index}
-                className="group py-8 sm:py-12 md:py-16 border-b border-black/6 dark:border-white/6 last:border-0 scroll-mt-24"
-              >
-            {/* 项目预览图 */}
-            {work.customBanner ? (
-              // 使用自定义渐变背景Banner（不包裹链接）
-              <div className="relative aspect-video sm:aspect-2/1 mb-6 sm:mb-8 md:-mx-8">
-                {work.customBanner}
-              </div>
-            ) : (
-                <a
-                href={work.website || (work.repo ? `https://github.com/${work.repo}` : '#')}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block mb-6 sm:mb-8 md:-mx-8"
-                >
-                {/* 使用传统图片/轮播 */}
-                <div className="relative aspect-video sm:aspect-2/1 rounded-lg overflow-hidden bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6">
-                  {work.previews && work.previews.length > 0 ? (
-                    <ImageCarousel
-                      images={work.previews}
-                      alt={work.title}
-                      priority={index < 2}
-                    />
+      <div className="mt-24 flex flex-col">
+        {works.map((work, index) => {
+          const workId = work.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+          const href = workHref(work);
+          return (
+            <React.Fragment key={work.title}>
+              {index > 0 && <span className="hedera mx-auto my-24 text-[1.5rem] text-ink-3" aria-hidden />}
+              <article id={workId} data-work-index={index} className="scroll-mt-24">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8">
+                  <h2 className="display text-[clamp(2.25rem,3.4vw,3.5rem)]">{work.title}</h2>
+                  <span className="shrink-0 text-[1.0625rem] italic text-ink-3">{work.year}</span>
+                </div>
+
+                <div className="mt-8 overflow-hidden rounded-[12px] bg-[rgba(var(--ink-rgb),0.04)]">
+                  {work.customBanner ? (
+                    <div className="relative aspect-video sm:aspect-2/1">{work.customBanner}</div>
                   ) : (
-                      <Image
-                      src={work.preview || (work.repo ? getSocialifyUrl(work.repo) : '/placeholder.png')}
-                        alt={work.title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1200px) 80vw, 1200px"
-                        className="object-cover"
-                      quality={95}
-                        priority={index < 2}
-                      unoptimized={!!work.preview}
-                      />
+                    <a href={href ?? '#'} target="_blank" rel="noopener noreferrer" className="relative block aspect-video sm:aspect-2/1">
+                      {work.previews && work.previews.length > 0 ? (
+                        <ImageCarousel images={work.previews} alt={work.title} priority={index < 2} />
+                      ) : (
+                        <Image
+                          src={work.preview || (work.repo ? getSocialifyUrl(work.repo) : '/placeholder.png')}
+                          alt={work.title}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 64rem"
+                          className="object-cover"
+                          quality={95}
+                          priority={index < 2}
+                          unoptimized={!!work.preview}
+                        />
+                      )}
+                    </a>
                   )}
-                    </div>
-              </a>
-            )}
-
-            {/* 项目信息 */}
-            <div className="space-y-4 sm:space-y-5">
-              {/* 标题和年份 */}
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-medium text-black dark:text-white mb-2 sm:mb-2">
-                        {work.title}
-                      </h2>
-                  <p className="text-sm sm:text-base text-black/60 dark:text-white/60 leading-relaxed">
-                    {work.description}
-                  </p>
                 </div>
-                <span className="text-xs sm:text-sm text-black/40 dark:text-white/40 shrink-0 sm:mt-1">
-                        {work.year}
-                      </span>
-                    </div>
-                    
-              {/* 项目数据统计 + 按钮 */}
-              {work.stats && work.stats.length > 0 && (
-                <div className="rounded-lg sm:rounded-xl bg-black/2 dark:bg-white/2 px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-5 md:gap-6">
-                    {/* 左侧数据 */}
-                    <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 sm:gap-y-4 md:gap-x-8 lg:gap-x-12">
-                      {work.stats.map((stat, i) => (
-                        <div key={i} className="space-y-0.5 sm:space-y-1 min-w-0">
-                          <h4 className="text-xl sm:text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">
-                            {stat.value}
-                          </h4>
-                          <p className="text-xs sm:text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">
-                            {stat.label}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* 右侧主要按钮 */}
-                    <div className="flex flex-col gap-2 md:items-end md:shrink-0 w-full sm:w-auto md:w-auto">
-                      {work.website && (
-                        <a
-                          href={work.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:bg-black/80 dark:hover:bg-white/80 active:bg-black/70 dark:active:bg-white/70 transition-colors whitespace-nowrap w-full sm:w-auto"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                          </svg>
-                          访问官网
-                        </a>
-                      )}
-                      {work.repo && !work.website && (
-                        <a
-                          href={`https://github.com/${work.repo}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2.5 md:py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:bg-black/80 dark:hover:bg-white/80 active:bg-black/70 dark:active:bg-white/70 transition-colors whitespace-nowrap w-full sm:w-auto"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                          </svg>
-                          查看源码
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
 
-              {/* 核心亮点 */}
-              {work.highlights && work.highlights.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                  {work.highlights.map((highlight, i) => {
-                    // 如果是第一个亮点且有排名链接，做成可点击的
-                    if (i === 0 && work.ranking && highlight.includes('排名')) {
-                      return (
-                        <a
-                          key={i}
-                          href={work.ranking}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md bg-black/6 dark:bg-white/8 text-black dark:text-white font-medium hover:bg-black/10 dark:hover:bg-white/12 active:bg-black/[0.14] dark:active:bg-white/16 transition-colors cursor-pointer"
-                        >
-                          <svg width="10" height="10" viewBox="0 0 16 16" fill="#EAB308" className="sm:w-3 sm:h-3 shrink-0">
-                            <path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/>
-                          </svg>
-                          <span className="break-all">{highlight}</span>
-                          <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" className="opacity-50 sm:w-3 sm:h-3 shrink-0">
-                            <path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"/>
-                          </svg>
-                        </a>
-                      )
-                    }
-                    // 其他亮点 - 只有第一个显示黄色星星
-                    return (
-                      <span
-                        key={i}
-                        className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md bg-black/6 dark:bg-white/8 text-black dark:text-white font-medium"
-                      >
-                        {i === 0 && !work.ranking && (
-                          <svg width="10" height="10" viewBox="0 0 16 16" fill="#EAB308" className="sm:w-3 sm:h-3 shrink-0">
-                            <path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/>
-                          </svg>
-                        )}
-                        <span className="break-all">{highlight}</span>
-                      </span>
-                    )
-                  })}
-                </div>
-              )}
+                <div className="mt-10 grid gap-10 md:grid-cols-[minmax(0,1fr)_16rem] md:gap-16">
+                  <div className="flex flex-col gap-8">
+                    <p className="dropcap text-[1.25rem] leading-[1.65] tracking-[-0.012em] text-ink-body">{work.description}</p>
 
-              {/* 技术标签 */}
-                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                    {work.highlights && work.highlights.length > 0 && (
+                      <p className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[1.0625rem] font-medium italic text-ink">
+                        {work.highlights.map((h, i) => (
+                          <span key={h} className="inline-flex items-center gap-3">
+                            {i === 0 && work.ranking ? (
+                              <a href={work.ranking} target="_blank" rel="noopener noreferrer" className="ink-link">
+                                {h}
+                              </a>
+                            ) : (
+                              h
+                            )}
+                            {i < work.highlights!.length - 1 && <span className="lozenge text-ink-3" aria-hidden />}
+                          </span>
+                        ))}
+                      </p>
+                    )}
+
+                    <p className="caps flex flex-wrap gap-x-4 gap-y-1">
                       {work.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 sm:px-2.5 py-1 text-xs rounded-md bg-black/4 dark:bg-white/6 text-black/50 dark:text-white/50"
-                        >
-                          {tag}
-                        </span>
+                        <span key={tag}>{tag}</span>
                       ))}
-                    </div>
+                    </p>
                   </div>
-              </article>
-              );
-            })}
-          </div>
 
-      {/* 右侧导航光刻标 */}
-      <WorksNavigator 
-        workCount={works.length}
-        workTitles={works.map(work => work.title)}
-      />
+                  <aside className="flex flex-col gap-8">
+                    {work.stats && work.stats.length > 0 && (
+                      <dl className="grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-1">
+                        {work.stats.map((stat) => (
+                          <div key={stat.label} className="flex flex-col gap-1.5">
+                            <dd className="text-[2rem] font-bold leading-none tracking-[-0.04em] text-ink">{stat.value}</dd>
+                            <dt className="text-[0.9375rem] italic text-ink-3">{stat.label}</dt>
+                          </div>
+                        ))}
+                      </dl>
+                    )}
+                    <div className="flex flex-wrap gap-2">
+                      {work.website && (
+                        <a href={work.website} target="_blank" rel="noopener noreferrer" className="pill">
+                          <ArrowUpRight className="h-4 w-4" strokeWidth={1.75} />
+                          <span>Visit</span>
+                        </a>
+                      )}
+                      {work.repo && (
+                        <a href={`https://github.com/${work.repo}`} target="_blank" rel="noopener noreferrer" className="pill">
+                          <Code2 className="h-4 w-4" strokeWidth={1.75} />
+                          <span>Source</span>
+                        </a>
+                      )}
+                    </div>
+                  </aside>
+                </div>
+              </article>
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      <WorksNavigator workCount={works.length} workTitles={works.map((work) => work.title)} />
     </div>
   );
-} 
+}

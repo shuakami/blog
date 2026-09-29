@@ -6,11 +6,11 @@ import ResourcesClient from '@/components/ResourcesClient';
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: '资源 - Shuakami',
-  description: '我分享的各种实用资源和数据集',
+  title: 'Resources',
+  description: 'Things gathered and found useful, freely given.',
   openGraph: {
-    title: '资源 - Shuakami',
-    description: '我分享的各种实用资源和数据集',
+    title: 'Resources',
+    description: 'Things gathered and found useful, freely given.',
   },
 };
 

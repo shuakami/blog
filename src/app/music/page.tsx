@@ -4,9 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Pause, Play, SkipBack, SkipForward, Maximize2 } from 'lucide-react';
-import { Arc } from 'loading-dev';
 
 import type { UnifiedSong } from '@/lib/types';
+import { Arc } from 'loading-dev';
 import { useMusicPlayer } from '@/hooks/use-music-player';
 import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 

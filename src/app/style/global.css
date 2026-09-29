@@ -24,8 +24,9 @@
   --surface-raised: #fbfaf7;
   --ink: #73574a;
   --ink-rgb: 115, 87, 74;
-  --ink-2: rgba(154, 145, 138, 0.9);
-  --ink-3: rgba(154, 145, 138, 0.6);
+  --ink-body: #6e6059;
+  --ink-2: rgba(140, 128, 120, 0.95);
+  --ink-3: rgba(140, 128, 120, 0.62);
   --ink-input: #7e756c;
   --line: rgba(115, 87, 74, 0.1);
   --line-soft: rgba(115, 87, 74, 0.06);
@@ -47,8 +48,9 @@
     0 2px 6px rgba(115, 87, 74, 0.1);
 
   --ease-out-quint: cubic-bezier(0.2, 0, 0, 1);
-  --rail-w: 232px;
-  --column-w: 560px;
+  --rail-w: 16rem;
+  --column-w: 44rem;
+  --column-wide-w: 72rem;
 
   /* shadcn compat, remapped to the warm palette */
   --background: 43 24% 96%;
@@ -79,6 +81,7 @@
   --surface-raised: #221a16;
   --ink: #f2c7a2;
   --ink-rgb: 242, 199, 162;
+  --ink-body: rgba(236, 220, 204, 0.86);
   --ink-2: rgba(232, 214, 196, 0.72);
   --ink-3: rgba(232, 214, 196, 0.42);
   --ink-input: #d9c2ad;
@@ -134,6 +137,7 @@ body {
 }
 
 html {
+  font-size: clamp(16px, calc(0.42vw + 10.4px), 20px);
   background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
@@ -150,9 +154,9 @@ body {
   font-weight: 500;
   font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1, 'cv05' 1;
   font-variant-numeric: tabular-nums;
-  font-size: 14px;
-  line-height: 1.2;
-  letter-spacing: -0.25px;
+  font-size: 1rem;
+  line-height: 1.3;
+  letter-spacing: -0.011em;
   background: var(--bg);
   color: var(--ink);
 }
@@ -237,9 +241,9 @@ html.dark-scrollbar {
     align-items: center;
     justify-content: center;
     gap: 4px;
-    min-height: 29px;
-    padding: 6px 12px 6px 10px;
-    font-size: 14px;
+    min-height: 2.125rem;
+    padding: 0.4rem 0.85rem 0.4rem 0.7rem;
+    font-size: 0.9375rem;
     line-height: 1.2;
     font-weight: 500;
     letter-spacing: -0.25px;
@@ -270,30 +274,29 @@ html.dark-scrollbar {
     background: var(--surface-raised);
   }
   .pill.pill-icon {
-    padding: 6px;
-    width: 29px;
+    padding: 0.4rem;
+    width: 2.125rem;
   }
   .pill.pill-text-only {
-    padding-left: 12px;
+    padding-left: 0.85rem;
   }
   .pill.pill-mono {
     font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 13px;
+    font-size: 0.875rem;
   }
 
   /* Mono chip, the inline code token used outside of prose. */
   .chip {
     display: inline-flex;
     align-items: center;
-    height: 22px;
-    padding: 0 7px;
+    height: 1.625rem;
+    padding: 0 0.55rem;
     font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 12px;
+    font-size: 0.8125rem;
     letter-spacing: 0;
     color: var(--ink);
-    background: var(--surface);
-    border-radius: 5px;
-    box-shadow: 0 0 0 1px var(--line);
+    background: rgba(var(--ink-rgb), 0.055);
+    border-radius: 6px;
     white-space: nowrap;
   }
 
@@ -366,70 +369,135 @@ html.dark-scrollbar {
   max-width: var(--column-w);
 }
 .site-column-wide {
-  max-width: 1120px;
+  max-width: var(--column-wide-w);
 }
 
-/* Rail nav rows: text-only, the active row gets a mono index marker. */
-.rail-link {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 3px 0;
-  color: var(--ink-2);
-  transition: color 300ms var(--ease-out-quint);
+/* Printer's ornaments. The hedera is drawn from /ornaments/hedera.svg as a mask so it takes the ink colour. */
+.hedera {
+  display: inline-block;
+  width: 2.4em;
+  height: 1.5em;
+  flex: none;
+  background: currentColor;
+  -webkit-mask: url('/ornaments/hedera.svg') center / contain no-repeat;
+  mask: url('/ornaments/hedera.svg') center / contain no-repeat;
 }
-.rail-link:hover,
+.hedera-flip {
+  transform: scaleX(-1);
+}
+.lozenge {
+  display: inline-block;
+  width: 0.34em;
+  height: 0.34em;
+  flex: none;
+  background: currentColor;
+  transform: rotate(45deg);
+  opacity: 0.55;
+}
+
+/* Display type: Inter pushed hard, tight and heavy. */
+.display {
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.caps {
+  font-size: 0.75rem;
+  font-weight: 550;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.italic-ink {
+  font-style: italic;
+  font-weight: 450;
+}
+.text-ink-body {
+  color: var(--ink-body);
+}
+
+/* Drop cap for the opening paragraph of any prose block. */
+.dropcap::first-letter {
+  float: left;
+  font-size: 4.4em;
+  line-height: 0.82;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  margin: 0.06em 0.12em 0 -0.02em;
+  color: var(--ink);
+  font-style: normal;
+}
+
+/* Rail nav: plain words, the current page is set in italic and gains a leaf. */
+.rail-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.3rem 0;
+  font-size: 1.0625rem;
+  color: var(--ink-2);
+  transition:
+    color 300ms var(--ease-out-quint),
+    transform 300ms var(--ease-out-quint);
+}
+.rail-link .hedera {
+  width: 1.5rem;
+  height: 0.95rem;
+  opacity: 0;
+  margin-left: -2.1rem;
+  transform: translateX(-4px);
+  transition:
+    opacity 300ms var(--ease-out-quint),
+    transform 300ms var(--ease-out-quint);
+}
+.rail-link:hover {
+  color: var(--ink);
+}
 .rail-link[data-active='true'] {
   color: var(--ink);
+  font-style: italic;
+  font-weight: 550;
 }
-.rail-link .rail-index {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 11px;
-  color: var(--ink-3);
-  width: 16px;
-  flex: none;
-  transition: color 300ms var(--ease-out-quint);
-}
-.rail-link[data-active='true'] .rail-index {
-  color: var(--ink);
+.rail-link[data-active='true'] .hedera {
+  opacity: 1;
+  transform: none;
 }
 
-/* Post rows on the index page. */
+/* Rows of writing: a title and a date, nothing more. */
 .post-row {
   display: grid;
-  grid-template-columns: 1fr auto;
-  column-gap: 16px;
-  row-gap: 6px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1.5rem;
   align-items: baseline;
-  padding: 12px 0;
+  padding: 0.7rem 0;
 }
 .post-row .post-title {
   color: var(--ink);
-  font-weight: 500;
-  transition: color 300ms var(--ease-out-quint);
+  font-size: 1.1875rem;
+  font-weight: 550;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+  transition:
+    color 300ms var(--ease-out-quint),
+    transform 300ms var(--ease-out-quint);
 }
 .post-row .post-date {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 12px;
+  font-size: 0.9375rem;
+  font-style: italic;
+  font-weight: 450;
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   transition: color 300ms var(--ease-out-quint);
 }
-.post-row .post-excerpt {
-  grid-column: 1 / -1;
-  color: var(--ink-2);
-  line-height: 1.5;
-  font-weight: 450;
-}
-.post-row:hover .post-title {
+.post-row:hover .post-date {
   color: var(--ink);
 }
-.post-row:hover .post-date {
-  color: var(--ink-2);
-}
 
-/* Reveal: staggered rise, driven by --i. */
+/* Reveal: staggered rise, driven by --i. The index page holds still. */
 @keyframes rise {
   from {
     opacity: 0;
@@ -437,7 +505,7 @@ html.dark-scrollbar {
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 .rise {

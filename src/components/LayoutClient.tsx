@@ -14,6 +14,7 @@ interface LayoutClientProps {
 
 const FULLSCREEN = ['/games', '/designs'];
 const WIDE = ['/works', '/music', '/resources', '/friends', '/search'];
+const NO_FOOTER = ['/music'];
 
 const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -22,6 +23,7 @@ export function LayoutClient({ children, navItems, siteName = 'Shuakami' }: Layo
   const pathname = usePathname() ?? '/';
   const isFullscreen = matches(pathname, FULLSCREEN);
   const isWide = matches(pathname, WIDE);
+  const showFooter = !matches(pathname, NO_FOOTER);
 
   if (isFullscreen) {
     return <main className="relative min-h-dvh w-full">{children}</main>;
@@ -33,7 +35,7 @@ export function LayoutClient({ children, navItems, siteName = 'Shuakami' }: Layo
       <TopBar navItems={navItems} siteName={siteName} />
       <div className="md:pl-(--rail-w)">
         <main className="relative w-full">{children}</main>
-        <Footer wide={isWide} />
+        {showFooter && <Footer wide={isWide} />}
       </div>
     </div>
   );

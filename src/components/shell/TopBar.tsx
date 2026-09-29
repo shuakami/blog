@@ -35,12 +35,12 @@ export function TopBar({ navItems, siteName }: TopBarProps) {
   return (
     <>
       <header className="sticky top-0 z-40 flex h-14 items-center justify-between bg-bg/85 px-5 backdrop-blur md:hidden">
-        <Link href="/" className="text-[14px] font-medium text-ink">
+        <Link href="/" className="text-[1.125rem] font-bold tracking-[-0.04em] text-ink">
           {siteName}
         </Link>
         <div className="flex items-center gap-2">
           <Link href="/search" className="pill pill-icon" aria-label="Search">
-            <Search className="h-3.5 w-3.5" strokeWidth={1.75} />
+            <Search className="h-4 w-4" strokeWidth={1.75} />
           </Link>
           <ThemeToggle />
           <button
@@ -77,11 +77,11 @@ export function TopBar({ navItems, siteName }: TopBarProps) {
                   transition={{ duration: 0.45, ease: EASE, delay: i * 0.035 }}
                 >
                   <Link
-                    href={item.href}
+                    href={item.href as never}
                     data-active={isActivePath(pathname, item.href)}
-                    className="rail-link py-2 text-[22px] tracking-[-0.5px]"
+                    className="rail-link ml-9 py-1.5 text-[2rem] font-semibold tracking-[-0.03em]"
                   >
-                    <span className="rail-index">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="hedera" aria-hidden />
                     <span>{item.label}</span>
                   </Link>
                 </motion.div>

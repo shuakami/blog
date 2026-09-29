@@ -1,7 +1,5 @@
 import Link from 'next/link';
-import type { ReactNode } from 'react';
-import { Mail } from 'lucide-react';
-import type { SVGProps } from 'react';
+import type { ReactNode, SVGProps } from 'react';
 
 const Github = (props: SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden {...props}>
@@ -9,10 +7,13 @@ const Github = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const ICONS = {
-  github: Github,
-  mail: Mail,
-} as const;
+const Mail = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden {...props}>
+    <path d="M1.75 2A1.75 1.75 0 0 0 0 3.75v.41l8 4.8 8-4.8v-.41A1.75 1.75 0 0 0 14.25 2H1.75ZM16 5.9l-7.61 4.57a.75.75 0 0 1-.78 0L0 5.9v6.35C0 13.22.78 14 1.75 14h12.5c.97 0 1.75-.78 1.75-1.75V5.9Z" />
+  </svg>
+);
+
+const ICONS = { github: Github, mail: Mail } as const;
 
 interface InlineLinkProps {
   href: string;
@@ -20,15 +21,15 @@ interface InlineLinkProps {
   children: ReactNode;
 }
 
-/* Prose link: ink colour, gradient underline on hover, optional leading glyph. */
+/* Prose link. Every glyph is a filled 16px-grid mark drawn at cap height and sat on the baseline, so all icons share one size. */
 export function InlineLink({ href, icon, children }: InlineLinkProps) {
   const Icon = icon ? ICONS[icon] : null;
   const external = /^(https?:|mailto:)/.test(href);
-  const className = 'ink-link inline-flex items-baseline gap-1 font-medium text-ink';
+  const className = 'group font-medium text-ink whitespace-nowrap';
   const body = (
     <>
-      {Icon && <Icon className="relative top-[1.5px] h-[0.85em] w-[0.85em] self-center" />}
-      <span>{children}</span>
+      {Icon && <Icon className="mr-[0.3em] inline-block h-[0.78em] w-[0.78em] align-[-0.06em]" />}
+      <span className="ink-link whitespace-normal">{children}</span>
     </>
   );
 

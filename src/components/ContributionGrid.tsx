@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 type Contribution = { date: string; count: number };
 
@@ -9,18 +9,26 @@ interface ContributionGridProps {
   maxContributions: number;
 }
 
-const CELL = 8;
+const CELL = 10;
 const GAP = 2;
+const DAY = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 
 function shade(count: number, max: number) {
-  if (count === 0) return 'rgba(var(--ink-rgb), 0.06)';
+  if (count === 0) return 'rgba(var(--ink-rgb), 0.07)';
   const p = max === 0 ? 1 : count / max;
   const alpha = p > 0.75 ? 0.95 : p > 0.5 ? 0.7 : p > 0.25 ? 0.5 : 0.3;
   return `rgba(var(--ink-rgb), ${alpha})`;
 }
 
+interface Hover extends Contribution {
+  x: number;
+  y: number;
+  align: 'start' | 'center' | 'end';
+}
+
 export default function ContributionGrid({ contributions, maxContributions }: ContributionGridProps) {
-  const [hover, setHover] = useState<(Contribution & { x: number; y: number }) | null>(null);
+  const frame = useRef<HTMLDivElement>(null);
+  const [hover, setHover] = useState<Hover | null>(null);
 
   const weeks = Math.ceil(contributions.length / 7);
   const months: { name: string; col: number }[] = [];
@@ -36,46 +44,54 @@ export default function ContributionGrid({ contributions, maxContributions }: Co
     }
   });
 
+  const show = (c: Contribution, cell: HTMLElement) => {
+    const box = frame.current?.getBoundingClientRect();
+    if (!box) return;
+    const r = cell.getBoundingClientRect();
+    const x = r.left - box.left + r.width / 2;
+    const align = x < 90 ? 'start' : x > box.width - 90 ? 'end' : 'center';
+    setHover({ ...c, x, y: r.top - box.top, align });
+  };
+
+  const shift = hover?.align === 'start' ? '-12px' : hover?.align === 'end' ? 'calc(-100% + 12px)' : '-50%';
+
   return (
-    <div className="overflow-x-auto">
-      <div className="relative pt-5" style={{ width: weeks * (CELL + GAP) }}>
-        {months.map((m) => (
-          <span
-            key={`${m.name}-${m.col}`}
-            className="mono absolute top-0 text-[10px] text-ink-3"
-            style={{ left: m.col * (CELL + GAP) }}
-          >
-            {m.name}
-          </span>
-        ))}
-        <div className="grid grid-flow-col grid-rows-7" style={{ gap: GAP }}>
-          {contributions.map((c) => (
-            <div
-              key={c.date}
-              className="rounded-[2px] transition-colors duration-300 ease-quint"
-              style={{ width: CELL, height: CELL, background: shade(c.count, maxContributions) }}
-              onMouseEnter={(e) => {
-                const r = e.currentTarget.getBoundingClientRect();
-                setHover({ ...c, x: r.left + r.width / 2, y: r.top - 8 });
-              }}
-              onMouseLeave={() => setHover(null)}
-            />
+    <div ref={frame} className="relative" onMouseLeave={() => setHover(null)}>
+      <div className="overflow-x-auto pb-1">
+        <div className="relative pt-6" style={{ width: weeks * (CELL + GAP) }}>
+          {months.map((m) => (
+            <span
+              key={`${m.name}-${m.col}`}
+              className="absolute top-0 text-[0.75rem] italic text-ink-3"
+              style={{ left: m.col * (CELL + GAP) }}
+            >
+              {m.name}
+            </span>
           ))}
+          <div className="grid grid-flow-col grid-rows-7" style={{ gap: GAP }}>
+            {contributions.map((c) => (
+              <div
+                key={c.date}
+                className="rounded-[2.5px]"
+                style={{ width: CELL, height: CELL, background: shade(c.count, maxContributions) }}
+                onMouseEnter={(e) => show(c, e.currentTarget)}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
       <div
-        className="pointer-events-none fixed z-50 whitespace-nowrap rounded-md px-2 py-1 text-[11px] transition-opacity duration-200 ease-quint"
+        role="tooltip"
+        className="pointer-events-none absolute left-0 top-0 z-10 whitespace-nowrap rounded-[6px] px-2.5 py-1.5 text-[0.8125rem] font-medium transition-opacity duration-200 ease-quint"
         style={{
-          left: hover?.x ?? 0,
-          top: hover?.y ?? 0,
-          transform: 'translate(-50%, -100%)',
+          transform: `translate(${hover ? hover.x : 0}px, ${hover ? hover.y - 8 : 0}px) translate(${shift}, -100%)`,
           opacity: hover ? 1 : 0,
           background: 'var(--ink)',
           color: 'var(--bg)',
         }}
       >
-        {hover && `${hover.count} ${hover.count === 1 ? 'contribution' : 'contributions'} on ${hover.date}`}
+        {hover && `${hover.count} ${hover.count === 1 ? 'contribution' : 'contributions'}, ${DAY.format(new Date(hover.date))}`}
       </div>
     </div>
   );

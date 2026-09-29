@@ -19,16 +19,12 @@ export function GitHubStatsHeader({
   const contributions = stats?.contributions ?? fallbackContributions;
 
   return (
-    <p className="text-base sm:text-lg text-black/50 dark:text-white/50 mb-6 sm:mb-8 leading-relaxed">
-      我一共获得了{' '}
-      <span className={isLoading ? 'opacity-50' : ''}>
-        {totalStars.toLocaleString()}
-      </span>{' '}
-      颗星标，做的项目已经有 {fallbackUsers} 位用户在使用，过去一年贡献了{' '}
-      <span className={isLoading ? 'opacity-50' : ''}>
-        {contributions.toLocaleString()}
-      </span>{' '}
-      次代码
+    <p className="mt-8 text-[1.3125rem] leading-[1.6] tracking-[-0.015em] text-ink-body">
+      Here be the things I have made. They have been given{' '}
+      <span className={`font-semibold text-ink ${isLoading ? 'opacity-50' : ''}`}>{totalStars.toLocaleString('en-US')}</span> stars, are
+      used by some <span className="font-semibold text-ink">{fallbackUsers}</span> souls, and cost me{' '}
+      <span className={`font-semibold text-ink ${isLoading ? 'opacity-50' : ''}`}>{contributions.toLocaleString('en-US')}</span>{' '}
+      commits in the twelvemonth past.
     </p>
   );
 }

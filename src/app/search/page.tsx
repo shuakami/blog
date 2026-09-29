@@ -1,9 +1,10 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Search, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { formatShortDate } from '@/lib/format';
 
 interface SearchResult {
   slug: string;
@@ -14,206 +15,128 @@ interface SearchResult {
   coverImage: string | null;
 }
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  return `${year}.${month}`;
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// 转义正则表达式特殊字符
-function escapeRegExp(string: string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function highlightText(text: string, query: string) {
+function highlight(text: string, query: string) {
   if (!query) return text;
-  
-  try {
-    const escapedQuery = escapeRegExp(query);
-    const parts = text.split(new RegExp(`(${escapedQuery})`, 'gi'));
-    return (
-      <>
-        {parts.map((part, i) => 
-          part.toLowerCase() === query.toLowerCase() ? (
-            <mark key={i} className="bg-transparent text-black dark:text-white underline decoration-2 underline-offset-2">
-              {part}
-            </mark>
-          ) : (
-            part
-          )
-        )}
-      </>
-    );
-  } catch (error) {
-    // 如果正则表达式仍然失败，直接返回原文本
-    return text;
-  }
+  const parts = text.split(new RegExp(`(${escapeRegExp(query)})`, 'gi'));
+  return parts.map((part, i) =>
+    part.toLowerCase() === query.toLowerCase() ? (
+      <mark key={i} className="rounded-[3px] bg-[rgba(var(--ink-rgb),0.12)] px-[0.1em] text-ink">
+        {part}
+      </mark>
+    ) : (
+      part
+    ),
+  );
+}
+
+function cleanExcerpt(text: string) {
+  return text.replace(/^[\s>#*-]+/, '').replace(/\s+/g, ' ').trim();
 }
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [searched, setSearched] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // 自动聚焦搜索框
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  // 搜索函数
-  const performSearch = useCallback(async (searchQuery: string) => {
-    if (searchQuery.length < 1) {
+  const run = useCallback(async (q: string) => {
+    if (!q) {
       setResults([]);
-      setHasSearched(false);
+      setSearched(false);
       return;
     }
-
     setLoading(true);
-    setHasSearched(true);
-
+    setSearched(true);
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
-      const data = await response.json();
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
       setResults(data.results || []);
     } catch (error) {
-      console.error('Search error:', error);
+      console.error('search failed', error);
       setResults([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // 实时搜索（自动触发，不需要按回车）
   useEffect(() => {
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
+    const id = setTimeout(() => run(query.trim()), 150);
+    return () => clearTimeout(id);
+  }, [query, run]);
 
-    debounceTimer.current = setTimeout(() => {
-      performSearch(query);
-    }, 150);
-
-    return () => {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
-    };
-  }, [query, performSearch]);
-
-  // 清空搜索
-  const clearSearch = () => {
+  const clear = () => {
     setQuery('');
-    setResults([]);
-    setHasSearched(false);
     inputRef.current?.focus();
   };
 
   return (
-    <div className="mx-auto px-4 md:px-6 py-16 md:py-24 article-content-width">
-      {/* 标题区域 */}
-      <header className="mb-16 md:mb-20">
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium tracking-tight text-black dark:text-white mb-6">
-          搜索
-        </h1>
-        <div className="w-16 h-[2px] bg-black dark:bg-white mb-12" />
-        
-        {/* 搜索框 */}
-        <div className="relative">
-          <Search className={`absolute left-0 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
-            loading ? 'text-black/60 dark:text-white/60 animate-pulse' : 'text-black/30 dark:text-white/30'
-          }`} />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="输入即可搜索..."
-            className="w-full pl-8 pr-8 py-3 bg-transparent border-b border-black/10 dark:border-white/10 focus:border-black/30 dark:focus:border-white/30 text-xl text-black dark:text-white placeholder:text-black/30 dark:placeholder:text-white/30 focus:outline-none transition-colors"
-          />
-          {query && (
-            <button
-              onClick={clearSearch}
-              className="absolute right-0 top-1/2 -translate-y-1/2 text-black/30 dark:text-white/30 hover:text-black dark:hover:text-white transition-colors"
-              aria-label="清空"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
-        </div>
-      </header>
+    <div className="site-column mx-auto px-6 pb-8 pt-14 md:px-0 md:pt-28">
+      <h1 className="display text-[clamp(3rem,5vw,5rem)]">Search</h1>
 
-      {/* 搜索结果 */}
-      {hasSearched && (
-        <>
-          {results.length > 0 ? (
-            <>
-              <div className="mb-8 text-sm text-black/40 dark:text-white/40">
-                {results.length} 篇文章
-              </div>
-              <div>
-                <AnimatePresence mode="popLayout">
-                  {results.map((result, index) => (
-                    <motion.div
-                      key={result.slug}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ delay: index * 0.02, duration: 0.3 }}
-                    >
-                      <Link
-                        href={`/post/${result.slug}`}
-                        className="group grid grid-cols-[80px_1fr] md:grid-cols-[120px_1fr] gap-8 md:gap-12 py-10 border-b border-black/5 dark:border-white/5 last:border-0 hover:bg-black/1 dark:hover:bg-white/1 -mx-4 px-4 transition-colors"
-                      >
-                        {/* 日期 */}
-                        <time className="text-sm font-mono text-black/40 dark:text-white/40 pt-1">
-                          {formatDate(result.date)}
-                        </time>
+      <label className="mt-14 flex items-center gap-4 rounded-[14px] bg-[rgba(var(--ink-rgb),0.05)] px-5 py-4 focus-within:bg-[rgba(var(--ink-rgb),0.075)]">
+        <Search className="h-5 w-5 flex-none text-ink-3" strokeWidth={2} />
+        <input
+          ref={inputRef}
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Seek, and ye shall find"
+          aria-label="Search"
+          style={{ outline: 'none' }}
+          className="min-w-0 flex-1 appearance-none border-0 bg-transparent shadow-none focus-visible:outline-none text-[1.375rem] font-medium tracking-[-0.02em] text-ink outline-none placeholder:font-normal placeholder:italic placeholder:text-ink-3"
+        />
+        {query && (
+          <button type="button" onClick={clear} className="flex-none text-ink-3 hover:text-ink" aria-label="Clear">
+            <X className="h-5 w-5" strokeWidth={2} />
+          </button>
+        )}
+      </label>
 
-                        {/* 内容 */}
-                        <div className="min-w-0">
-                          <h2 className="text-2xl md:text-3xl font-medium text-black dark:text-white mb-3 group-hover:text-black/60 dark:group-hover:text-white/60 transition-colors leading-tight">
-                            {highlightText(result.title, query)}
-                          </h2>
+      {searched && (
+        <p className="mt-8 text-[1rem] italic text-ink-3">
+          {loading ? 'Searching' : results.length === 0 ? 'Nothing answereth to that name.' : `${results.length} ${results.length === 1 ? 'entry' : 'entries'}`}
+        </p>
+      )}
 
-                          {result.excerpt && (
-                            <p className="text-base text-black/50 dark:text-white/50 leading-relaxed line-clamp-2 mb-3">
-                              {highlightText(result.excerpt, query)}
-                            </p>
-                          )}
-
-                          {result.tags && result.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                              {result.tags.slice(0, 3).map((tag) => (
-                                <span 
-                                  key={tag}
-                                  className="text-xs text-black/40 dark:text-white/40"
-                                >
-                                  {highlightText(tag, query)}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            </>
-          ) : (
-            <div className="py-16 text-center">
-              <p className="text-lg text-black/40 dark:text-white/40">
-                未找到相关文章
-              </p>
-            </div>
-          )}
-        </>
+      {results.length > 0 && (
+        <ul className="mt-6 flex flex-col gap-2">
+          <AnimatePresence mode="popLayout">
+          {results.map((r, index) => {
+            const excerpt = cleanExcerpt(r.excerpt || '');
+            return (
+              <motion.li
+                key={r.slug}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: index * 0.02, duration: 0.3 }}
+              >
+                <Link href={`/post/${r.slug}` as never} className="-mx-4 flex flex-col gap-2 rounded-[12px] px-4 py-4 hover:bg-[rgba(var(--ink-rgb),0.04)]">
+                  <span className="flex items-baseline justify-between gap-6">
+                    <span className="text-[1.25rem] font-semibold leading-[1.35] tracking-[-0.02em] text-ink">{highlight(r.title, query.trim())}</span>
+                    <time className="flex-none text-[0.9375rem] italic text-ink-3" dateTime={r.date}>
+                      {formatShortDate(r.date)}
+                    </time>
+                  </span>
+                  {excerpt && (
+                    <span className="line-clamp-2 text-[1rem] leading-[1.6] text-ink-2">{highlight(excerpt, query.trim())}</span>
+                  )}
+                </Link>
+              </motion.li>
+            );
+          })}
+          </AnimatePresence>
+        </ul>
       )}
     </div>
   );
 }
-

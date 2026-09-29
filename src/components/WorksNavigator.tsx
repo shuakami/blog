@@ -85,7 +85,7 @@ export default function WorksNavigator({ workCount, workTitles = [] }: WorksNavi
         <button
           onClick={scrollPrev}
           disabled={activeIndex === 0}
-          className="inline-flex items-center justify-center w-8 h-8 rounded-full text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          className="inline-flex items-center justify-center w-8 h-8 rounded-full text-ink-3 hover:bg-[rgba(var(--ink-rgb),0.06)] disabled:opacity-30 disabled:cursor-not-allowed opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           aria-label="上一个作品"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -111,11 +111,11 @@ export default function WorksNavigator({ workCount, workTitles = [] }: WorksNavi
             // 根据距离当前项的远近设置大小
             let dotClass = '';
             if (isActive) {
-              dotClass = 'w-1 h-1 bg-black dark:bg-white';
+              dotClass = 'w-1 h-1 bg-ink';
             } else if (distance === 1) {
-              dotClass = 'w-2 h-0.5 bg-black/30 dark:bg-white/30';
+              dotClass = 'w-2 h-0.5 bg-ink-3';
             } else {
-              dotClass = 'w-1 h-0.5 bg-black/20 dark:bg-white/20';
+              dotClass = 'w-1 h-0.5 bg-[rgba(var(--ink-rgb),0.2)]';
             }
 
             return (
@@ -141,7 +141,7 @@ export default function WorksNavigator({ workCount, workTitles = [] }: WorksNavi
                 onMouseLeave={() => {
                   // 不立即隐藏，等待可能移动到其他圆点
                 }}
-                className="relative flex items-center justify-center w-8 h-4 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-colors group/dot"
+                className="relative flex items-center justify-center w-8 h-4 hover:bg-[rgba(var(--ink-rgb),0.06)] rounded transition-colors group/dot"
                 aria-label={workTitles[index] || `前往作品 ${index + 1}`}
               >
                 <div className={`rounded-full transition-all duration-200 ${dotClass}`} />
@@ -154,7 +154,7 @@ export default function WorksNavigator({ workCount, workTitles = [] }: WorksNavi
         <button
           onClick={scrollNext}
           disabled={activeIndex === workCount - 1}
-          className="inline-flex items-center justify-center w-8 h-8 rounded-full text-black/40 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          className="inline-flex items-center justify-center w-8 h-8 rounded-full text-ink-3 hover:bg-[rgba(var(--ink-rgb),0.06)] disabled:opacity-30 disabled:cursor-not-allowed opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           aria-label="下一个作品"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -165,7 +165,7 @@ export default function WorksNavigator({ workCount, workTitles = [] }: WorksNavi
 
       {/* 统一的 Tooltip - 跟随 hover 的圆点移动 */}
       <div 
-        className="absolute right-full mr-3 px-3 py-1.5 bg-black dark:bg-white text-white dark:text-black text-xs font-medium rounded-md whitespace-nowrap pointer-events-none transition-all duration-150 ease-out"
+        className="absolute right-full mr-3 px-3 py-1.5 bg-ink text-bg text-xs font-medium rounded-md whitespace-nowrap pointer-events-none transition-all duration-150 ease-out"
         style={{
           top: `calc(${40 + (hoveredIndex || 0) * 16}px)`,
           transform: 'translateY(-50%)',
@@ -174,7 +174,7 @@ export default function WorksNavigator({ workCount, workTitles = [] }: WorksNavi
       >
         {hoveredIndex !== null && workTitles[hoveredIndex]}
         {/* 箭头 */}
-        <div className="absolute right-[-4px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-t-transparent border-b-4 border-b-transparent border-l-4 border-l-black dark:border-l-white" />
+        <div className="absolute right-[-4px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-t-transparent border-b-4 border-b-transparent border-l-4 border-l-ink" />
       </div>
 
       <style jsx>{`

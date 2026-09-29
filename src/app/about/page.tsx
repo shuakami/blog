@@ -2,12 +2,11 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import ContributionGrid from '@/components/ContributionGrid';
 import { Section } from '@/components/ui/section';
-import { InlineLink } from '@/components/ui/inline-link';
 import { getGitHubStats } from '@/lib/github';
 
 export const metadata: Metadata = {
   title: 'About',
-  description: 'Who is writing this, and what they are doing with their hands.',
+  description: 'Who writeth here, and what he doth with his hands.',
 };
 
 export const revalidate = 3600;
@@ -15,17 +14,17 @@ export const revalidate = 3600;
 type Contribution = { date: string; count: number };
 
 const STACK: { name: string; items: string[] }[] = [
-  { name: 'Front', items: ['TypeScript', 'React', 'Next.js', 'Tailwind', 'Framer Motion'] },
-  { name: 'Back', items: ['Node', 'Go', 'Python', 'Redis', 'PostgreSQL'] },
+  { name: 'Face', items: ['TypeScript', 'React', 'Next.js', 'Tailwind', 'Framer Motion'] },
+  { name: 'Bones', items: ['Node', 'Go', 'Python', 'Redis', 'PostgreSQL'] },
   { name: 'Agents', items: ['LLM tooling', 'MCP servers', 'Bots on four platforms'] },
   { name: 'Ground', items: ['Vercel', 'Docker', 'Linux', 'GitHub Actions'] },
 ];
 
 const LINKS = [
-  { label: 'GitHub', href: 'https://github.com/shuakami', note: 'Where the code lives' },
-  { label: 'Twitter', href: 'https://twitter.com/luoxiaohei_2333', note: 'Short thoughts, unedited' },
+  { label: 'GitHub', href: 'https://github.com/shuakami', note: 'Where the code doth live' },
+  { label: 'Twitter', href: 'https://twitter.com/luoxiaohei_2333', note: 'Brief thoughts, unamended' },
   { label: 'Mail', href: 'mailto:shuakami@sdjz.wiki', note: 'shuakami@sdjz.wiki' },
-  { label: 'QQ group', href: 'https://qm.qq.com/q/S3ZfnvvL2K', note: 'The noisy room' },
+  { label: 'QQ group', href: 'https://qm.qq.com/q/S3ZfnvvL2K', note: 'A merry, noisy room' },
 ];
 
 export default async function AboutPage() {
@@ -46,76 +45,57 @@ export default async function AboutPage() {
   const maxContributions = Math.max(...contributions.map((c) => c.count), 0);
 
   const numbers = [
-    { k: 'Stars', v: `${totalStars.toLocaleString('en-US')}+` },
-    { k: 'People using the tools', v: '7,000+' },
-    { k: 'Commits, past year', v: yearContributions.toLocaleString('en-US') },
+    { k: 'Stars bestowed', v: `${totalStars.toLocaleString('en-US')}+` },
+    { k: 'Souls who use the tools', v: '7,000+' },
+    { k: 'Commits this twelvemonth', v: yearContributions.toLocaleString('en-US') },
     { k: 'API calls served', v: '18.5M+' },
   ];
 
   return (
-    <div className="site-column mx-auto px-6 pb-8 pt-12 md:px-0 md:pt-24">
-      <header className="rise flex items-start gap-4" style={{ ['--i' as string]: 0 }}>
-        <Image src="/shuakami.jpg" alt="Shuakami" width={44} height={44} className="h-11 w-11 rounded-full object-cover" priority />
-        <div className="flex flex-col gap-1 pt-0.5">
-          <h1 className="text-[14px] font-medium text-ink">Shuakami</h1>
-          <p className="text-[13px] text-ink-3">Student, developer, occasional villain in his own commit history</p>
-        </div>
+    <div className="site-column mx-auto px-6 pb-8 pt-14 md:px-0 md:pt-28">
+      <header className="rise flex items-center gap-4" style={{ ['--i' as string]: 0 }}>
+        <Image src="/shuakami.jpg" alt="" width={56} height={56} className="h-14 w-14 rounded-[12px] object-cover" priority />
+        <h1 className="text-[2rem] font-bold leading-none tracking-[-0.045em] text-ink">Shuakami</h1>
       </header>
 
-      <div className="rise mt-10 flex flex-col gap-4 text-[15px] leading-[1.65] text-ink-2" style={{ ['--i' as string]: 1 }}>
-        <p>
-          I build small things that many people end up using: an{' '}
-          <InlineLink href="https://agent.sdjz.wiki">agent</InlineLink> that answers GitHub issues with pull
-          requests, a <InlineLink href="https://uapis.cn">public API</InlineLink> that has now been asked
-          eighteen million questions, a handful of bots that live in chat rooms and answer to no one.
-        </p>
-        <p>
-          I like the parts of software most people skip: the empty state, the loading screen, the
-          error nobody expects to read. If a thing must exist, it should at least be well made.
-        </p>
-        <p>
-          When not writing code I am usually listening to music, drawing, or arguing with myself
-          about typography. This site is where the arguments get written down.
-        </p>
-      </div>
-
-      <Section title="Numbers" className="rise mt-16" >
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-5 pt-2 sm:grid-cols-4">
+      <Section title="Tallies" className="rise mt-20">
+        <dl className="grid grid-cols-2 gap-x-8 gap-y-8 pt-4 sm:grid-cols-4">
           {numbers.map((n) => (
-            <div key={n.k} className="flex flex-col gap-1">
-              <dd className="mono text-[18px] text-ink">{n.v}</dd>
-              <dt className="text-[12px] text-ink-3">{n.k}</dt>
+            <div key={n.k} className="flex flex-col-reverse gap-2">
+              <dt className="text-[0.9375rem] italic text-ink-3">{n.k}</dt>
+              <dd className="text-[2.25rem] font-bold leading-none tracking-[-0.04em] text-ink">{n.v}</dd>
             </div>
           ))}
         </dl>
       </Section>
 
       {contributions.length > 0 && (
-        <Section title="Past year" className="rise mt-16" href="https://github.com/shuakami" action="GitHub">
-          <div className="pt-2">
+        <Section title="The year gone by" className="rise mt-24" href="https://github.com/shuakami" action="GitHub">
+          <div className="pt-4">
             <ContributionGrid contributions={contributions} maxContributions={maxContributions} />
           </div>
         </Section>
       )}
 
-      <Section title="Stack" className="rise mt-16">
-        <ul className="flex flex-col pt-1">
+      <Section title="Tools of the trade" className="rise mt-24">
+        <dl className="flex flex-col gap-5 pt-4">
           {STACK.map((row) => (
-            <li key={row.name} className="grid grid-cols-[72px_1fr] gap-4 border-b border-line-soft py-2.5 last:border-0">
-              <span className="text-[13px] text-ink-3">{row.name}</span>
-              <span className="flex flex-wrap gap-1.5">
-                {row.items.map((it) => (
-                  <span key={it} className="chip">
+            <div key={row.name} className="grid grid-cols-1 gap-2 sm:grid-cols-[6rem_1fr] sm:gap-6">
+              <dt className="pt-0.5 text-[1rem] italic text-ink-3">{row.name}</dt>
+              <dd className="text-[1.125rem] font-medium leading-[1.55] text-ink">
+                {row.items.map((it, i) => (
+                  <span key={it} className="inline-flex items-center">
                     {it}
+                    {i < row.items.length - 1 && <span className="lozenge mx-3 text-ink-3" aria-hidden />}
                   </span>
                 ))}
-              </span>
-            </li>
+              </dd>
+            </div>
           ))}
-        </ul>
+        </dl>
       </Section>
 
-      <Section title="Elsewhere" className="rise mt-16">
+      <Section title="Elsewhere" className="rise mt-24">
         <ul className="flex flex-col pt-1">
           {LINKS.map((l) => (
             <li key={l.label}>
@@ -125,7 +105,7 @@ export default async function AboutPage() {
                 rel={l.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                 className="post-row"
               >
-                <span className="post-title text-[14px]">{l.label}</span>
+                <span className="post-title">{l.label}</span>
                 <span className="post-date">{l.note}</span>
               </a>
             </li>

@@ -10,6 +10,7 @@ import { GlobalMusicPlayer } from '@/components/music/global-music-player';
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
+  style: ['normal', 'italic'],
   axes: ['opsz'],
   display: 'swap',
   preload: true,

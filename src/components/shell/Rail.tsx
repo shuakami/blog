@@ -24,30 +24,27 @@ export function Rail({ navItems, siteName }: RailProps) {
 
   return (
     <aside
-      className="fixed inset-y-0 left-0 z-40 hidden w-(--rail-w) flex-col justify-between px-8 py-10 md:flex"
+      className="fixed inset-y-0 left-0 z-40 hidden w-(--rail-w) flex-col justify-between py-12 pl-12 pr-6 md:flex"
       aria-label="Site"
     >
-      <div className="flex flex-col gap-10">
-        <Link href="/" className="ink-link self-start text-[14px] font-medium tracking-[-0.25px] text-ink">
+      <div className="flex flex-col gap-12">
+        <Link href="/" className="self-start text-[1.375rem] font-bold leading-none tracking-[-0.04em] text-ink">
           {siteName}
         </Link>
 
         <nav className="flex flex-col">
-          {items.map((item, i) => {
-            const active = isActivePath(pathname, item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                data-active={active}
-                className="rail-link text-[14px]"
-                onClick={() => triggerHaptic(HapticFeedback.Light)}
-              >
-                <span className="rail-index">{String(i + 1).padStart(2, '0')}</span>
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href as never}
+              data-active={isActivePath(pathname, item.href)}
+              className="rail-link"
+              onClick={() => triggerHaptic(HapticFeedback.Light)}
+            >
+              <span className="hedera" aria-hidden />
+              <span>{item.label}</span>
+            </Link>
+          ))}
         </nav>
       </div>
 
@@ -55,7 +52,7 @@ export function Rail({ navItems, siteName }: RailProps) {
         <NowPlayingRow />
         <div className="flex items-center gap-2">
           <Link href="/search" className="pill pill-icon" aria-label="Search" onClick={() => triggerHaptic(HapticFeedback.Light)}>
-            <Search className="h-3.5 w-3.5" strokeWidth={1.75} />
+            <Search className="h-4 w-4" strokeWidth={1.75} />
           </Link>
           <ThemeToggle />
         </div>

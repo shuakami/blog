@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { formatShortDate } from '@/lib/format';
+import { formatShortDate, toOldWords, toRoman } from '@/lib/format';
 import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 
 interface ArchivePostLite {
@@ -57,18 +57,18 @@ export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
   };
 
   return (
-    <div className="site-column mx-auto px-6 pb-8 pt-12 md:px-0 md:pt-24">
-      <header className="flex flex-col gap-6">
-        <div className="flex items-baseline justify-between">
-          <h1 className="text-[14px] font-medium text-ink">Archive</h1>
-          <p className="mono text-[12px] text-ink-3">
-            {posts.length} {posts.length === 1 ? 'entry' : 'entries'}
-            {words > 0 && `, ${words.toLocaleString('en-US')} words`}
+    <div className="site-column mx-auto px-6 pb-8 pt-14 md:px-0 md:pt-28">
+      <header className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
+          <h1 className="display text-[clamp(3rem,5vw,5rem)]">Archive</h1>
+          <p className="text-[1.125rem] italic text-ink-2">
+            {toOldWords(posts.length).replace(/^./, (c) => c.toUpperCase())} {posts.length === 1 ? 'entry' : 'entries'}
+            {words > 0 && `, some ${words.toLocaleString('en-US')} words in all`}.
           </p>
         </div>
 
         {categories.length > 1 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             <button type="button" className="pill pill-text-only" aria-pressed={selected === null} onClick={() => pick(null)}>
               All
             </button>
@@ -81,7 +81,7 @@ export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
                 onClick={() => pick(selected === c ? null : c)}
               >
                 {c}
-                <span className="mono ml-1 text-[11px] text-ink-3">{n}</span>
+                <span className="ml-1.5 text-[0.8125rem] italic text-ink-3">{n}</span>
               </button>
             ))}
           </div>
@@ -89,21 +89,23 @@ export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
       </header>
 
       {byYear.length === 0 ? (
-        <p className="mt-16 text-[14px] text-ink-3">Nothing filed under this name.</p>
+        <p className="mt-20 text-[1.125rem] italic text-ink-3">Nothing is filed under that name.</p>
       ) : (
-        <div className="mt-12 flex flex-col gap-12">
+        <div className="mt-20 flex flex-col gap-20">
           {byYear.map(([year, list], gi) => (
-            <section key={year} className="grid grid-cols-[44px_1fr] gap-4">
-              <h2 className="mono sticky top-14 h-fit pt-3 text-[12px] text-ink-3 md:top-6">{year}</h2>
+            <section key={year}>
+              <h2 className="mb-4 flex items-baseline gap-4">
+                <span className="text-[2.5rem] font-bold leading-none tracking-[-0.04em] text-ink">{toRoman(Number(year))}</span>
+                <span className="text-[1rem] italic text-ink-3">{year}</span>
+              </h2>
               <ul className="flex flex-col">
                 {list.map((post, i) => (
                   <li key={post.slug} className="rise" style={{ ['--i' as string]: gi * 3 + i }}>
                     <Link href={`/post/${post.slug}`} className="post-row">
-                      <span className="post-title text-[14px]">{post.title}</span>
+                      <span className="post-title">{post.title}</span>
                       <time className="post-date" dateTime={post.date}>
                         {formatShortDate(post.date)}
                       </time>
-                      {post.excerpt && <span className="post-excerpt line-clamp-1 text-[13px]">{post.excerpt}</span>}
                     </Link>
                   </li>
                 ))}

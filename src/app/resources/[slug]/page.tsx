@@ -1,20 +1,17 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Download, Tag } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { getResourceBySlug, getResources } from '@/utils/resources';
 import { CodeCopyButton } from '@/components/CodeCopyButton';
 import { DesignPreview } from '@/components/DesignPreview';
 
-// ISR: 每60秒重新验证一次
 export const revalidate = 60;
 
-// 允许动态生成新的资源页面
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const resources = await getResources();
-  console.log('[Resources] Generating static params for:', resources.map(r => r.slug));
   return resources.map((resource) => ({
     slug: resource.slug,
   }));
@@ -23,18 +20,18 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const resource = await getResourceBySlug(slug);
-  
+
   if (!resource) {
     return {
-      title: '资源未找到 - Shuakami',
+      title: 'Not found',
     };
   }
 
   return {
-    title: `${resource.title} - 资源 - Shuakami`,
+    title: resource.title,
     description: resource.description,
     openGraph: {
-      title: `${resource.title} - 资源 - Shuakami`,
+      title: resource.title,
       description: resource.description,
     },
   };
@@ -42,159 +39,91 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ResourceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  console.log('[Resource Detail] Requested slug:', slug);
-  console.log('[Resource Detail] Decoded slug:', decodeURIComponent(slug));
-  
   const resource = await getResourceBySlug(slug);
-  console.log('[Resource Detail] Found resource:', resource ? resource.title : 'null');
 
   if (!resource) {
     notFound();
   }
 
+  const facts = [
+    ['Kind', resource.type],
+    ['Format', resource.format],
+    ['Size', resource.size],
+    ['Updated', resource.lastUpdated],
+  ].filter((row): row is [string, string] => Boolean(row[1]));
+
   return (
-    <div className="max-w-4xl mx-auto px-6 sm:px-8 md:px-6 py-12 sm:py-16 md:py-24">
-      <Link
-        href={"/resources" as any}
-        className="inline-flex items-center gap-2 text-sm text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-colors mb-8"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        返回资源列表
-      </Link>
+    <article className="mx-auto w-full max-w-(--column-w) px-6 pb-8 pt-8 md:px-0 md:pt-14">
+      <nav className="flex items-center justify-between">
+        <Link href={'/resources' as never} className="pill">
+          <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
+          <span>Resources</span>
+        </Link>
+        {resource.downloadUrl && (
+          <a href={resource.downloadUrl} target="_blank" rel="noopener noreferrer" className="pill">
+            <Download className="h-4 w-4" strokeWidth={1.75} />
+            <span>Download</span>
+          </a>
+        )}
+      </nav>
 
-      <header className="mb-12">
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-black dark:text-white">
-            {resource.title}
-          </h1>
-          <span className="px-3 py-1 text-xs rounded-md bg-black/4 dark:bg-white/6 text-black/50 dark:text-white/50 whitespace-nowrap">
-            {resource.type}
-          </span>
-        </div>
-        <p className="text-base sm:text-lg text-black/60 dark:text-white/60 leading-relaxed mb-6">
-          {resource.description}
-        </p>
-        <div className="w-16 h-[2px] bg-black dark:bg-white" />
-      </header>
-
-      <div className="rounded-lg sm:rounded-xl bg-black/2 dark:bg-white/2 px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6 mb-12">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-5 md:gap-6">
-          <div className="flex items-center gap-6 sm:gap-8 md:gap-12">
-            {resource.format && (
-              <div className="space-y-0.5 sm:space-y-1">
-                <h4 className="text-xl sm:text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">
-                  {resource.format}
-                </h4>
-                <p className="text-xs sm:text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">
-                  格式
-                </p>
-              </div>
-            )}
-            {resource.size && (
-              <div className="space-y-0.5 sm:space-y-1">
-                <h4 className="text-xl sm:text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">
-                  {resource.size}
-                </h4>
-                <p className="text-xs sm:text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">
-                  文件大小
-                </p>
-              </div>
-            )}
-            {resource.lastUpdated && (
-              <div className="space-y-0.5 sm:space-y-1">
-                <h4 className="text-xl sm:text-2xl md:text-3xl font-semibold text-black dark:text-white tracking-tight">
-                  {resource.lastUpdated}
-                </h4>
-                <p className="text-xs sm:text-xs md:text-sm text-black/70 dark:text-white/70 whitespace-nowrap">
-                  更新时间
-                </p>
-              </div>
-            )}
-          </div>
-
-          {resource.downloadUrl && (
-            <div className="flex flex-col gap-2 md:items-end md:shrink-0 w-full sm:w-auto md:w-auto">
-              <a
-                href={resource.downloadUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black text-base font-medium hover:bg-black/80 dark:hover:bg-white/80 active:bg-black/70 dark:active:bg-white/70 transition-colors whitespace-nowrap w-full sm:w-auto"
-              >
-                <Download className="w-5 h-5" />
-                下载资源
-              </a>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {resource.details && Object.keys(resource.details).length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-xl sm:text-2xl font-medium text-black dark:text-white mb-6">
-            详细信息
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {Object.entries(resource.details).map(([key, value]) => (
-              <div
-                key={key}
-                className="p-4 rounded-lg border border-black/6 dark:border-white/6"
-              >
-                <dt className="text-sm text-black/60 dark:text-white/60 mb-1">{key}</dt>
-                <dd className="text-base font-medium text-black dark:text-white">{value as string}</dd>
+      <header className="mt-20 flex flex-col items-center text-center md:mt-28">
+        <span className="hedera text-[1.75rem] text-ink-3" aria-hidden />
+        <h1 className="display mt-8 text-[clamp(2.5rem,4.2vw,4.5rem)] md:-mx-16">{resource.title}</h1>
+        <p className="mt-8 max-w-[36rem] text-[1.25rem] leading-[1.6] text-ink-body">{resource.description}</p>
+        {facts.length > 0 && (
+          <dl className="mt-12 flex flex-wrap justify-center gap-x-12 gap-y-6">
+            {facts.map(([k, v]) => (
+              <div key={k} className="flex flex-col items-center gap-1.5">
+                <dd className="text-[1.5rem] font-bold tracking-[-0.03em] text-ink">{v}</dd>
+                <dt className="text-[0.9375rem] italic text-ink-3">{k}</dt>
               </div>
             ))}
-          </div>
-        </section>
+          </dl>
+        )}
+      </header>
+
+      {resource.details && Object.keys(resource.details).length > 0 && (
+        <dl className="mt-20 grid grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2">
+          {Object.entries(resource.details).map(([key, value]) => (
+            <div key={key} className="flex flex-col gap-1">
+              <dt className="text-[0.9375rem] italic text-ink-3">{key}</dt>
+              <dd className="text-[1.125rem] font-semibold text-ink">{value}</dd>
+            </div>
+          ))}
+        </dl>
       )}
 
       {resource.sample && (
-        <section className="mb-12">
+        <section className="mt-20">
           {resource.type === 'design' ? (
             <DesignPreview code={resource.sample} title={resource.title} />
           ) : (
             <>
-              <h2 className="text-xl sm:text-2xl font-medium text-black dark:text-white mb-6">
-                详细说明
-              </h2>
-              <div 
-                className="prose dark:prose-invert max-w-none markdown-body"
-                dangerouslySetInnerHTML={{ __html: resource.sample }}
-              />
+              <div className="markdown-body" dangerouslySetInnerHTML={{ __html: resource.sample }} />
               <CodeCopyButton />
             </>
           )}
         </section>
       )}
 
-      {resource.usage && resource.usage.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-xl sm:text-2xl font-medium text-black dark:text-white mb-6">
-            使用场景
-          </h2>
-          <p className="text-sm sm:text-base text-black/60 dark:text-white/60 leading-relaxed">
-            {resource.usage.join('、')}
-          </p>
-        </section>
+      {((resource.usage && resource.usage.length > 0) || (resource.tags && resource.tags.length > 0)) && (
+        <footer className="mt-24 flex flex-col items-center gap-6 text-center">
+          <span className="hedera text-[1.25rem] text-ink-3" aria-hidden />
+          {resource.usage && resource.usage.length > 0 && (
+            <p className="max-w-[36rem] text-[1.125rem] italic leading-[1.6] text-ink-2">
+              Of use for {resource.usage.join(', ')}.
+            </p>
+          )}
+          {resource.tags && resource.tags.length > 0 && (
+            <p className="caps flex flex-wrap justify-center gap-x-4 gap-y-1">
+              {resource.tags.map((tag) => (
+                <span key={tag}>{tag}</span>
+              ))}
+            </p>
+          )}
+        </footer>
       )}
-
-      {resource.tags && resource.tags.length > 0 && (
-        <section>
-          <h2 className="text-xl sm:text-2xl font-medium text-black dark:text-white mb-6">
-            标签
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {resource.tags.map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md bg-black/4 dark:bg-white/6 text-black/60 dark:text-white/60"
-              >
-                <Tag className="w-3.5 h-3.5" />
-                {tag}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
+    </article>
   );
 }
