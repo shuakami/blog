@@ -279,9 +279,11 @@
   background: rgba(var(--ink-rgb), 0.05);
   transition: background-color 200ms var(--ease-out-quint), color 200ms var(--ease-out-quint);
 }
-.markdown-body .project-card-link:hover .project-card-button {
-  color: var(--ink);
-  background: rgba(var(--ink-rgb), 0.09);
+@media (hover: hover) {
+  .markdown-body .project-card-link:hover .project-card-button {
+    color: var(--ink);
+    background: rgba(var(--ink-rgb), 0.09);
+  }
 }
 
 /* Heading anchors, if the renderer emits them. */

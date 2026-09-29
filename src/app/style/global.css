@@ -258,9 +258,11 @@ html.dark-scrollbar {
       background-color 200ms var(--ease-out-quint),
       transform 200ms var(--ease-out-quint);
   }
-  .pill:hover {
-    color: var(--ink);
-    background: rgba(var(--ink-rgb), 0.09);
+  @media (hover: hover) {
+    .pill:hover {
+      color: var(--ink);
+      background: rgba(var(--ink-rgb), 0.09);
+    }
   }
   .pill:active {
     transform: scale(0.97);
@@ -270,7 +272,9 @@ html.dark-scrollbar {
     outline-offset: 2px;
   }
   .pill[aria-pressed='true'],
-  .pill[data-active='true'] {
+  .pill[data-active='true'],
+  .pill[aria-pressed='true']:hover,
+  .pill[data-active='true']:hover {
     color: var(--bg);
     background: var(--ink);
   }
