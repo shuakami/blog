@@ -31,7 +31,7 @@ export function NowPlayingRow() {
             alt=""
             fill
             sizes="32px"
-            className={`object-cover transition-transform duration-500 ease-quint ${isPlaying ? '' : 'scale-105 grayscale'}`}
+            className={`object-cover transition-transform duration-500 ease-quint ${isPlaying ? '' : 'scale-105'}`}
           />
         ) : (
           <span className="absolute inset-0 bg-line" />
