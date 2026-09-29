@@ -251,27 +251,33 @@ html.dark-scrollbar {
     color: var(--ink-input);
     cursor: pointer;
     user-select: none;
-    background: var(--surface);
-    border-radius: 8px;
-    box-shadow: var(--shadow-card);
+    background: rgba(var(--ink-rgb), 0.05);
+    border-radius: 999px;
     transition:
-      box-shadow 300ms var(--ease-out-quint),
-      color 300ms var(--ease-out-quint),
-      background-color 300ms var(--ease-out-quint),
-      transform 300ms var(--ease-out-quint);
+      color 200ms var(--ease-out-quint),
+      background-color 200ms var(--ease-out-quint),
+      transform 200ms var(--ease-out-quint);
   }
   .pill:hover {
     color: var(--ink);
-    box-shadow: var(--shadow-card-hover);
+    background: rgba(var(--ink-rgb), 0.09);
   }
   .pill:active {
-    transform: translateY(0.5px);
-    box-shadow: var(--shadow-card);
+    transform: scale(0.97);
+  }
+  .pill:focus-visible {
+    outline: 2px solid rgba(var(--ink-rgb), 0.3);
+    outline-offset: 2px;
   }
   .pill[aria-pressed='true'],
   .pill[data-active='true'] {
-    color: var(--ink);
-    background: var(--surface-raised);
+    color: var(--bg);
+    background: var(--ink);
+  }
+  .pill[aria-pressed='true'] .text-ink-3,
+  .pill[data-active='true'] .text-ink-3 {
+    color: inherit;
+    opacity: 0.6;
   }
   .pill.pill-icon {
     padding: 0.4rem;

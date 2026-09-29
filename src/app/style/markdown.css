@@ -272,17 +272,16 @@
   gap: 4px;
   min-height: 29px;
   padding: 6px 12px 6px 10px;
-  border-radius: 8px;
+  border-radius: 999px;
   font-size: 13px;
   font-weight: 500;
   color: var(--ink-input);
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
-  transition: box-shadow 300ms var(--ease-out-quint), color 300ms var(--ease-out-quint);
+  background: rgba(var(--ink-rgb), 0.05);
+  transition: background-color 200ms var(--ease-out-quint), color 200ms var(--ease-out-quint);
 }
 .markdown-body .project-card-link:hover .project-card-button {
   color: var(--ink);
-  box-shadow: var(--shadow-card-hover);
+  background: rgba(var(--ink-rgb), 0.09);
 }
 
 /* Heading anchors, if the renderer emits them. */
