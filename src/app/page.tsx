@@ -36,11 +36,11 @@ export default async function Page() {
         <h1 className="text-[1.625rem] md:text-[2rem] font-bold leading-none tracking-[-0.045em] text-ink">Shuakami</h1>
       </header>
 
-      <div className="mt-12 text-[1.0625rem] md:text-[1.3125rem] leading-[1.6] tracking-[-0.015em] text-ink-body">
+      <div className="mt-10 md:mt-12 text-[1rem] md:text-[1.3125rem] leading-[1.6] tracking-[-0.015em] text-ink-body">
         <p className="font-[450]">
           My name is Shuakami, pronounced <span className="mono whitespace-nowrap text-[0.85em] text-ink">/ʃwɑːkɑːmiː/</span>
         </p>
-        <ul className="mt-8 flex flex-col gap-4 font-[450]">
+        <ul className="mt-6 md:mt-8 flex flex-col gap-3 md:gap-4 font-[450]">
           {[
             <>I love creating beautiful, simple, and delightful UI/UX with a passion for animations</>,
             <>My favorite design style is the Geist Design System by Vercel</>,
@@ -63,7 +63,7 @@ export default async function Page() {
               !
             </>,
           ].map((line, i) => (
-            <li key={i} className="grid grid-cols-[1.25rem_minmax(0,1fr)] gap-3">
+            <li key={i} className="grid grid-cols-[1rem_minmax(0,1fr)] gap-2 md:grid-cols-[1.25rem_minmax(0,1fr)] md:gap-3">
               <span className="lozenge mt-[0.62em] text-ink-3" aria-hidden />
               <span>{line}</span>
             </li>

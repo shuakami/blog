@@ -137,7 +137,7 @@ body {
 }
 
 html {
-  font-size: clamp(16px, calc(0.42vw + 10.4px), 20px);
+  font-size: clamp(14.5px, calc(0.25vw + 11.5px), 17.5px);
   background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
