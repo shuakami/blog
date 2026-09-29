@@ -29,9 +29,9 @@ export default async function Page() {
           alt=""
           width={640}
           height={640}
-          sizes="(min-width: 768px) 72px, 56px"
+          sizes="48px"
           priority
-          className="h-14 w-14 flex-none rounded-full object-cover"
+          className="h-11 w-11 flex-none rounded-full object-cover"
         />
         <h1 className="text-[1.625rem] md:text-[2rem] font-bold leading-none tracking-[-0.045em] text-ink">Shuakami</h1>
       </header>

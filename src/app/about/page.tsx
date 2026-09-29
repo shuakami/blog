@@ -54,7 +54,7 @@ export default async function AboutPage() {
   return (
     <div className="site-column mx-auto px-6 pb-8 pt-14 md:px-0 md:pt-28">
       <header className="rise flex items-center gap-4" style={{ ['--i' as string]: 0 }}>
-        <Image src="/friends/assets/avatars/shuakami.jpg" alt="" width={640} height={640} sizes="(min-width: 768px) 72px, 56px" className="h-14 w-14 flex-none rounded-full object-cover" priority />
+        <Image src="/friends/assets/avatars/shuakami.jpg" alt="" width={640} height={640} sizes="48px" className="h-11 w-11 flex-none rounded-full object-cover" priority />
         <h1 className="text-[1.625rem] md:text-[2rem] font-bold leading-none tracking-[-0.045em] text-ink">Shuakami</h1>
       </header>
 
