@@ -1,6 +1,6 @@
 import './style/global.css';
 import type { Metadata } from 'next';
-import { Inter, Geist_Mono } from 'next/font/google';
+import { Inter, Geist_Mono, Noto_Sans_SC } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { LayoutClient } from '@/components/LayoutClient';
 import { NAV_ITEMS } from '@/lib/navigation';
@@ -23,6 +23,12 @@ const geistMono = Geist_Mono({
   preload: true,
 });
 
+const notoSansSC = Noto_Sans_SC({
+  variable: '--font-noto-sans-sc',
+  subsets: ['latin'],
+  display: 'swap',
+  preload: false,
+});
 
 const SITE_DESCRIPTION = 'Notes on code, craft, and the small hours. Written by Shuakami.';
 
@@ -61,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script src="https://stats.axtn.net/api/script.js" data-site-id="2dd9cfab9c53" defer />
       </head>
-      <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${geistMono.variable} ${notoSansSC.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <MusicPlayerProvider>
             <LayoutClient navItems={NAV_ITEMS} siteName="Shuakami">
