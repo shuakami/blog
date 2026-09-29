@@ -121,7 +121,7 @@ export function LiveCodeRenderer({ code, className = '' }: LiveCodeRendererProps
       const componentName = pickComponentName(code) || 'Component';
 
       // 清理代码：移除 'use client'、import、export 关键字
-      let cleanCode = code
+      const cleanCode = code
         .replace(/['"]use client['"];?\n?/g, '')
         .replace(/^import\s+.*?['"]\s*;?\s*$/gm, '')
         .replace(/^import\s*\{[^}]*\}\s*from\s*['"][^'"]*['"]\s*;?\s*$/gm, '')

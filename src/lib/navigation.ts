@@ -1,20 +1,20 @@
 import type { NavItem } from './types';
 
-// 统一的导航配置
 export const NAV_ITEMS: NavItem[] = [
-  { label: '首页', href: '/', enabled: true },
-  { label: '归档', href: '/archive', enabled: true },
-  { label: '作品', href: '/works', enabled: true },
-  { label: '设计', href: '/designs', enabled: true },
-  { label: '游戏', href: '/games', enabled: true },
-  { label: '资源', href: '/resources', enabled: true },
-  { label: '音乐', href: '/music', enabled: true },
-  { label: '关于', href: '/about', enabled: true },
-  { label: '好兄弟们', href: '/friends', enabled: true },
+  { label: 'Index', href: '/', enabled: true },
+  { label: 'Archive', href: '/archive', enabled: true },
+  { label: 'Works', href: '/works', enabled: true },
+  { label: 'Designs', href: '/designs', enabled: true },
+  { label: 'Games', href: '/games', enabled: true },
+  { label: 'Resources', href: '/resources', enabled: true },
+  { label: 'Music', href: '/music', enabled: true },
+  { label: 'About', href: '/about', enabled: true },
+  { label: 'Friends', href: '/friends', enabled: true },
 ];
 
-// 兼容旧格式的导航项（用于 SideNav、Header、MobileNav）
-export const NAV_ITEMS_LEGACY = NAV_ITEMS.filter(item => item.enabled).map(item => ({
+export const ENABLED_NAV_ITEMS = NAV_ITEMS.filter((item) => item.enabled);
+
+export const NAV_ITEMS_LEGACY = ENABLED_NAV_ITEMS.map((item) => ({
   name: item.label,
   path: item.href,
 }));

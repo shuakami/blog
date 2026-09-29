@@ -123,20 +123,20 @@ export function LinkPreview({ url, children }: LinkPreviewProps) {
             }}
             className="pointer-events-none"
           >
-            <div className="w-[380px] max-w-[90vw] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-black/[0.08] dark:border-white/[0.08] overflow-hidden backdrop-blur-xl">
+            <div className="w-[380px] max-w-[90vw] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-black/8 dark:border-white/8 overflow-hidden backdrop-blur-xl">
               {loading ? (
                 <div className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-black/[0.04] dark:bg-white/[0.04] animate-pulse" />
+                  <div className="w-10 h-10 rounded-lg bg-black/4 dark:bg-white/4 animate-pulse" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-black/[0.04] dark:bg-white/[0.04] rounded animate-pulse w-3/4" />
-                    <div className="h-3 bg-black/[0.04] dark:bg-white/[0.04] rounded animate-pulse w-full" />
+                    <div className="h-4 bg-black/4 dark:bg-white/4 rounded animate-pulse w-3/4" />
+                    <div className="h-3 bg-black/4 dark:bg-white/4 rounded animate-pulse w-full" />
                   </div>
                 </div>
               ) : metadata ? (
                 <div className="overflow-hidden">
                   {/* 封面图 */}
                   {metadata.open_graph?.image && (
-                    <div className="relative w-full h-40 bg-gradient-to-br from-black/[0.02] to-black/[0.06] dark:from-white/[0.02] dark:to-white/[0.06]">
+                    <div className="relative w-full h-40 bg-linear-to-br from-black/2 to-black/6 dark:from-white/2 dark:to-white/6">
                       <img
                         src={metadata.open_graph.image}
                         alt=""
@@ -156,13 +156,13 @@ export function LinkPreview({ url, children }: LinkPreviewProps) {
                         <img
                           src={metadata.favicon_url}
                           alt=""
-                          className="w-5 h-5 rounded flex-shrink-0 mt-0.5"
+                          className="w-5 h-5 rounded shrink-0 mt-0.5"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
                           }}
                         />
                       ) : (
-                        <Globe className="w-5 h-5 text-black/40 dark:text-white/40 flex-shrink-0 mt-0.5" />
+                        <Globe className="w-5 h-5 text-black/40 dark:text-white/40 shrink-0 mt-0.5" />
                       )}
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-medium text-black dark:text-white line-clamp-2 leading-snug mb-1">
@@ -177,7 +177,7 @@ export function LinkPreview({ url, children }: LinkPreviewProps) {
                     </div>
 
                     {/* 域名 */}
-                    <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-black/[0.06] dark:border-white/[0.06]">
+                    <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-black/6 dark:border-white/6">
                       <ExternalLink className="w-3 h-3 text-black/40 dark:text-white/40" />
                       <span className="text-xs text-black/40 dark:text-white/40 truncate">
                         {new URL(metadata.page_url).hostname}

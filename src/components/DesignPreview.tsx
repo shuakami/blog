@@ -58,22 +58,22 @@ export function DesignPreview({ code: htmlContent, title }: DesignPreviewProps) 
   return (
     <div className="mb-12">
       {/* 预览区域 */}
-      <div className="rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] overflow-hidden mb-6">
+      <div className="rounded-2xl bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6 overflow-hidden mb-6">
         <div className="h-64 flex items-center justify-center p-8 text-black dark:text-white">
           <LiveCodeRenderer code={code} />
         </div>
       </div>
 
       {/* 代码区域 */}
-      <div className="rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3 border-b border-black/[0.06] dark:border-white/[0.06]">
+      <div className="rounded-2xl bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6 overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-black/6 dark:border-white/6">
           <span className="text-sm font-medium text-black/60 dark:text-white/60">代码</span>
           <button
             onClick={copyToClipboard}
             className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
               copiedId === 'code'
-                ? 'bg-black/[0.06] dark:bg-white/[0.08] text-black/60 dark:text-white/60'
-                : 'bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white hover:bg-black/[0.10] dark:hover:bg-white/[0.12]'
+                ? 'bg-black/6 dark:bg-white/8 text-black/60 dark:text-white/60'
+                : 'bg-black/6 dark:bg-white/8 text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/12'
             }`}
           >
             {copiedId === 'code' ? (

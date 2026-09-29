@@ -26,28 +26,28 @@ export default function PricingPage() {
           服务范围
         </h2>
         <div className="grid md:grid-cols-2 gap-4">
-          <div className="rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] px-5 py-5 transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.04]">
+          <div className="rounded-lg bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6 px-5 py-5 transition-colors hover:bg-black/4 dark:hover:bg-white/4">
             <h3 className="text-lg font-medium text-black dark:text-white mb-2">网站开发</h3>
             <p className="text-sm text-black/60 dark:text-white/60 leading-relaxed">
               企业官网、个人博客、作品集网站等各类展示型网站的设计与开发
             </p>
           </div>
 
-          <div className="rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] px-5 py-5 transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.04]">
+          <div className="rounded-lg bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6 px-5 py-5 transition-colors hover:bg-black/4 dark:hover:bg-white/4">
             <h3 className="text-lg font-medium text-black dark:text-white mb-2">Web 应用</h3>
             <p className="text-sm text-black/60 dark:text-white/60 leading-relaxed">
               管理后台、数据看板、在线工具等功能型 Web 应用的完整开发
             </p>
           </div>
 
-          <div className="rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] px-5 py-5 transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.04]">
+          <div className="rounded-lg bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6 px-5 py-5 transition-colors hover:bg-black/4 dark:hover:bg-white/4">
             <h3 className="text-lg font-medium text-black dark:text-white mb-2">API 开发</h3>
             <p className="text-sm text-black/60 dark:text-white/60 leading-relaxed">
               RESTful API、GraphQL 接口、第三方服务集成等后端服务开发
             </p>
           </div>
 
-          <div className="rounded-lg bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] px-5 py-5 transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.04]">
+          <div className="rounded-lg bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6 px-5 py-5 transition-colors hover:bg-black/4 dark:hover:bg-white/4">
             <h3 className="text-lg font-medium text-black dark:text-white mb-2">AI 集成</h3>
             <p className="text-sm text-black/60 dark:text-white/60 leading-relaxed">
               ChatGPT、AI Agent 等人工智能技术的集成与应用开发
@@ -62,7 +62,7 @@ export default function PricingPage() {
           参考报价
         </h2>
         <div className="space-y-6">
-          <div className="py-6 border-b border-black/[0.06] dark:border-white/[0.06]">
+          <div className="py-6 border-b border-black/6 dark:border-white/6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex-1">
                 <h3 className="text-lg font-medium text-black dark:text-white mb-2">
@@ -83,7 +83,7 @@ export default function PricingPage() {
             </div>
           </div>
 
-          <div className="py-6 border-b border-black/[0.06] dark:border-white/[0.06]">
+          <div className="py-6 border-b border-black/6 dark:border-white/6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex-1">
                 <h3 className="text-lg font-medium text-black dark:text-white mb-2">
@@ -104,7 +104,7 @@ export default function PricingPage() {
             </div>
           </div>
 
-          <div className="py-6 border-b border-black/[0.06] dark:border-white/[0.06]">
+          <div className="py-6 border-b border-black/6 dark:border-white/6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex-1">
                 <h3 className="text-lg font-medium text-black dark:text-white mb-2">
@@ -125,7 +125,7 @@ export default function PricingPage() {
             </div>
           </div>
 
-          <div className="py-6 border-b border-black/[0.06] dark:border-white/[0.06]">
+          <div className="py-6 border-b border-black/6 dark:border-white/6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex-1">
                 <h3 className="text-lg font-medium text-black dark:text-white mb-2">

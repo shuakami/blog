@@ -104,7 +104,7 @@ export default function SearchAndFilter({ posts, onFilter }: SearchAndFilterProp
             className={`px-3 py-1 text-sm rounded-full transition-all duration-200
               ${selectedTag === tag
                 ? 'bg-black/10 dark:bg-white/10 text-black dark:text-white'
-                : 'bg-black/[0.03] dark:bg-white/[0.03] text-black/60 dark:text-white/60 hover:bg-black/[0.05] dark:hover:bg-white/[0.05]'
+                : 'bg-black/3 dark:bg-white/3 text-black/60 dark:text-white/60 hover:bg-black/5 dark:hover:bg-white/5'
               }`}
           >
             {tag}

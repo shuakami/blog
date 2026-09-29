@@ -99,7 +99,7 @@ export default function PrivacyPage() {
           <p>
             如果你对这份隐私政策有任何疑问，或者想要行使上述的任何权利，欢迎随时通过邮箱联系我。我会尽快回复你的问题。
           </p>
-          <div className="mt-6 p-6 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
+          <div className="mt-6 p-6 rounded-xl bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6">
             <p className="text-sm text-black/60 dark:text-white/60 mb-2">邮箱</p>
             <a
               href="mailto:shuakami@sdjz.wiki"

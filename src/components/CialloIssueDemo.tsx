@@ -305,7 +305,7 @@ export default function CialloIssueDemo({ isActive }: CialloIssueDemoProps) {
               <img
                 src={group.avatar}
                 alt={group.author}
-                className="w-8 h-8 rounded-full flex-shrink-0"
+                className="w-8 h-8 rounded-full shrink-0"
               />
 
               {/* 消息组 */}
@@ -339,14 +339,14 @@ export default function CialloIssueDemo({ isActive }: CialloIssueDemoProps) {
                             <span className="w-1.5 h-1.5 rounded-full bg-black/30 dark:bg-white/30 animate-bounce" style={{ animationDelay: '300ms' }} />
                           </div>
                         ) : (
-                          <div className="text-[14px] leading-[1.6] text-black/70 dark:text-white/70 break-words">
+                          <div className="text-[14px] leading-[1.6] text-black/70 dark:text-white/70 wrap-break-word">
                             {msg.content.split('```').map((part, i) => {
                               if (i % 2 === 1) {
                                 // 代码块
                                 const lines = part.split('\n');
                                 const code = lines.slice(1).join('\n');
                                 return (
-                                  <pre key={i} className="my-3 p-4 rounded-md bg-black/[0.03] dark:bg-white/[0.03] overflow-x-auto border border-black/[0.06] dark:border-white/[0.06]">
+                                  <pre key={i} className="my-3 p-4 rounded-md bg-black/3 dark:bg-white/3 overflow-x-auto border border-black/6 dark:border-white/6">
                                     <code className="text-[12px] font-mono text-black/60 dark:text-white/60">
                                       {code}
                                     </code>

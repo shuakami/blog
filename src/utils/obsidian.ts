@@ -1,6 +1,7 @@
 // src/utils/obsidian.ts
 import matter from 'gray-matter';
-import yaml from 'js-yaml';
+import { generateExcerpt } from './excerpt-generator';
+import { load as loadYaml } from 'js-yaml';
 import { markdownToHtml } from './markdown';
 import { getFileContent } from './gitee';
 import {
@@ -127,7 +128,7 @@ async function buildPostFromMarkdown(path: string) {
   const content = await getFileContent(path);
   const parsed = matter(content, {
     engines: {
-      yaml: (s: string) => yaml.load(s) as Record<string, any>
+      yaml: (s: string) => loadYaml(s) as Record<string, any>
     }
   });
 
@@ -148,8 +149,6 @@ async function buildPostFromMarkdown(path: string) {
   const { updatedMarkdown } = await replaceImagesWithOssUrls(parsed.content);
   const html = await markdownToHtml(updatedMarkdown);
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { generateExcerpt } = require('./excerpt-generator');
   const excerpt = generateExcerpt(parsed.content, parsed.data.excerpt);
   
   // 计算字数

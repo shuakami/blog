@@ -13,6 +13,7 @@ import PostNavigator from '@/components/PostNavigator';
 import { ImagePreview } from '@/components/ImagePreview';
 import { LinkPreviewProvider } from '@/components/LinkPreviewProvider';
 import { resolveAuthorProfile } from '@/utils/author-profile';
+import { formatLongDate } from '@/lib/format';
 import type { Metadata } from 'next';
 import type { Viewport } from 'next';
 
@@ -25,26 +26,6 @@ interface PageProps {
     slug: string;
   };
   searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>;
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffTime = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const currentYear = now.getFullYear();
-
-  if (diffDays === 0) return '写于今天';
-  if (diffDays === 1) return '写于昨天';
-  if (diffDays < 7) return `写于${diffDays}天前`;
-
-  if (year === currentYear) return `写于${month}月${day}日`;
-  if (year === currentYear - 1) return `写于去年${month}月${day}日`;
-  return `写于${year}年${month}月${day}日`;
 }
 
 function extractEncryptParam(value?: string | string[]): string {
@@ -60,16 +41,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const post = await getPostBySlug(resolvedParams.slug, 'content');
   if (!post) {
     return {
-      title: '文章未找到 - Shuakami',
-      description: '请检查链接是否正确',
+      title: 'Not found',
+      description: 'The page you were looking for is not here.',
     };
   }
 
-  const description = post.excerpt || '一篇纪录思考的文章。';
+  const description = post.excerpt || 'A note from Shuakami.';
   const authorProfile = resolveAuthorProfile(post.author, post.authorAvatar);
 
   return {
-    title: `${post.title} - Shuakami`,
+    title: post.title,
     description,
     openGraph: {
       title: post.title,
@@ -87,8 +68,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export const viewport: Viewport = {
-  themeColor: 'light',
-} as const;
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f7f6f2' },
+    { media: '(prefers-color-scheme: dark)', color: '#181210' },
+  ],
+};
 
 export default async function PostPage({ params, searchParams }: PageProps) {
   const resolvedParams = await Promise.resolve(params);
@@ -120,62 +104,47 @@ export default async function PostPage({ params, searchParams }: PageProps) {
   const authorProfile = resolveAuthorProfile(post.author, post.authorAvatar);
 
   return (
-    <article className="w-full mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-12 sm:pb-16">
-      <nav className="flex items-center justify-center gap-2 text-xs sm:text-sm text-black/40 dark:text-white/40 mb-8 sm:mb-12 max-w-5xl mx-auto">
-        <Link href="/" className="inline-flex items-center gap-1 sm:gap-1.5 hover:text-black dark:hover:text-white transition-colors flex-shrink-0">
-          <ArrowLeft className="w-3 h-3" />
-          <span>文章</span>
+    <article className="site-column mx-auto px-6 pb-8 pt-8 md:px-0 md:pt-16">
+      <nav className="flex items-center justify-between">
+        <Link href="/" className="pill" aria-label="Back to index">
+          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
+          <span>Index</span>
         </Link>
-        <span className="flex-shrink-0">/</span>
-        <span className="text-black/60 dark:text-white/60 truncate max-w-[200px] sm:max-w-xs md:max-w-md">{post.title}</span>
+        <CopyUrlButton />
       </nav>
 
-      <header className="mb-12 sm:mb-16 text-center max-w-4xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-black dark:text-white leading-tight mb-4 sm:mb-6 px-2">
-          {post.title}
-        </h1>
-
-        <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
-          <Image
-            src={authorProfile.avatar}
-            alt={`${authorProfile.name} avatar`}
-            width={20}
-            height={20}
-            className="rounded-full"
-          />
-          <span className="text-sm text-black/50 dark:text-white/50">
+      <header className="mt-16 flex flex-col gap-5">
+        <h1 className="text-[26px] font-medium leading-[1.2] tracking-[-0.5px] text-ink sm:text-[30px]">{post.title}</h1>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-ink-3">
+          <span className="flex items-center gap-2 text-ink-2">
+            <Image src={authorProfile.avatar} alt="" width={18} height={18} className="h-[18px] w-[18px] rounded-full object-cover" />
             {authorProfile.name}
           </span>
+          <time dateTime={post.date} className="mono text-[12px]">
+            {formatLongDate(post.date)}
+          </time>
+          <span className="mono text-[12px]">{readingTime} min read</span>
+          {post.category && (
+            <Link href={`/archive?category=${encodeURIComponent(post.category)}` as never} className="ink-link">
+              {post.category}
+            </Link>
+          )}
         </div>
-
-        <div className="w-12 sm:w-16 h-[2px] bg-black dark:bg-white mx-auto" />
+        <div className="hairline" />
       </header>
 
       <LinkPreviewProvider>
-        <div className="article-content-width mx-auto">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm pt-2 mb-6">
-            <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-              <div className="flex items-center gap-1.5 text-black/40 dark:text-white/40">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-black/40 dark:text-white/40 sm:w-4 sm:h-4 flex-shrink-0">
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M5.35066 2.06247C5.96369 1.78847 6.62701 1.60666 7.32351 1.53473L7.16943 0.0426636C6.31208 0.1312 5.49436 0.355227 4.73858 0.693033L5.35066 2.06247ZM8.67651 1.53473C11.9481 1.87258 14.5 4.63876 14.5 8.00001C14.5 11.5899 11.5899 14.5 8.00001 14.5C4.63901 14.5 1.87298 11.9485 1.5348 8.67722L0.0427551 8.83147C0.459163 12.8594 3.86234 16 8.00001 16C12.4183 16 16 12.4183 16 8.00001C16 3.86204 12.8589 0.458666 8.83059 0.0426636L8.67651 1.53473ZM2.73972 4.18084C3.14144 3.62861 3.62803 3.14195 4.18021 2.74018L3.29768 1.52727C2.61875 2.02128 2.02064 2.61945 1.52671 3.29845L2.73972 4.18084ZM1.5348 7.32279C1.60678 6.62656 1.78856 5.96348 2.06247 5.35066L0.693033 4.73858C0.355343 5.4941 0.131354 6.31152 0.0427551 7.16854L1.5348 7.32279ZM8.75001 4.75V4H7.25001V4.75V7.875C7.25001 8.18976 7.3982 8.48615 7.65001 8.675L9.55001 10.1L10.15 10.55L11.05 9.35L10.45 8.9L8.75001 7.625V4.75Z"
-                    fill="currentColor"
-                  />
-                </svg>
-                <span className="whitespace-nowrap">{readingTime} 分钟阅读</span>
-              </div>
-              <CopyUrlButton />
-            </div>
-
-            <time className="text-black/40 dark:text-white/40 whitespace-nowrap">{formatDate(post.date)}</time>
-          </div>
-
-          <div className="prose dark:prose-invert max-w-none markdown-body" dangerouslySetInnerHTML={{ __html: post.content }} />
-          <CodeCopyButton />
-        </div>
+        <div className="markdown-body mt-10" dangerouslySetInnerHTML={{ __html: post.content }} />
+        <CodeCopyButton />
       </LinkPreviewProvider>
+
+      <div className="mt-20 flex items-center justify-between">
+        <Link href="/archive" className="pill">
+          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
+          <span>Archive</span>
+        </Link>
+        <CopyUrlButton label="Share" />
+      </div>
 
       <PostNavigator headings={headings} />
       <ImagePreview />

@@ -5,7 +5,7 @@ import { memo, useEffect, useState } from 'react';
 // 样式常量
 const CARD_STYLES = {
   base: "bg-white/40 dark:bg-black/40 rounded-xl backdrop-blur-md border border-black/5 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(255,255,255,0.04)]",
-  ring: "ring-1 ring-black/[0.03] dark:ring-white/[0.03]"
+  ring: "ring-1 ring-black/3 dark:ring-white/3"
 };
 
 // 简单的className合并函数

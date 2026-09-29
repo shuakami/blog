@@ -292,7 +292,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
           }
         }}
       >
-        {!isMobile && <Music className="h-4 w-4 flex-shrink-0" />}
+        {!isMobile && <Music className="h-4 w-4 shrink-0" />}
         <div className="flex items-center gap-2 min-w-0">
           {!isMobile && <span className="font-medium text-foreground">{displayTitle}</span>}
           <div className="relative h-5 max-w-[600px] min-w-[160px] overflow-hidden">
@@ -306,7 +306,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                   transition={{ duration: 0.5, ease: "easeInOut" }}
                   className="absolute inset-0 flex items-center justify-center gap-2"
                 >
-                  {!isMobile && <span className="text-muted-foreground flex-shrink-0">-</span>}
+                  {!isMobile && <span className="text-muted-foreground shrink-0">-</span>}
                   <p className="truncate text-muted-foreground text-center">{displayLyric}</p>
                 </motion.div>
               )}
@@ -386,7 +386,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                   </div>
 
                   {/* 滚动歌词区域 */}
-                  <div className="mb-4 h-28 overflow-hidden relative bg-gradient-to-b from-transparent via-muted/20 to-transparent">
+                  <div className="mb-4 h-28 overflow-hidden relative bg-linear-to-b from-transparent via-muted/20 to-transparent">
                     {parsedLyrics.length > 0 ? (
                       <div className="relative h-full">
                         <motion.div
@@ -404,10 +404,10 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                             return (
                               <div
                                 key={index}
-                                className={`text-center leading-snug px-2 py-1 min-h-[2rem] flex items-center justify-center ${fontSize} ${color} transition-all duration-500 cursor-pointer hover:opacity-100`}
+                                className={`text-center leading-snug px-2 py-1 min-h-8 flex items-center justify-center ${fontSize} ${color} transition-all duration-500 cursor-pointer hover:opacity-100`}
                                 style={{ opacity }}
                               >
-                                <div className="max-w-full break-words text-center">
+                                <div className="max-w-full wrap-break-word text-center">
                                   {lyric.text || "♪"}
                                 </div>
                               </div>
@@ -647,13 +647,13 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
             <DialogPrimitive.Title className="sr-only">音乐播放器</DialogPrimitive.Title>
 
             {/* 顶部拖动指示器 - 仅移动端显示 */}
-            <div className="sm:hidden flex justify-center pt-3 pb-2 flex-shrink-0 bg-white dark:bg-background z-10">
+            <div className="sm:hidden flex justify-center pt-3 pb-2 shrink-0 bg-white dark:bg-background z-10">
               <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
             </div>
 
             {/* 关闭按钮 - 固定在内容区顶部 */}
             <DialogPrimitive.Close 
-              className="absolute right-4 top-4 z-[60] rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-background/80 backdrop-blur-sm shadow-lg"
+              className="absolute right-4 top-4 z-60 rounded-full transition-all hover:bg-secondary focus:outline-none disabled:pointer-events-none inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 bg-white/80 dark:bg-background/80 backdrop-blur-sm shadow-lg"
               onClick={() => {
                 triggerHaptic(HapticFeedback.Medium)
               }}
@@ -690,7 +690,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                 </div>
 
                 {/* 滚动歌词区域 */}
-                <div className="h-28 sm:h-32 overflow-hidden relative bg-gradient-to-b from-transparent via-muted/20 to-transparent rounded-lg px-4 flex-shrink-0">
+                <div className="h-28 sm:h-32 overflow-hidden relative bg-linear-to-b from-transparent via-muted/20 to-transparent rounded-lg px-4 shrink-0">
                   {parsedLyrics.length > 0 ? (
                     <div className="relative h-full">
                       <motion.div
@@ -708,10 +708,10 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                           return (
                             <div
                               key={index}
-                              className={`text-center leading-snug px-4 py-1.5 min-h-[2.25rem] flex items-center justify-center ${fontSize} ${color} transition-all duration-500 cursor-pointer hover:opacity-100`}
+                              className={`text-center leading-snug px-4 py-1.5 min-h-9 flex items-center justify-center ${fontSize} ${color} transition-all duration-500 cursor-pointer hover:opacity-100`}
                               style={{ opacity }}
                             >
-                              <div className="max-w-full break-words text-center">
+                              <div className="max-w-full wrap-break-word text-center">
                                 {lyric.text || "♪"}
                               </div>
                             </div>
@@ -866,7 +866,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                               handleSongChange(actualIndex)
                             }}
                           >
-                            <div className="relative w-14 h-14 sm:w-12 sm:h-12 rounded-lg overflow-hidden shadow-sm flex-shrink-0">
+                            <div className="relative w-14 h-14 sm:w-12 sm:h-12 rounded-lg overflow-hidden shadow-sm shrink-0">
                               <Image
                                 src={song.coverUrl}
                                 alt={song.album}
@@ -883,7 +883,7 @@ export function NowPlaying({ isSidebarOpen = true }: NowPlayingProps) {
                                 {song.artist}
                               </p>
                             </div>
-                            <Play className="w-5 h-5 sm:w-4 sm:h-4 text-muted-foreground fill-muted-foreground flex-shrink-0" />
+                            <Play className="w-5 h-5 sm:w-4 sm:h-4 text-muted-foreground fill-muted-foreground shrink-0" />
                           </motion.div>
                         )
                       })}

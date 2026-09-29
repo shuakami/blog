@@ -1,86 +1,27 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Home } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 export default function NotFound() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-16 md:py-24 min-h-[80vh] flex items-center justify-center">
-      <div className="text-center space-y-8 md:space-y-12">
-        {/* 404 标题 */}
-        <div className="space-y-4 md:space-y-6">
-          <h1 className="text-[120px] sm:text-[160px] md:text-[200px] font-bold tracking-tighter text-black/5 dark:text-white/5 leading-none select-none">
-            404
-          </h1>
-          <div className="space-y-2 md:space-y-3 -mt-16 sm:-mt-20 md:-mt-24">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-medium text-black dark:text-white">
-              页面不存在
-            </h2>
-            <p className="text-base sm:text-lg text-black/50 dark:text-white/50 max-w-md mx-auto px-4">
-              抱歉，你访问的页面走丢了
-            </p>
-          </div>
-        </div>
-
-        {/* 分隔线 */}
-        <div className="flex items-center justify-center gap-4">
-          <div className="h-px w-12 bg-black/10 dark:bg-white/10" />
-          <div className="h-1 w-1 rounded-full bg-black/20 dark:bg-white/20" />
-          <div className="h-px w-12 bg-black/10 dark:bg-white/10" />
-        </div>
-
-        {/* 操作按钮 */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-black/80 dark:hover:bg-white/80 transition-all group w-full sm:w-auto"
-          >
-            <Home className="w-4 h-4" />
-            <span className="font-medium">返回首页</span>
-          </Link>
-
-          <button
-            onClick={() => window.history.back()}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-black/10 dark:border-white/10 text-black dark:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all group w-full sm:w-auto"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium">返回上页</span>
-          </button>
-        </div>
-
-        {/* 建议链接 */}
-        <div className="pt-8 md:pt-12 space-y-4">
-          <p className="text-sm text-black/40 dark:text-white/40">
-            你可能在寻找：
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <Link
-              href="/archive"
-              className="px-4 py-2 text-sm rounded-full bg-black/[0.04] dark:bg-white/[0.04] text-black/60 dark:text-white/60 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white transition-all"
-            >
-              文章归档
-            </Link>
-            <Link
-              href="/works"
-              className="px-4 py-2 text-sm rounded-full bg-black/[0.04] dark:bg-white/[0.04] text-black/60 dark:text-white/60 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white transition-all"
-            >
-              作品展示
-            </Link>
-            <Link
-              href="/music"
-              className="px-4 py-2 text-sm rounded-full bg-black/[0.04] dark:bg-white/[0.04] text-black/60 dark:text-white/60 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white transition-all"
-            >
-              音乐播放器
-            </Link>
-            <Link
-              href="/about"
-              className="px-4 py-2 text-sm rounded-full bg-black/[0.04] dark:bg-white/[0.04] text-black/60 dark:text-white/60 hover:bg-black/[0.08] dark:hover:bg-white/[0.08] hover:text-black dark:hover:text-white transition-all"
-            >
-              关于我
-            </Link>
-          </div>
-        </div>
+    <div className="site-column mx-auto flex min-h-[70vh] flex-col justify-center px-6 md:px-0">
+      <p className="mono text-[12px] text-ink-3">404</p>
+      <h1 className="mt-3 text-[26px] font-medium leading-[1.2] tracking-[-0.5px] text-ink">
+        Exit, pursued by a bear.
+      </h1>
+      <p className="mt-4 max-w-[42ch] text-[15px] leading-[1.6] text-ink-2">
+        The page you asked for left the stage some time ago and did not say where it was going.
+      </p>
+      <div className="mt-8 flex items-center gap-2">
+        <Link href="/" className="pill">
+          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
+          <span>Index</span>
+        </Link>
+        <button type="button" onClick={() => window.history.back()} className="pill pill-text-only">
+          Go back
+        </button>
       </div>
     </div>
   );
-} 
+}

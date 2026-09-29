@@ -122,7 +122,7 @@ export default function CialloParticleBanner() {
   };
 
   return (
-    <div className="relative w-full aspect-[16/9] sm:aspect-[2/1] rounded-lg md:rounded-xl overflow-hidden bg-white dark:bg-black">
+    <div className="relative w-full aspect-video sm:aspect-2/1 rounded-lg md:rounded-xl overflow-hidden bg-white dark:bg-black">
       {/* 粒子背景 */}
       <canvas
         ref={canvasRef}

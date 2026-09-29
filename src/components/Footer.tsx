@@ -1,61 +1,68 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { Route } from "next"
-import { Github, Mail, Rss } from "lucide-react"
+import { useEffect, useState } from 'react';
 
-const SOCIAL_LINKS = [
-  { name: "GitHub", href: "https://github.com/shuakami", icon: Github },
-  { name: "RSS", href: "/rss", icon: Rss },
-  { name: "Email", href: "mailto:shuakami@sdjz.wiki", icon: Mail },
-]
+const LINKS = [
+  { label: 'GitHub', href: 'https://github.com/shuakami' },
+  { label: 'RSS', href: '/rss' },
+  { label: 'Mail', href: 'mailto:shuakami@sdjz.wiki' },
+];
 
-export default function Footer() {
-  const currentYear = new Date().getFullYear()
+const OFFSET_LABEL = 'UTC+8';
+
+function formatClock(date: Date) {
+  return new Intl.DateTimeFormat('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Asia/Shanghai',
+  }).format(date);
+}
+
+export default function Footer({ wide = false }: { wide?: boolean }) {
+  const [clock, setClock] = useState<string | null>(null);
+
+  useEffect(() => {
+    const tick = () => setClock(formatClock(new Date()));
+    tick();
+    const id = setInterval(tick, 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const year = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-32">
-      <div className="max-w-4xl mx-auto px-4 md:px-6 pb-16">
-        {/* 主要内容 */}
-        <div className="flex flex-col items-center text-center space-y-8">
-          {/* 社交链接 */}
-          <div className="flex items-center gap-6">
-            {SOCIAL_LINKS.map((social) => (
+    <footer className={`site-column mx-auto px-6 pb-16 pt-24 md:px-0 ${wide ? 'site-column-wide md:px-10' : ''}`}>
+      <div className="hairline mb-8" />
+      <div className="flex flex-col gap-6 text-[13px] leading-[1.45] text-ink-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-1">
+          <p className="text-ink-2">All the world is a stage, and this one runs on Next.</p>
+          <p className="mono text-[12px]" suppressHydrationWarning>
+            {clock ? `${clock} ${OFFSET_LABEL}` : `\u00A0`}
+          </p>
+        </div>
+        <div className="flex flex-col gap-1 sm:items-end">
+          <div className="flex items-center gap-4">
+            {LINKS.map((link) => (
               <a
-                key={social.name}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors duration-200"
-                aria-label={social.name}
+                key={link.label}
+                href={link.href}
+                target={link.href.startsWith('http') ? '_blank' : undefined}
+                rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                className="ink-link text-ink-2"
               >
-                <social.icon className="w-5 h-5" />
+                {link.label}
               </a>
             ))}
           </div>
-
-          {/* Ciallo */}
-          <div className="text-black/60 dark:text-white/60 text-base">
-            Ciallo～(∠・ω&lt; )⌒★
-          </div>
-
-          {/* 版权和备案 */}
-          <div className="flex flex-col items-center gap-2 text-xs text-black/40 dark:text-white/40">
-            <div className="flex items-center gap-3">
-              <span>© {currentYear} Shuakami</span>
-              <span>·</span>
-              <a
-                href="https://beian.miit.gov.cn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-black dark:hover:text-white transition-colors"
-              >
-                桂ICP备2023016069号-2
-              </a>
-            </div>
+          <div className="flex items-center gap-3 text-[12px]">
+            <span>{year} Shuakami</span>
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" className="ink-link">
+              桂ICP备2023016069号-2
+            </a>
           </div>
         </div>
       </div>
     </footer>
-  )
-} 
+  );
+}

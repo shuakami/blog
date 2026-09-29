@@ -5,7 +5,7 @@ import Image from 'next/image';
 // 样式常量
 const CARD_STYLES = {
   base: "bg-white/40 dark:bg-black/40 rounded-xl backdrop-blur-md border border-black/5 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(255,255,255,0.04)]",
-  ring: "ring-1 ring-black/[0.03] dark:ring-white/[0.03]",
+  ring: "ring-1 ring-black/3 dark:ring-white/3",
   hover: "hover:bg-white/60 dark:hover:bg-black/60 hover:-translate-y-1 hover:shadow-[0_16px_45px_rgb(0,0,0,0.1)] dark:hover:shadow-[0_16px_45px_rgb(255,255,255,0.1)]"
 };
 
@@ -38,12 +38,12 @@ export default function DeveloperCard({ developer }: DeveloperCardProps) {
         {developer.name === 'Shuakami' && (
           <>
             {/* RGB光效 */}
-            <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-[#a8edea]/0 via-[#a8edea]/20 to-[#fed6e3]/20 
+            <div className="absolute -inset-px rounded-xl bg-linear-to-r from-[#a8edea]/0 via-[#a8edea]/20 to-[#fed6e3]/20 
               opacity-0 group-hover:opacity-0 dark:group-hover:opacity-100 transition-opacity duration-500
               animate-gradient-x pointer-events-none" />
 
             {/* hover边框效果 */}
-            <div className="absolute -inset-[1px] rounded-xl border border-black/[0.08] dark:border-white/[0.15] opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute -inset-px rounded-xl border border-black/8 dark:border-white/15 opacity-0 group-hover:opacity-100 transition-opacity" />
           </>
         )}
 
@@ -114,9 +114,9 @@ export default function DeveloperCard({ developer }: DeveloperCardProps) {
               <span
                 key={i}
                 className="px-3 py-1 text-base rounded-full 
-                  bg-black/[0.03] dark:bg-white/[0.03]
+                  bg-black/3 dark:bg-white/3
                   text-black/60 dark:text-white/60
-                  group-hover:bg-black/[0.05] dark:group-hover:bg-white/[0.05]
+                  group-hover:bg-black/5 dark:group-hover:bg-white/5
                   transition-colors
                   truncate max-w-[120px]"
               >

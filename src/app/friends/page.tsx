@@ -68,10 +68,10 @@ export default function DevelopersPage() {
             rel="noopener noreferrer"
             className="group"
           >
-            <div className="rounded-xl border border-black/[0.06] dark:border-white/[0.06] p-5 transition-colors hover:border-black/20 dark:hover:border-white/20">
+            <div className="rounded-xl border border-black/6 dark:border-white/6 p-5 transition-colors hover:border-black/20 dark:hover:border-white/20">
               <div className="flex items-center gap-4">
                 {/* 头像 */}
-                <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-full">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full">
                   <Image
                     src={developer.avatar}
                     alt={developer.name}

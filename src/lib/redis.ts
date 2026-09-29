@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import type { BlogPost } from '@/types/post';
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var __REDIS_CLIENT__: Redis | undefined;
 }
 

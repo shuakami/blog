@@ -107,7 +107,7 @@ export default function PersonalStatusCard() {
     >
       <div className="w-full max-w-sm">
         <div className="group rounded-2xl overflow-hidden 
-          bg-gradient-to-br from-white/50 via-white/40 to-white/30
+          bg-linear-to-br from-white/50 via-white/40 to-white/30
           dark:from-neutral-900/70 dark:via-neutral-800/60 dark:to-neutral-800/50
           backdrop-blur-lg backdrop-saturate-150
           border border-white/30 dark:border-neutral-700/80
@@ -126,7 +126,7 @@ export default function PersonalStatusCard() {
             </div>
 
             <div className="mb-4 sm:mb-5 text-center">
-              <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-sky-400/20 to-blue-500/20 dark:from-sky-600/30 dark:to-blue-700/30 rounded-full mb-2 sm:mb-3">
+              <div className="inline-flex items-center justify-center p-3 bg-linear-to-br from-sky-400/20 to-blue-500/20 dark:from-sky-600/30 dark:to-blue-700/30 rounded-full mb-2 sm:mb-3">
                 <span className={status.availability.color}>
                   {activityIcon}
                 </span>

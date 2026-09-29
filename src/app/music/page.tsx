@@ -1,20 +1,29 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { ChevronDown, ChevronUp, Play, Pause } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Pause, Play, SkipBack, SkipForward, Maximize2 } from 'lucide-react';
+import { Arc } from 'loading-dev';
 
-import { Skeleton } from "@/components/ui/skeleton"
-import { UnifiedSong } from "@/lib/types"
-import { useMusicPlayer } from "@/hooks/use-music-player"
+import type { UnifiedSong } from '@/lib/types';
+import { useMusicPlayer } from '@/hooks/use-music-player';
+import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
 
+const BIG = 240;
+const SMALL = 132;
+const GAP = 20;
+
+const fmt = (s: number) => {
+  if (!Number.isFinite(s) || s <= 0) return '0:00';
+  const m = Math.floor(s / 60);
+  return `${m}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+};
 
 export default function MusicPage() {
   const {
     playlist,
     currentSong,
-    nextUpSongs,
     isPlaying,
     isLoading,
     hasMore,
@@ -24,300 +33,204 @@ export default function MusicPage() {
     handlePrevSong,
     handleTogglePlay,
     loadMoreSongsForUI,
-  } = useMusicPlayer()
+    audioRef,
+  } = useMusicPlayer();
 
-  const [hasMounted, setHasMounted] = useState(false)
-  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [mounted, setMounted] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
-    setHasMounted(true)
-  }, [])
-
-  // 懒加载：滚动到底部时加载更多歌曲
-  useEffect(() => {
-    const handleScroll = async () => {
-      if (isLoadingMore || !hasMore) return
-
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-      const windowHeight = window.innerHeight
-      const documentHeight = document.documentElement.offsetHeight
-      
-      // 当滚动到距离底部200px时触发加载
-      if (scrollTop + windowHeight >= documentHeight - 200) {
-        setIsLoadingMore(true)
-        try {
-          const hasLoadedNew = await loadMoreSongsForUI()
-          if (!hasLoadedNew) {
-            // 如果没有加载到新歌曲，可能是到达了列表末尾
-            console.log('没有更多歌曲可加载')
-          }
-        } catch (error) {
-          console.error('加载更多歌曲失败:', error)
-        } finally {
-          setIsLoadingMore(false)
-        }
+    let raf = 0;
+    const tick = () => {
+      const a = audioRef?.current;
+      if (a && a.duration) {
+        setProgress(a.currentTime / a.duration);
+        setElapsed(a.currentTime);
       }
-    }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [audioRef]);
 
-    // 防抖处理，避免频繁触发
-    let timeoutId: NodeJS.Timeout
-    const debouncedHandleScroll = () => {
-      clearTimeout(timeoutId)
-      timeoutId = setTimeout(handleScroll, 100)
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      await loadMoreSongsForUI();
+    } finally {
+      setLoadingMore(false);
     }
+  }, [loadingMore, hasMore, loadMoreSongsForUI]);
 
-    window.addEventListener('scroll', debouncedHandleScroll)
-    return () => {
-      window.removeEventListener('scroll', debouncedHandleScroll)
-      clearTimeout(timeoutId)
-    }
-  }, [isLoadingMore, hasMore, loadMoreSongsForUI])
+  useEffect(() => {
+    if (playlist.length > 0 && currentSongIndex >= playlist.length - 4) void loadMore();
+  }, [currentSongIndex, playlist.length, loadMore]);
 
-  if (!hasMounted || !playlist || (playlist.length === 0 && isLoading)) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.tagName === 'INPUT') return;
+      if (e.key === 'ArrowRight') handleNextSong();
+      else if (e.key === 'ArrowLeft') handlePrevSong();
+      else if (e.key === ' ') {
+        e.preventDefault();
+        handleTogglePlay();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [handleNextSong, handlePrevSong, handleTogglePlay]);
+
+  const pick = (i: number) => {
+    triggerHaptic(HapticFeedback.Light);
+    if (i === currentSongIndex) handleTogglePlay();
+    else handleSongChange(i);
+  };
+
+  if (!mounted || (playlist.length === 0 && isLoading)) {
     return (
-      <div className="space-y-16 pt-8">
-        <div className="space-y-4">
-          <Skeleton className="h-9 w-24" />
-          <Skeleton className="h-6 w-48" />
-        </div>
-        <div className="grid grid-cols-1 items-end gap-8 lg:grid-cols-3">
-            <Skeleton className="aspect-square w-full" />
-            <div className="space-y-4">
-                <Skeleton className="h-12 w-3/4" />
-                <Skeleton className="h-8 w-1/2" />
-                <Skeleton className="h-5 w-2/3" />
-            </div>
-            <div className="hidden space-y-4 lg:block">
-                 <Skeleton className="h-16 w-full" />
-                 <Skeleton className="h-16 w-full" />
-                 <Skeleton className="h-16 w-full" />
-            </div>
-        </div>
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <Arc size={18} color="var(--ink-3)" />
       </div>
-    )
+    );
   }
-  
-  if (!currentSong) return null
+
+  if (!currentSong) {
+    return (
+      <div className="site-column mx-auto flex min-h-[70vh] flex-col justify-center px-6 md:px-0">
+        <p className="text-[14px] text-ink-3">The band has not arrived. Check back later.</p>
+      </div>
+    );
+  }
+
+  const seek = (e: React.MouseEvent<HTMLDivElement>) => {
+    const a = audioRef?.current;
+    if (!a || !a.duration) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    a.currentTime = ((e.clientX - r.left) / r.width) * a.duration;
+  };
+
+  /* Offset so the active cover sits at the exact centre of the viewport. */
+  const before = currentSongIndex * (SMALL + GAP);
+  const translate = `calc(50% - ${before + BIG / 2}px)`;
+
+  const rows: [string, string][] = [
+    ['Artist', currentSong.artist],
+    ['Album', currentSong.album || 'Single'],
+    ['Length', fmt(currentSong.duration)],
+    ['Track', `${currentSongIndex + 1} of ${playlist.length}${hasMore ? '+' : ''}`],
+  ];
 
   return (
-    <div className="space-y-16 pt-8">
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          音乐
-        </h1>
-        <p className="text-muted-foreground">
-          听歌吗？ 每日更新。
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 items-end gap-8 lg:grid-cols-3">
-        <div className="relative aspect-square w-full lg:col-span-1">
-          <Image
-            src={currentSong.coverUrl}
-            alt={currentSong.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 33vw"
-          />
-        </div>
-
-        <div className="relative flex h-full flex-col justify-between overflow-hidden lg:col-span-1">
-          <div className="space-y-3">
-            <h2 className="text-4xl font-bold leading-tight tracking-tighter text-foreground md:text-5xl">
-              {currentSong.title}
-            </h2>
-            <p className="text-xl text-foreground/90 md:text-2xl">
-              {currentSong.artist}
-            </p>
-            <p className="text-md text-muted-foreground">
-              来自专辑《{currentSong.album}》
-            </p>
-          </div>
-
-          <div className="relative z-10 mt-8 flex items-center gap-4 pt-4">
-            <button
-              onClick={handlePrevSong}
-              className="rounded-full border border-border p-3 text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
-              aria-label="上一首"
-            >
-              <ChevronUp className="h-6 w-6" />
-            </button>
-            <button
-              onClick={handleTogglePlay}
-              className="group relative rounded-full border border-foreground bg-foreground p-4 text-background transition-transform"
-              aria-label={isPlaying ? "暂停" : "播放"}
-            >
-              <div className="absolute inset-0 cursor-pointer rounded-full bg-foreground/20 opacity-0 transition-opacity group-hover:opacity-100" />
-              {isPlaying ? (
-                <Pause className="h-6 w-6 fill-background" />
-              ) : (
-                <Play className="h-6 w-6 fill-background" />
-              )}
-            </button>
-            <button
-              onClick={handleNextSong}
-              className="rounded-full border border-border p-3 text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
-              aria-label="下一首"
-            >
-              <ChevronDown className="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-
-        <div className="hidden lg:col-span-1 lg:block">
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            接下来播放
-          </h3>
-          <div className="space-y-4">
-            {nextUpSongs.map((song: UnifiedSong, index: number) => {
-              const songIndex = currentSongIndex + index + 1
-              return (
-                <div
-                  key={song.id}
-                  className="group flex cursor-pointer items-center gap-4 rounded-md p-2 transition-colors hover:bg-secondary/50"
-                  onClick={() => handleSongChange(songIndex)}
-                >
-                  <div className="relative aspect-square h-12 w-12 shrink-0">
-                    <Image
-                      src={song.coverUrl}
-                      alt={song.album}
-                      fill
-                      className="object-cover"
-                      sizes="48px"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium text-foreground">{song.title}</h4>
-                    <p className="text-sm text-muted-foreground">{song.artist}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      <div className="pt-16">
-        <div className="mb-8 space-y-2">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            唱片墙
-          </h2>
-          <p className="text-muted-foreground">豪听。</p>
-        </div>
-        <div className="grid grid-cols-2 gap-px sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {playlist.map((song, index) => {
-            const isCurrentSong = index === currentSongIndex
+    <div className="flex flex-col pb-8 pt-10 md:pt-20">
+      <div className="relative overflow-hidden py-6">
+        <div
+          className="flex items-center will-change-transform"
+          style={{
+            gap: GAP,
+            transform: `translateX(${translate})`,
+            transition: 'transform 600ms var(--ease-out-quint)',
+          }}
+        >
+          {playlist.map((song: UnifiedSong, i: number) => {
+            const active = i === currentSongIndex;
+            const size = active ? BIG : SMALL;
+            const dist = Math.abs(i - currentSongIndex);
             return (
-              <motion.div 
-                key={`${song.id}-${index}`} 
-                initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ 
-                  duration: 0.5, 
-                  ease: "easeOut",
-                  delay: index < 20 ? 0 : Math.min(0.1 * (index % 20), 0.8)
-                }}
-                className="group relative aspect-square cursor-pointer overflow-hidden"
-                onClick={() => {
-                  if (isCurrentSong) {
-                    // 如果点击的是当前歌曲，切换播放/暂停状态
-                    handleTogglePlay()
-                  } else {
-                    // 如果点击的是其他歌曲，切换到该歌曲
-                    handleSongChange(index)
-                  }
+              <button
+                key={`${song.id}-${i}`}
+                type="button"
+                onClick={() => pick(i)}
+                aria-label={`${song.title}, ${song.artist}`}
+                aria-current={active ? 'true' : undefined}
+                className="group relative flex-none overflow-hidden rounded-full"
+                style={{
+                  width: size,
+                  height: size,
+                  opacity: dist > 3 ? 0 : active ? 1 : Math.max(0.35, 0.85 - dist * 0.15),
+                  boxShadow: active ? 'var(--shadow-card-hover)' : 'var(--shadow-card)',
+                  transition: 'width 600ms var(--ease-out-quint), height 600ms var(--ease-out-quint), opacity 600ms var(--ease-out-quint), box-shadow 600ms var(--ease-out-quint)',
                 }}
               >
                 <Image
                   src={song.coverUrl}
-                  alt={`${song.title} by ${song.artist}`}
+                  alt=""
                   fill
-                  className={`object-cover transition-all duration-300 ${
-                    isCurrentSong ? 'scale-105' : 'group-hover:scale-105'
-                  }`}
-                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16.6vw"
-                  />
-                  
-                  {/* 播放按钮覆盖层 */}
-                <div className={`absolute inset-0 flex items-center justify-center bg-foreground/80 transition-opacity duration-300 ${
-                  isCurrentSong ? 'opacity-90' : 'opacity-0 group-hover:opacity-100'
-                }`}>
-                  <div className="text-center text-background p-4">
-                    <div className="flex items-center justify-center mb-2">
-                      <div className="w-12 h-12 rounded-full bg-background/20 flex items-center justify-center">
-                        {isCurrentSong && isPlaying ? (
-                          <Pause className="h-6 w-6 fill-background" />
-                        ) : (
-                          <Play className="h-6 w-6 fill-background translate-x-0.5" />
-                        )}
-                      </div>
-                    </div>
-                    <h3 className="text-sm font-bold line-clamp-2">{song.title}</h3>
-                    <p className="mt-1 text-xs text-background/90 line-clamp-1">{song.artist}</p>
-                    <p className="mt-1 text-xs text-background/70 line-clamp-1">{song.album}</p>
-                  </div>
-                </div>
-              </motion.div>
-            )
+                  sizes={`${BIG}px`}
+                  className="object-cover"
+                  priority={dist <= 1}
+                />
+                {active && (
+                  <span
+                    className="absolute inset-0 flex items-center justify-center transition-opacity duration-300 ease-quint"
+                    style={{ opacity: isPlaying ? 0 : 1, background: 'rgba(0,0,0,0.25)' }}
+                  >
+                    <Play className="h-7 w-7 fill-white text-white" strokeWidth={1.5} />
+                  </span>
+                )}
+              </button>
+            );
           })}
+          {loadingMore && (
+            <span className="flex flex-none items-center justify-center" style={{ width: SMALL, height: SMALL }}>
+              <Arc size={14} color="var(--ink-3)" />
+            </span>
+          )}
         </div>
-        
-        {/* 懒加载状态指示器 */}
-        <AnimatePresence>
-          {(isLoadingMore || hasMore) && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="mt-8 flex justify-center"
-            >
-              {isLoadingMore ? (
-                <motion.div 
-                  initial={{ scale: 0.8 }}
-                  animate={{ scale: 1 }}
-                  className="flex items-center gap-3 text-muted-foreground"
-                >
-                  <div className="relative w-5 h-5">
-                    <div className="absolute inset-0 w-5 h-5 border-2 border-muted rounded-full" />
-                    <div className="absolute inset-0 w-5 h-5 border-2 border-foreground border-t-transparent rounded-full animate-spin" />
-                  </div>
-                  <span className="text-sm font-medium">加载更多歌曲...</span>
-                </motion.div>
-              ) : hasMore ? (
-                <motion.div 
-                  initial={{ opacity: 0.6 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3, repeat: Infinity, repeatType: "reverse" }}
-                  className="text-muted-foreground text-sm"
-                >
-                  继续滚动加载更多
-                </motion.div>
-              ) : null}
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        {/* 没有更多内容的提示 */}
-        <AnimatePresence>
-          {!hasMore && playlist.length > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-              className="mt-8 text-center"
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/50 rounded-full backdrop-blur-sm">
-                <div className="w-2 h-2 bg-muted-foreground rounded-full" />
-                <span className="text-muted-foreground text-sm font-medium">
-                  已加载全部歌曲 ({playlist.length} 首)
-                </span>
-                <div className="w-2 h-2 bg-muted-foreground rounded-full" />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      </div>
+
+      <div className="site-column mx-auto mt-10 w-full px-6 md:px-0">
+        <div className="flex items-start justify-between gap-6">
+          <h1 className="text-[20px] font-medium leading-tight tracking-[-0.4px] text-ink">{currentSong.title}</h1>
+          <Link href={`/music/${currentSong.id}`} className="pill pill-icon flex-none" aria-label="Open lyrics">
+            <Maximize2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+          </Link>
+        </div>
+
+        <dl className="mt-6 flex flex-col">
+          {rows.map(([k, v]) => (
+            <div key={k} className="grid grid-cols-[88px_1fr] gap-4 border-b border-line-soft py-2.5 last:border-0">
+              <dt className="text-[13px] text-ink-3">{k}</dt>
+              <dd className="truncate text-[13px] text-ink">{v}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="mt-8">
+          <div className="group relative h-4 cursor-pointer" onClick={seek} role="slider" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100} tabIndex={0}>
+            <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-line" />
+            <div
+              className="absolute left-0 top-1/2 h-px -translate-y-1/2"
+              style={{ width: `${progress * 100}%`, background: 'var(--ink)' }}
+            />
+            <div
+              className="absolute top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 transition-opacity duration-300 ease-quint group-hover:opacity-100"
+              style={{ left: `${progress * 100}%`, background: 'var(--ink)' }}
+            />
+          </div>
+          <div className="mono flex justify-between text-[11px] text-ink-3">
+            <span>{fmt(elapsed)}</span>
+            <span>{fmt(currentSong.duration)}</span>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-center gap-2">
+          <button type="button" className="pill pill-icon" onClick={handlePrevSong} aria-label="Previous">
+            <SkipBack className="h-3.5 w-3.5" strokeWidth={1.75} />
+          </button>
+          <button type="button" className="pill" onClick={handleTogglePlay} aria-label={isPlaying ? 'Pause' : 'Play'} style={{ minWidth: 88 }}>
+            {isPlaying ? <Pause className="h-3.5 w-3.5" strokeWidth={1.75} /> : <Play className="h-3.5 w-3.5" strokeWidth={1.75} />}
+            <span>{isPlaying ? 'Pause' : 'Play'}</span>
+          </button>
+          <button type="button" className="pill pill-icon" onClick={handleNextSong} aria-label="Next">
+            <SkipForward className="h-3.5 w-3.5" strokeWidth={1.75} />
+          </button>
+        </div>
       </div>
     </div>
-  )
+  );
 }

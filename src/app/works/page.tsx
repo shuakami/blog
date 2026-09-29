@@ -290,12 +290,12 @@ export default function WorksPage() {
                 key={index}
                 id={workId}
                 data-work-index={index}
-                className="group py-8 sm:py-12 md:py-16 border-b border-black/[0.06] dark:border-white/[0.06] last:border-0 scroll-mt-24"
+                className="group py-8 sm:py-12 md:py-16 border-b border-black/6 dark:border-white/6 last:border-0 scroll-mt-24"
               >
             {/* 项目预览图 */}
             {work.customBanner ? (
               // 使用自定义渐变背景Banner（不包裹链接）
-              <div className="relative aspect-[16/9] sm:aspect-[2/1] mb-6 sm:mb-8 md:-mx-8">
+              <div className="relative aspect-video sm:aspect-2/1 mb-6 sm:mb-8 md:-mx-8">
                 {work.customBanner}
               </div>
             ) : (
@@ -306,7 +306,7 @@ export default function WorksPage() {
                   className="block mb-6 sm:mb-8 md:-mx-8"
                 >
                 {/* 使用传统图片/轮播 */}
-                <div className="relative aspect-[16/9] sm:aspect-[2/1] rounded-lg overflow-hidden bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
+                <div className="relative aspect-video sm:aspect-2/1 rounded-lg overflow-hidden bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6">
                   {work.previews && work.previews.length > 0 ? (
                     <ImageCarousel
                       images={work.previews}
@@ -341,14 +341,14 @@ export default function WorksPage() {
                     {work.description}
                   </p>
                 </div>
-                <span className="text-xs sm:text-sm text-black/40 dark:text-white/40 flex-shrink-0 sm:mt-1">
+                <span className="text-xs sm:text-sm text-black/40 dark:text-white/40 shrink-0 sm:mt-1">
                         {work.year}
                       </span>
                     </div>
                     
               {/* 项目数据统计 + 按钮 */}
               {work.stats && work.stats.length > 0 && (
-                <div className="rounded-lg sm:rounded-xl bg-black/[0.02] dark:bg-white/[0.02] px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6">
+                <div className="rounded-lg sm:rounded-xl bg-black/2 dark:bg-white/2 px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-5 md:gap-6">
                     {/* 左侧数据 */}
                     <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-3 sm:gap-x-6 sm:gap-y-4 md:gap-x-8 lg:gap-x-12">
@@ -365,7 +365,7 @@ export default function WorksPage() {
                     </div>
                     
                     {/* 右侧主要按钮 */}
-                    <div className="flex flex-col gap-2 md:items-end md:flex-shrink-0 w-full sm:w-auto md:w-auto">
+                    <div className="flex flex-col gap-2 md:items-end md:shrink-0 w-full sm:w-auto md:w-auto">
                       {work.website && (
                         <a
                           href={work.website}
@@ -410,13 +410,13 @@ export default function WorksPage() {
                           href={work.ranking}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white font-medium hover:bg-black/[0.10] dark:hover:bg-white/[0.12] active:bg-black/[0.14] dark:active:bg-white/[0.16] transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md bg-black/6 dark:bg-white/8 text-black dark:text-white font-medium hover:bg-black/10 dark:hover:bg-white/12 active:bg-black/[0.14] dark:active:bg-white/16 transition-colors cursor-pointer"
                         >
-                          <svg width="10" height="10" viewBox="0 0 16 16" fill="#EAB308" className="sm:w-3 sm:h-3 flex-shrink-0">
+                          <svg width="10" height="10" viewBox="0 0 16 16" fill="#EAB308" className="sm:w-3 sm:h-3 shrink-0">
                             <path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/>
                           </svg>
                           <span className="break-all">{highlight}</span>
-                          <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" className="opacity-50 sm:w-3 sm:h-3 flex-shrink-0">
+                          <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" className="opacity-50 sm:w-3 sm:h-3 shrink-0">
                             <path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"/>
                           </svg>
                         </a>
@@ -426,10 +426,10 @@ export default function WorksPage() {
                     return (
                       <span
                         key={i}
-                        className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white font-medium"
+                        className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm rounded-md bg-black/6 dark:bg-white/8 text-black dark:text-white font-medium"
                       >
                         {i === 0 && !work.ranking && (
-                          <svg width="10" height="10" viewBox="0 0 16 16" fill="#EAB308" className="sm:w-3 sm:h-3 flex-shrink-0">
+                          <svg width="10" height="10" viewBox="0 0 16 16" fill="#EAB308" className="sm:w-3 sm:h-3 shrink-0">
                             <path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/>
                           </svg>
                         )}
@@ -445,7 +445,7 @@ export default function WorksPage() {
                       {work.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-2 sm:px-2.5 py-1 text-xs rounded-md bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50"
+                          className="px-2 sm:px-2.5 py-1 text-xs rounded-md bg-black/4 dark:bg-white/6 text-black/50 dark:text-white/50"
                         >
                           {tag}
                         </span>

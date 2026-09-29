@@ -57,8 +57,8 @@ export function SimpleDropdownItem({ onClick, active = false, children, classNam
       className={cn(
         'flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm cursor-pointer outline-none',
         'transition-all duration-150 ease-out',
-        'data-[highlighted]:bg-black/5 dark:data-[highlighted]:bg-white/5',
-        'data-[highlighted]:scale-[0.99]',
+        'data-highlighted:bg-black/5 dark:data-highlighted:bg-white/5',
+        'data-highlighted:scale-[0.99]',
         active
           ? 'bg-black/5 dark:bg-white/5 text-black dark:text-white'
           : 'text-black dark:text-white',

@@ -2,132 +2,81 @@
 
 import { useState } from 'react';
 
-type Contribution = {
-  date: string;
-  count: number;
-};
-
-type MonthLabel = {
-  key: string;
-  name: string;
-  firstDay: string;
-  position: number;
-};
+type Contribution = { date: string; count: number };
 
 interface ContributionGridProps {
   contributions: Contribution[];
   maxContributions: number;
-  visibleMonthLabels: MonthLabel[];
 }
 
-// Get color class based on contribution count
-const getColorClassByCount = (count: number, maxContributions: number) => {
-  if (count === 0) return "bg-black/[0.04] dark:bg-white/[0.04]";
-  if (maxContributions === 0) return "bg-black/40 dark:bg-white/40";
-  
-  const percentage = count / maxContributions;
-  if (percentage > 0.75) return "bg-black dark:bg-white";
-  if (percentage > 0.5) return "bg-black/70 dark:bg-white/70";
-  if (percentage > 0.25) return "bg-black/50 dark:bg-white/50";
-  return "bg-black/30 dark:bg-white/30";
-};
+const CELL = 8;
+const GAP = 2;
 
-export default function ContributionGrid({
-  contributions,
-  maxContributions,
-  visibleMonthLabels
-}: ContributionGridProps) {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [hoveredContribution, setHoveredContribution] = useState<{
-    date: string;
-    count: number;
-    x: number;
-    y: number;
-  } | null>(null);
+function shade(count: number, max: number) {
+  if (count === 0) return 'rgba(var(--ink-rgb), 0.06)';
+  const p = max === 0 ? 1 : count / max;
+  const alpha = p > 0.75 ? 0.95 : p > 0.5 ? 0.7 : p > 0.25 ? 0.5 : 0.3;
+  return `rgba(var(--ink-rgb), ${alpha})`;
+}
 
-  const handleMouseEnter = (
-    e: React.MouseEvent<HTMLDivElement>,
-    contribution: Contribution
-  ) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setHoveredContribution({
-      date: contribution.date,
-      count: contribution.count,
-      x: rect.left + rect.width / 2,
-      y: rect.top - 36  // 往上移多一点，避免挡住鼠标
-    });
-    setShowTooltip(true);
-  };
+export default function ContributionGrid({ contributions, maxContributions }: ContributionGridProps) {
+  const [hover, setHover] = useState<(Contribution & { x: number; y: number }) | null>(null);
 
-  const handleMouseLeave = () => {
-    setShowTooltip(false);
-  };
+  const weeks = Math.ceil(contributions.length / 7);
+  const months: { name: string; col: number }[] = [];
+  let lastMonth = -1;
+  contributions.forEach((c, i) => {
+    const m = new Date(c.date).getMonth();
+    if (m !== lastMonth) {
+      lastMonth = m;
+      const col = Math.floor(i / 7);
+      if (months.length === 0 || col - months[months.length - 1].col >= 3) {
+        months.push({ name: new Date(c.date).toLocaleString('en-US', { month: 'short' }), col });
+      }
+    }
+  });
 
   return (
-    <>
-      <div className="overflow-x-auto pb-4">
-        <div className="inline-block min-w-full">
-          <div className="relative pt-8">
-            {/* 月份标签 */}
-            <div className="absolute top-0 left-8 flex">
-              {visibleMonthLabels.map((month) => (
-                <div
-                  key={month.key}
-                  className="absolute text-xs text-black/40 dark:text-white/40"
-                  style={{ left: `${month.position}px` }}
-                >
-                  {month.name}
-                </div>
-              ))}
-            </div>
-
-            <div className="inline-flex gap-2">
-              {/* 星期标签 */}
-              <div className="flex w-6 flex-col justify-between text-right text-xs text-black/40 dark:text-white/40">
-                <div className="h-3" />
-                <div className="h-3 leading-3">M</div>
-                <div className="h-3" />
-                <div className="h-3 leading-3">W</div>
-                <div className="h-3" />
-                <div className="h-3 leading-3">F</div>
-                <div className="h-3" />
-              </div>
-
-              {/* 贡献热力图 */}
-              <div className="grid grid-flow-col grid-rows-7 gap-[2px]">
-                {contributions.map((c) => (
-                  <div
-                    key={c.date}
-                    className={`h-3 w-3 rounded-sm ${getColorClassByCount(c.count, maxContributions)} transition-colors cursor-pointer`}
-                    onMouseEnter={(e) => handleMouseEnter(e, c)}
-                    onMouseLeave={handleMouseLeave}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+    <div className="overflow-x-auto">
+      <div className="relative pt-5" style={{ width: weeks * (CELL + GAP) }}>
+        {months.map((m) => (
+          <span
+            key={`${m.name}-${m.col}`}
+            className="mono absolute top-0 text-[10px] text-ink-3"
+            style={{ left: m.col * (CELL + GAP) }}
+          >
+            {m.name}
+          </span>
+        ))}
+        <div className="grid grid-flow-col grid-rows-7" style={{ gap: GAP }}>
+          {contributions.map((c) => (
+            <div
+              key={c.date}
+              className="rounded-[2px] transition-colors duration-300 ease-quint"
+              style={{ width: CELL, height: CELL, background: shade(c.count, maxContributions) }}
+              onMouseEnter={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                setHover({ ...c, x: r.left + r.width / 2, y: r.top - 8 });
+              }}
+              onMouseLeave={() => setHover(null)}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Tooltip - 固定存在，通过 opacity 控制显示 */}
       <div
-        className="fixed z-50 px-3 py-1.5 text-xs rounded-md bg-black dark:bg-white text-white dark:text-black font-medium whitespace-nowrap pointer-events-none transition-all duration-150 ease-out"
+        className="pointer-events-none fixed z-50 whitespace-nowrap rounded-md px-2 py-1 text-[11px] transition-opacity duration-200 ease-quint"
         style={{
-          left: hoveredContribution ? `${hoveredContribution.x}px` : '0px',
-          top: hoveredContribution ? `${hoveredContribution.y}px` : '0px',
+          left: hover?.x ?? 0,
+          top: hover?.y ?? 0,
           transform: 'translate(-50%, -100%)',
-          opacity: showTooltip && hoveredContribution ? 1 : 0
+          opacity: hover ? 1 : 0,
+          background: 'var(--ink)',
+          color: 'var(--bg)',
         }}
       >
-        {hoveredContribution && (
-          <>
-            在 {hoveredContribution.date} 有 {hoveredContribution.count} 次贡献
-            {/* 箭头 - 朝下 */}
-            <div className="absolute left-1/2 bottom-[-4px] -translate-x-1/2 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-black dark:border-t-white" />
-          </>
-        )}
+        {hover && `${hover.count} ${hover.count === 1 ? 'contribution' : 'contributions'} on ${hover.date}`}
       </div>
-    </>
+    </div>
   );
 }
-

@@ -12,6 +12,16 @@ interface ImageCarouselProps {
 export function ImageCarousel({ images, alt, priority = false }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
+  // 自动轮播
+  useEffect(() => {
+    if (!images || images.length < 2) return
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+    }, 4000) // 4秒切换一次
+
+    return () => clearInterval(timer)
+  }, [images])
+
   if (!images || images.length === 0) return null
   
   // 检查是否是 React 组件
@@ -55,15 +65,6 @@ export function ImageCarousel({ images, alt, priority = false }: ImageCarouselPr
       </div>
     )
   }
-
-  // 自动轮播
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-    }, 4000) // 4秒切换一次
-
-    return () => clearInterval(timer)
-  }, [images.length])
 
   const handleCapsuleClick = (e: React.MouseEvent, index: number) => {
     e.preventDefault()

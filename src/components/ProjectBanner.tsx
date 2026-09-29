@@ -113,7 +113,7 @@ export default function ProjectBanner(props: ProjectBannerProps) {
       <div className="flex items-center gap-3 sm:gap-5 md:gap-8">
         {/* SVG Icon */}
         {props.icon && (
-          <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 text-white flex-shrink-0 [&>svg]:w-full [&>svg]:h-full">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 text-white shrink-0 [&>svg]:w-full [&>svg]:h-full">
             {props.icon}
           </div>
         )}

@@ -148,7 +148,7 @@ export default function GamesNavigator({ gameCount, gameTitles = [] }: GamesNavi
         }}
       >
         {hoveredIndex !== null && gameTitles[hoveredIndex]}
-        <div className="absolute right-[-4px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[4px] border-l-black dark:border-l-white" />
+        <div className="absolute right-[-4px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-t-transparent border-b-4 border-b-transparent border-l-4 border-l-black dark:border-l-white" />
       </div>
 
       <style jsx>{`

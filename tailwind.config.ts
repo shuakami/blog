@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import colors from "tailwindcss/colors";
+import colors from 'tailwindcss/colors';
 
 export default {
   content: [
@@ -7,7 +7,6 @@ export default {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  mode: 'jit',
   safelist: [
     {
       pattern: /^(bg|text|border)-(zinc|gray|teal|rose|amber|green)-(50|100|200|300|400|500|600|700|800|900)$/,
@@ -203,7 +202,7 @@ export default {
   		},
   		fontFamily: {
   			sans: [
-  				'var(--font-geist-sans)',
+  				'var(--font-inter)',
   				'var(--font-noto-sans-sc)',
   				'ui-sans-serif',
   				'system-ui',
@@ -242,7 +241,25 @@ export default {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+  		transitionTimingFunction: {
+  			quint: 'cubic-bezier(0.2, 0, 0, 1)'
+  		},
   		colors: {
+  			ink: {
+  				DEFAULT: 'var(--ink)',
+  				'2': 'var(--ink-2)',
+  				'3': 'var(--ink-3)',
+  				input: 'var(--ink-input)'
+  			},
+  			surface: {
+  				DEFAULT: 'var(--surface)',
+  				raised: 'var(--surface-raised)'
+  			},
+  			line: {
+  				DEFAULT: 'var(--line)',
+  				soft: 'var(--line-soft)'
+  			},
+  			bg: 'var(--bg)',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -286,6 +303,6 @@ export default {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [],
   darkMode: 'class',
 } satisfies Config;

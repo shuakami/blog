@@ -272,8 +272,8 @@ export default function MusicSharePage() {
   return (
     <div className="min-h-screen py-4 sm:py-8 lg:py-16 relative lg:flex lg:items-center lg:justify-center">
       {/* 高斯模糊渐变背景 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-secondary/20 blur-3xl opacity-80" />
-      <div className="absolute inset-0 bg-gradient-to-tr from-secondary/10 to-background blur-2xl opacity-60" />
+      <div className="absolute inset-0 bg-linear-to-br from-background via-background to-secondary/20 blur-3xl opacity-80" />
+      <div className="absolute inset-0 bg-linear-to-tr from-secondary/10 to-background blur-2xl opacity-60" />
       <div className="absolute inset-0 bg-background/40" />
       <audio
         ref={audioRef}
@@ -308,7 +308,7 @@ export default function MusicSharePage() {
             {lyrics.length > 0 ? (
               <div className="relative flex-1 min-h-0">
                 {/* 顶部渐变遮罩 */}
-                <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
+                <div className="absolute top-0 left-0 right-0 h-12 bg-linear-to-b from-background to-transparent pointer-events-none z-10" />
                 
                 <div
                   ref={lyricsContainerRef}
@@ -344,7 +344,7 @@ export default function MusicSharePage() {
                 </div>
 
                 {/* 底部渐变遮罩 */}
-                <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 bg-linear-to-t from-background via-background/80 to-transparent pointer-events-none" />
               </div>
             ) : (
               <div className="flex-1 flex items-center justify-center">

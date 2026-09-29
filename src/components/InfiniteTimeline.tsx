@@ -121,35 +121,35 @@ export default function InfiniteTimeline({ initialPosts, total, onLoadMore }: Ti
               >
                 {/* 时间点 */}
                 <div className="absolute left-0 top-2 flex items-center justify-center w-5 h-5 md:w-6 md:h-6">
-                  <div className="absolute w-5 h-5 md:w-6 md:h-6 bg-black/[0.03] dark:bg-white/[0.08] rounded-full transform origin-center transition-all duration-500 ease-out group-hover:scale-[2.5] group-hover:opacity-40 dark:group-hover:opacity-60" />
-                  <div className="absolute w-2.5 h-2.5 md:w-3 md:h-3 bg-black/[0.06] dark:bg-white/[0.15] rounded-full transform origin-center transition-all duration-500 ease-out delay-75 group-hover:scale-150" />
+                  <div className="absolute w-5 h-5 md:w-6 md:h-6 bg-black/3 dark:bg-white/8 rounded-full transform origin-center transition-all duration-500 ease-out group-hover:scale-[2.5] group-hover:opacity-40 dark:group-hover:opacity-60" />
+                  <div className="absolute w-2.5 h-2.5 md:w-3 md:h-3 bg-black/6 dark:bg-white/15 rounded-full transform origin-center transition-all duration-500 ease-out delay-75 group-hover:scale-150" />
                   <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-black dark:bg-white rounded-full transform origin-center transition-all duration-500 ease-out delay-100" />
                 </div>
 
                 {/* 文章内容 */}
                 <div className="pl-10 md:pl-14">
-                  <article className="flex-grow">
+                  <article className="grow">
                     {/* 日期 */}
                     <time className="text-sm font-medium text-black/40 dark:text-white/40 mb-3 md:mb-4 block">
                       {post.displayDate}
                     </time>
 
                     {/* 标题 */}
-                    <h2 className="text-xl md:text-[1.75rem] leading-snug mb-3 md:mb-4 font-medium text-black dark:text-white break-words">
+                    <h2 className="text-xl md:text-[1.75rem] leading-snug mb-3 md:mb-4 font-medium text-black dark:text-white wrap-break-word">
                       {post.title}
                     </h2>
 
                     {/* 分类标签 */}
                     {post.tags?.[0] && (
                       <div className="mb-3 md:mb-4">
-                        <span className="inline-flex px-3 md:px-4 py-1 md:py-1.5 text-xs md:text-[13px] leading-relaxed rounded-full bg-black/[0.02] dark:bg-white/[0.02] text-black/50 dark:text-white/50 border border-black/[0.04] dark:border-white/[0.04]">
+                        <span className="inline-flex px-3 md:px-4 py-1 md:py-1.5 text-xs md:text-[13px] leading-relaxed rounded-full bg-black/2 dark:bg-white/2 text-black/50 dark:text-white/50 border border-black/4 dark:border-white/4">
                           {post.tags[0]}
                         </span>
                       </div>
                     )}
 
                     {/* 摘要 */}
-                    <p className="text-base md:text-[17px] text-black/50 dark:text-white/50 leading-relaxed break-words">
+                    <p className="text-base md:text-[17px] text-black/50 dark:text-white/50 leading-relaxed wrap-break-word">
                       {post.excerpt}
                     </p>
 

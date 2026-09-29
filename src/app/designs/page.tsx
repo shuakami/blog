@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -332,7 +334,7 @@ export default function DesignsPage() {
               return (
                 <motion.div
                   key={d.id}
-                  className="cursor-pointer overflow-hidden rounded-sm flex-shrink-0"
+                  className="cursor-pointer overflow-hidden rounded-sm shrink-0"
                   animate={{
                     width: isActive ? 80 : 50,
                     height: isActive ? 60 : 38,
@@ -362,7 +364,7 @@ export default function DesignsPage() {
         animate={{ opacity: entered ? 1 : 0, x: entered ? 0 : -20 }}
         transition={{ duration: 0.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-        <a
+        <Link
           href="/"
           onClick={exit}
           className="text-white/40 hover:text-white transition-colors duration-300"
@@ -370,7 +372,7 @@ export default function DesignsPage() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
-        </a>
+        </Link>
       </motion.div>
 
       {/* 左下角分类按钮 + 随机按钮 */}
@@ -424,7 +426,7 @@ export default function DesignsPage() {
       <AnimatePresence>
         {showCategories && (
           <motion.div
-            className="fixed inset-0 z-[400] flex items-center justify-center"
+            className="fixed inset-0 z-400 flex items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -496,7 +498,7 @@ export default function DesignsPage() {
       <AnimatePresence>
         {showSearch && (
           <motion.div
-            className="fixed inset-0 z-[400] flex flex-col bg-black"
+            className="fixed inset-0 z-400 flex flex-col bg-black"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -579,7 +581,7 @@ export default function DesignsPage() {
                               }
                             }}
                           >
-                            <div className="aspect-[4/3] overflow-hidden">
+                            <div className="aspect-4/3 overflow-hidden">
                               <img
                                 src={d.url}
                                 alt=""

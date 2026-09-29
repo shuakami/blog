@@ -67,7 +67,7 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-black dark:text-white">
             {resource.title}
           </h1>
-          <span className="px-3 py-1 text-xs rounded-md bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50 whitespace-nowrap">
+          <span className="px-3 py-1 text-xs rounded-md bg-black/4 dark:bg-white/6 text-black/50 dark:text-white/50 whitespace-nowrap">
             {resource.type}
           </span>
         </div>
@@ -77,7 +77,7 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
         <div className="w-16 h-[2px] bg-black dark:bg-white" />
       </header>
 
-      <div className="rounded-lg sm:rounded-xl bg-black/[0.02] dark:bg-white/[0.02] px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6 mb-12">
+      <div className="rounded-lg sm:rounded-xl bg-black/2 dark:bg-white/2 px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6 mb-12">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-5 md:gap-6">
           <div className="flex items-center gap-6 sm:gap-8 md:gap-12">
             {resource.format && (
@@ -113,7 +113,7 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
           </div>
 
           {resource.downloadUrl && (
-            <div className="flex flex-col gap-2 md:items-end md:flex-shrink-0 w-full sm:w-auto md:w-auto">
+            <div className="flex flex-col gap-2 md:items-end md:shrink-0 w-full sm:w-auto md:w-auto">
               <a
                 href={resource.downloadUrl}
                 target="_blank"
@@ -137,7 +137,7 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
             {Object.entries(resource.details).map(([key, value]) => (
               <div
                 key={key}
-                className="p-4 rounded-lg border border-black/[0.06] dark:border-white/[0.06]"
+                className="p-4 rounded-lg border border-black/6 dark:border-white/6"
               >
                 <dt className="text-sm text-black/60 dark:text-white/60 mb-1">{key}</dt>
                 <dd className="text-base font-medium text-black dark:text-white">{value as string}</dd>
@@ -186,7 +186,7 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
             {resource.tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md bg-black/[0.04] dark:bg-white/[0.06] text-black/60 dark:text-white/60"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md bg-black/4 dark:bg-white/6 text-black/60 dark:text-white/60"
               >
                 <Tag className="w-3.5 h-3.5" />
                 {tag}

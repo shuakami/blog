@@ -35,7 +35,7 @@ const weatherIcons: Record<string, IconType> = {
 // 骨架屏组件
 function WeatherSkeleton() {
   return (
-    <div className="rounded-xl overflow-hidden bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-900">
+    <div className="rounded-xl overflow-hidden bg-linear-to-b from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-900">
       <div className="p-4 space-y-4">
         {/* 位置骨架 */}
         <div className="flex items-center space-x-2">
@@ -101,7 +101,7 @@ export default function WeatherCard() {
   // 获取天气背景
   const getWeatherGradient = (text: string) => {
     const gradient = Object.entries(weatherGradients).find(([key]) => text.includes(key))?.[1] || weatherGradients['晴'];
-    return `bg-gradient-to-b ${gradient}`;
+    return `bg-linear-to-b ${gradient}`;
   };
 
   // 格式化日期

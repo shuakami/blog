@@ -1,149 +1,115 @@
-// src/components/ArchiveClientPage.tsx
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { CategoryFilter } from './CategoryFilter';
+import { useSearchParams } from 'next/navigation';
+import { formatShortDate } from '@/lib/format';
+import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
+
+interface ArchivePostLite {
+  slug: string;
+  title: string;
+  date: string;
+  excerpt?: string;
+  wordCount?: number;
+  category?: string;
+  tags?: string[];
+}
 
 interface ArchiveClientPageProps {
-  posts: any[];
+  posts: ArchivePostLite[];
 }
 
-/**
- * 格式化日期为年月
- */
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  return `${year}.${month}`;
-}
-
-/**
- * 按年份分组文章（输入已是轻量元数据）
- */
-function groupPostsByYear(posts: any[]) {
-  const groups: Record<string, any[]> = {};
-  for (const post of posts) {
-    const year = new Date(post.date).getFullYear();
-    (groups[year] ||= []).push(post);
-  }
-  // 年份降序
-  return Object.entries(groups).sort((a, b) => Number(b[0]) - Number(a[0]));
-}
+const categoryOf = (post: ArchivePostLite) => post.category || post.tags?.[0] || null;
 
 export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const params = useSearchParams();
+  const [selected, setSelected] = useState<string | null>(params?.get('category') ?? null);
 
-  // 预处理：补充 year
-  const prepared = useMemo(() => {
-    return posts.map((p) => {
-      const year = new Date(p.date).getFullYear();
-      const wc = p.wordCount || 0;
-      return { ...p, __year: year, __wc: wc };
-    });
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const post of posts) {
+      const c = categoryOf(post);
+      if (c) counts.set(c, (counts.get(c) ?? 0) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
   }, [posts]);
 
-  // 筛选文章
-  const filteredPosts = useMemo(() => {
-    if (!selectedCategory) return prepared;
-    return prepared.filter((post) => {
-      // 优先使用 category，回退到 tags[0]（兼容旧数据）
-      const category = post.category || post.tags?.[0];
-      return category === selectedCategory;
-    });
-  }, [prepared, selectedCategory]);
+  const filtered = useMemo(
+    () => (selected ? posts.filter((p) => categoryOf(p) === selected) : posts),
+    [posts, selected]
+  );
 
-  const groupedPosts = useMemo(() => groupPostsByYear(filteredPosts), [filteredPosts]);
-
-  // 统计信息
-  const stats = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    let thisYearCount = 0;
-    let totalWords = 0;
-
-    for (const p of prepared) {
-      totalWords += Number(p.__wc) || 0;
-      if (p.__year === currentYear) thisYearCount++;
+  const byYear = useMemo(() => {
+    const groups = new Map<string, ArchivePostLite[]>();
+    for (const post of filtered) {
+      const y = String(new Date(post.date).getFullYear());
+      groups.set(y, [...(groups.get(y) ?? []), post]);
     }
+    return [...groups.entries()].sort((a, b) => Number(b[0]) - Number(a[0]));
+  }, [filtered]);
 
-    return {
-      thisYearCount,
-      totalWords: totalWords.toLocaleString(),
-    };
-  }, [prepared]);
+  const words = useMemo(() => posts.reduce((n, p) => n + (p.wordCount ?? 0), 0), [posts]);
+
+  const pick = (c: string | null) => {
+    triggerHaptic(HapticFeedback.Light);
+    setSelected(c);
+  };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-6 py-16 md:py-24">
-      {/* 页面标题 */}
-      <header className="mb-12 md:mb-16">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-black dark:text-white mb-4">归档</h1>
-        <p className="text-lg text-black/50 dark:text-white/50 mb-8">
-          今年我写了 {stats.thisYearCount} 篇文章，一共 {stats.totalWords} 字
-        </p>
-        <div className="w-16 h-[2px] bg-black dark:bg-white" />
+    <div className="site-column mx-auto px-6 pb-8 pt-12 md:px-0 md:pt-24">
+      <header className="flex flex-col gap-6">
+        <div className="flex items-baseline justify-between">
+          <h1 className="text-[14px] font-medium text-ink">Archive</h1>
+          <p className="mono text-[12px] text-ink-3">
+            {posts.length} {posts.length === 1 ? 'entry' : 'entries'}
+            {words > 0 && `, ${words.toLocaleString('en-US')} words`}
+          </p>
+        </div>
+
+        {categories.length > 1 && (
+          <div className="flex flex-wrap gap-1.5">
+            <button type="button" className="pill pill-text-only" aria-pressed={selected === null} onClick={() => pick(null)}>
+              All
+            </button>
+            {categories.map(([c, n]) => (
+              <button
+                key={c}
+                type="button"
+                className="pill pill-text-only"
+                aria-pressed={selected === c}
+                onClick={() => pick(selected === c ? null : c)}
+              >
+                {c}
+                <span className="mono ml-1 text-[11px] text-ink-3">{n}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </header>
 
-      {/* 分类筛选 */}
-      <CategoryFilter posts={posts} onFilterChange={setSelectedCategory} />
-
-      {/* 按年份分组的文章列表 */}
-      {filteredPosts.length > 0 ? (
-        <div className="space-y-16">
-          {groupedPosts.map(([year, yearPosts]: [string, any[]]) => (
-            <section key={year}>
-              {/* 年份标题 */}
-              <h2 className="text-2xl md:text-3xl font-medium text-black dark:text-white mb-8 sticky top-4 bg-gray-50/80 dark:bg-[#121212]/80 backdrop-blur-sm py-2 -mx-2 px-2 rounded">
-                {year}
-              </h2>
-
-              {/* 该年份的文章 */}
-              <div className="space-y-0">
-                {yearPosts.map((post: any) => {
-                  // 优先使用 category，回退到 tags[0]（兼容旧数据）
-                  const category = post.category || post.tags?.[0];
-                  const formattedDate = formatDate(post.date);
-
-                  return (
-                    <Link
-                      key={post.slug}
-                      href={`/post/${post.slug}`}
-                      className="group block py-6 border-b border-black/[0.06] dark:border-white/[0.06] last:border-0 hover:bg-black/[0.01] dark:hover:bg-white/[0.01] -mx-4 px-4 transition-colors"
-                    >
-                      <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-2 md:gap-4">
-                        {/* 标题 */}
-                        <h3 className="text-lg md:text-xl font-medium text-black dark:text-white group-hover:text-black/60 dark:group-hover:text-white/60 transition-colors flex-1">
-                          {post.title}
-                        </h3>
-
-                        {/* 右侧信息 */}
-                        <div className="flex items-center gap-3 text-sm text-black/40 dark:text-white/40 flex-shrink-0">
-                          {category && (
-                            <>
-                              <span className="hidden md:inline">{category}</span>
-                              <span className="hidden md:inline">·</span>
-                            </>
-                          )}
-                          <time className="font-mono">{formattedDate}</time>
-                        </div>
-                      </div>
-
-                      {/* 摘要 */}
-                      {post.excerpt && (
-                        <p className="mt-2 text-sm text-black/50 dark:text-white/50 line-clamp-1 md:line-clamp-2">
-                          {post.excerpt}
-                        </p>
-                      )}
+      {byYear.length === 0 ? (
+        <p className="mt-16 text-[14px] text-ink-3">Nothing filed under this name.</p>
+      ) : (
+        <div className="mt-12 flex flex-col gap-12">
+          {byYear.map(([year, list], gi) => (
+            <section key={year} className="grid grid-cols-[44px_1fr] gap-4">
+              <h2 className="mono sticky top-14 h-fit pt-3 text-[12px] text-ink-3 md:top-6">{year}</h2>
+              <ul className="flex flex-col">
+                {list.map((post, i) => (
+                  <li key={post.slug} className="rise" style={{ ['--i' as string]: gi * 3 + i }}>
+                    <Link href={`/post/${post.slug}`} className="post-row">
+                      <span className="post-title text-[14px]">{post.title}</span>
+                      <time className="post-date" dateTime={post.date}>
+                        {formatShortDate(post.date)}
+                      </time>
+                      {post.excerpt && <span className="post-excerpt line-clamp-1 text-[13px]">{post.excerpt}</span>}
                     </Link>
-                  );
-                })}
-              </div>
+                  </li>
+                ))}
+              </ul>
             </section>
           ))}
-        </div>
-      ) : (
-        <div className="text-center py-16">
-          <p className="text-lg text-black/40 dark:text-white/40">该分类下暂无文章</p>
         </div>
       )}
     </div>

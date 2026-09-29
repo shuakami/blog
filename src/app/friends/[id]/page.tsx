@@ -101,7 +101,7 @@ export default function DeveloperPage({ params }) {
           </div>
 
           {/* 个人信息 */}
-          <div className="flex-grow">
+          <div className="grow">
             <h1 className="text-3xl font-medium text-black dark:text-white mb-3">
               {developer.name}
             </h1>
@@ -118,7 +118,7 @@ export default function DeveloperPage({ params }) {
                 <span
                   key={tag}
                   className="px-3 py-1 text-sm rounded-full 
-                    bg-black/[0.03] dark:bg-white/[0.03]
+                    bg-black/3 dark:bg-white/3
                     text-black/60 dark:text-white/60"
                 >
                   {tag}
@@ -146,7 +146,7 @@ export default function DeveloperPage({ params }) {
                       {skill.level}%
                     </span>
                   </div>
-                  <div className="h-2 bg-black/[0.03] dark:bg-white/[0.03] rounded-full overflow-hidden">
+                  <div className="h-2 bg-black/3 dark:bg-white/3 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-blue-600/80 dark:bg-blue-400/80 rounded-full transition-all duration-500"
                       style={{ width: `${skill.level}%` }}

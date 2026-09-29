@@ -19,7 +19,7 @@ export default function ArchiveContent({ initialPosts }: ArchiveContentProps) {
       <div className="card bg-white/40 dark:bg-black/40 backdrop-blur-md md:rounded-xl p-4 md:p-8
         md:border md:border-black/5 md:dark:border-white/10
         md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] md:dark:shadow-[0_8px_30px_rgb(255,255,255,0.04)]">
-        <h1 className="text-3xl md:text-4xl font-medium mb-4 bg-gradient-to-r from-black to-black/60 dark:from-white dark:to-white/60 bg-clip-text text-transparent">
+        <h1 className="text-3xl md:text-4xl font-medium mb-4 bg-linear-to-r from-black to-black/60 dark:from-white dark:to-white/60 bg-clip-text text-transparent">
           归档
         </h1>
         <p className="text-base md:text-lg text-black/60 dark:text-white/60 leading-relaxed">

@@ -1,14 +1,15 @@
-/* src/styles/markdown.css */
-
-@import './luoxiaohei.css';
+/* Article body. Sized for a 560px column set in Inter. */
 
 .markdown-body {
-  @apply text-[17px] leading-[1.7] text-black/80 dark:text-white/80;
-  @apply tracking-normal;
+  font-size: 15.5px;
+  line-height: 1.7;
+  font-weight: 450;
+  letter-spacing: -0.15px;
+  color: var(--ink-2);
 }
 
-html.christmas .markdown-body {
-  color: var(--foreground);
+.markdown-body > :first-child {
+  margin-top: 0;
 }
 
 .markdown-body h1,
@@ -17,298 +18,253 @@ html.christmas .markdown-body {
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-  @apply font-medium text-black dark:text-white tracking-tight;
-  @apply mt-12 mb-6 leading-tight;
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: -0.35px;
+  line-height: 1.3;
+  margin: 2.6em 0 0.9em;
+  scroll-margin-top: 96px;
 }
 
-html.christmas .markdown-body h1, 
-html.christmas .markdown-body h2 {
-  color: var(--primary);
-}
+.markdown-body h1 { font-size: 22px; }
+.markdown-body h2 { font-size: 19px; }
+.markdown-body h3 { font-size: 16.5px; }
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 { font-size: 15.5px; }
 
-html.christmas.dark .markdown-body h1, 
-html.christmas.dark .markdown-body h2 {
-  color: #D4AF37;
+/* Sections: heading followed by a hairline that runs to the right edge. */
+.markdown-body h2 {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
-
-.markdown-body h1 { @apply text-2xl md:text-3xl; }
-.markdown-body h2 { @apply text-xl md:text-2xl; }
-.markdown-body h3 { @apply text-lg md:text-xl; }
-.markdown-body h4 { @apply text-base md:text-lg; }
-.markdown-body h5 { @apply text-base; }
-.markdown-body h6 { @apply text-sm; }
+.markdown-body h2::after {
+  content: '';
+  flex: 1;
+  height: 1.25px;
+  border-radius: 1px;
+  background: linear-gradient(to right, rgba(var(--ink-rgb), 0.1), rgba(var(--ink-rgb), 0));
+}
 
 .markdown-body p {
-  @apply mb-6 leading-[1.8];
+  margin: 0 0 1.25em;
 }
 
 .markdown-body strong {
-  @apply font-semibold text-black dark:text-white;
-}
-
-html.christmas .markdown-body strong {
-  color: #1A472A;
-}
-
-html.christmas.dark .markdown-body strong {
-  color: #D4AF37;
+  font-weight: 550;
+  color: var(--ink);
 }
 
 .markdown-body em {
-  @apply italic;
+  font-style: italic;
 }
 
-.markdown-body ul, 
+.markdown-body ul,
 .markdown-body ol {
-  @apply mb-6 pl-6 space-y-2;
+  margin: 0 0 1.25em;
+  padding-left: 1.4em;
 }
-
-.markdown-body ul { @apply list-disc; }
-.markdown-body ol { @apply list-decimal; }
-
-.markdown-body li {
-  @apply pl-2;
-}
-
+.markdown-body ul { list-style: disc; }
+.markdown-body ol { list-style: decimal; }
+.markdown-body li { margin: 0.35em 0; padding-left: 0.2em; }
+.markdown-body li::marker { color: var(--ink-3); }
 .markdown-body li > ul,
-.markdown-body li > ol {
-  @apply mt-2 mb-0;
-}
+.markdown-body li > ol { margin: 0.35em 0 0; }
 
+/* Inline code as a small chip. */
 .markdown-body :not(pre) > code {
-  @apply font-mono text-[13px];
-  @apply bg-black/[0.04] dark:bg-white/[0.06];
-  @apply px-1.5 py-0.5 rounded;
-  @apply text-black/90 dark:text-white/90;
-  @apply break-words;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.86em;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink);
+  background: var(--surface);
+  padding: 0.1em 0.4em;
+  border-radius: 5px;
+  box-shadow: 0 0 0 1px var(--line);
   white-space: pre-wrap;
-}
-
-html.christmas .markdown-body :not(pre) > code {
-  background-color: rgba(196, 30, 58, 0.08);
-  color: #8B0000;
-}
-
-html.christmas.dark .markdown-body :not(pre) > code {
-  background-color: rgba(212, 175, 55, 0.1);
-  color: #E5C07B;
+  overflow-wrap: anywhere;
 }
 
 .markdown-body pre {
-  @apply my-8 p-5;
-  @apply bg-black/[0.03] dark:bg-white/[0.03];
-  @apply border border-black/[0.06] dark:border-white/[0.06];
-  @apply rounded-lg overflow-x-auto;
-  @apply text-[14px];
+  margin: 1.6em 0;
+  padding: 16px 18px;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+  background: var(--surface);
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  color: var(--ink);
 }
-
 .markdown-body pre > code {
-  @apply bg-transparent p-0;
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  font-size: inherit;
+  letter-spacing: 0;
 }
 
 .markdown-body blockquote {
-  @apply my-8 pl-4 py-0;
-  @apply border-l-2 border-black/20 dark:border-white/20;
-  @apply text-black/60 dark:text-white/60;
+  margin: 1.6em 0;
+  padding: 0 0 0 18px;
+  position: relative;
+  color: var(--ink-2);
+  font-style: italic;
 }
-
-html.christmas .markdown-body blockquote {
-  border-color: #1A472A;
-  background-color: rgba(26, 71, 42, 0.03);
-  padding: 1rem;
-  border-radius: 0 8px 8px 0;
+.markdown-body blockquote::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 1.5px;
+  border-radius: 1px;
+  background: linear-gradient(to bottom, rgba(var(--ink-rgb), 0.3), rgba(var(--ink-rgb), 0.05));
 }
-
-html.christmas.dark .markdown-body blockquote {
-  border-color: #D4AF37;
-  background-color: rgba(212, 175, 55, 0.05);
-}
-
-.markdown-body blockquote p {
-  @apply mb-0;
-}
+.markdown-body blockquote p:last-child { margin-bottom: 0; }
 
 .markdown-body a {
-  @apply text-black dark:text-white underline underline-offset-4;
-  @apply decoration-black/30 dark:decoration-white/30;
-  @apply hover:decoration-black dark:hover:decoration-white;
-  @apply transition-colors;
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--ink-rgb), 0.25);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color 300ms var(--ease-out-quint);
 }
-
-html.christmas .markdown-body a {
-  text-decoration-color: rgba(196, 30, 58, 0.4);
-  color: #8B0000;
-}
-
-html.christmas .markdown-body a:hover {
-  text-decoration-color: #C41E3A;
-  background-color: rgba(196, 30, 58, 0.05);
-}
-
-html.christmas.dark .markdown-body a {
-  text-decoration-color: rgba(212, 175, 55, 0.4);
-  color: #E5C07B;
-}
-
-html.christmas.dark .markdown-body a:hover {
-  text-decoration-color: #D4AF37;
+.markdown-body a:hover {
+  text-decoration-color: var(--ink);
 }
 
 .markdown-body table {
-  @apply w-full my-8;
-  @apply text-[15px];
-  @apply border-collapse;
+  width: 100%;
+  margin: 1.6em 0;
+  font-size: 14px;
+  border-collapse: collapse;
 }
-
-.markdown-body thead {
-  @apply border-b-2 border-black/[0.1] dark:border-white/[0.1];
-}
-
-html.christmas .markdown-body thead { border-color: rgba(26, 71, 42, 0.2); }
-
 .markdown-body th {
-  @apply px-4 py-3 text-left;
-  @apply font-medium text-black/80 dark:text-white/80;
-  @apply bg-transparent;
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 500;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
 }
-
-html.christmas .markdown-body th { color: #1A472A; }
-html.christmas.dark .markdown-body th { color: #D4AF37; }
-
 .markdown-body td {
-  @apply px-4 py-3 text-left;
-  @apply text-black/70 dark:text-white/70;
-  @apply border-b border-black/[0.06] dark:border-white/[0.06];
+  padding: 8px 12px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--line-soft);
+  font-variant-numeric: tabular-nums;
 }
-
-html.christmas .markdown-body td { border-color: rgba(26, 71, 42, 0.1); }
-
-.markdown-body tbody tr:last-child td {
-  @apply border-b-0;
-}
-
-.markdown-body tbody tr {
-  @apply transition-colors;
-  @apply hover:bg-black/[0.02] dark:hover:bg-white/[0.02];
-}
+.markdown-body tbody tr:last-child td { border-bottom: 0; }
 
 .markdown-body hr {
-  @apply my-12 border-0 h-[1px];
-  @apply bg-black/[0.08] dark:bg-white/[0.08];
-}
-
-html.christmas .markdown-body hr {
-  background: repeating-linear-gradient(to right, #C41E3A 0, #C41E3A 4px, transparent 4px, transparent 8px);
-  height: 2px;
-  opacity: 0.3;
+  border: 0;
+  height: 1.25px;
+  margin: 3em 0;
+  border-radius: 1px;
+  background: linear-gradient(to right, rgba(var(--ink-rgb), 0.1), rgba(var(--ink-rgb), 0));
 }
 
 .markdown-body img {
-  @apply max-w-full h-auto my-8;
-  @apply rounded-lg;
-  @apply border border-black/[0.06] dark:border-white/[0.06];
-  @apply cursor-pointer transition-opacity duration-200;
-  @apply hover:opacity-80;
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.6em 0;
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  cursor: zoom-in;
+  transition: box-shadow 300ms var(--ease-out-quint);
+}
+.markdown-body img:hover {
+  box-shadow: var(--shadow-card-hover);
 }
 
-html.christmas .markdown-body img {
-  border-color: rgba(212, 175, 55, 0.3);
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.1);
+.markdown-body figure { margin: 1.6em 0; }
+.markdown-body figcaption {
+  margin-top: -0.8em;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  text-align: center;
 }
 
+/* Project cards embedded in posts. */
 .markdown-body .project-card-link {
-  @apply block my-8 no-underline;
-  @apply transition-all duration-200;
+  display: block;
+  margin: 1.6em 0;
+  text-decoration: none;
 }
-
 .markdown-body .project-card {
-  @apply rounded-xl border border-black/[0.06] dark:border-white/[0.06];
-  @apply bg-black/[0.02] dark:bg-white/[0.02];
-  @apply hover:bg-black/[0.04] dark:hover:bg-white/[0.04];
-  @apply hover:border-black/[0.10] dark:hover:border-white/[0.10];
-  @apply transition-all duration-200;
+  background: var(--surface);
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 300ms var(--ease-out-quint);
 }
-
-html.christmas .markdown-body .project-card {
-  background-color: #fff;
-  border-color: rgba(26, 71, 42, 0.1);
+.markdown-body .project-card-link:hover .project-card {
+  box-shadow: var(--shadow-card-hover);
 }
-
-html.christmas.dark .markdown-body .project-card {
-  background-color: rgba(10, 20, 15, 0.5);
-  border-color: rgba(212, 175, 55, 0.2);
-}
-
-html.christmas .markdown-body .project-card:hover {
-  border-color: #1A472A;
-  box-shadow: 0 4px 20px rgba(26, 71, 42, 0.08);
-}
-
 .markdown-body .project-card-content {
-  @apply px-5 py-5 sm:px-8 sm:py-6;
-  @apply flex flex-col sm:flex-row;
-  @apply items-start sm:items-center;
-  @apply gap-4 sm:gap-6;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px;
 }
-
+@media (min-width: 560px) {
+  .markdown-body .project-card-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+  }
+}
 .markdown-body .project-card-text {
-  @apply flex-1 flex flex-col gap-2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-
 .markdown-body .project-card-title {
-  @apply text-base sm:text-lg font-medium text-black dark:text-white;
-  @apply m-0 leading-tight;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ink);
 }
-
 .markdown-body .project-card-description {
-  @apply text-sm sm:text-base text-black/60 dark:text-white/60;
-  @apply m-0 leading-relaxed;
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
 }
-
-.markdown-body .project-card-action {
-  @apply flex-shrink-0;
-}
-
+.markdown-body .project-card-action { flex: none; }
 .markdown-body .project-card-button {
-  @apply inline-flex items-center gap-2;
-  @apply px-4 py-2 rounded-full;
-  @apply bg-black dark:bg-white;
-  @apply text-white dark:text-black;
-  @apply text-sm font-medium;
-  @apply transition-all duration-200;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 29px;
+  padding: 6px 12px 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-input);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 300ms var(--ease-out-quint), color 300ms var(--ease-out-quint);
 }
-
-html.christmas .markdown-body .project-card-button {
-  background-color: #C41E3A;
-  color: white;
-}
-
-html.christmas.dark .markdown-body .project-card-button {
-  background-color: #D4AF37;
-  color: #0F1F18;
-}
-
 .markdown-body .project-card-link:hover .project-card-button {
-  @apply bg-black/80 dark:bg-white/80;
+  color: var(--ink);
+  box-shadow: var(--shadow-card-hover);
 }
 
-/* 链接预览样式 */
-.markdown-body a[href^="http"]:not([href*="localhost"]):not([href*="127.0.0.1"]) {
-  @apply relative cursor-pointer;
-  @apply transition-all duration-200;
+/* Heading anchors, if the renderer emits them. */
+.markdown-body .heading-anchor {
+  margin-left: 8px;
+  color: var(--ink-3);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 300ms var(--ease-out-quint);
 }
-
-.markdown-body a[href^="http"]:not([href*="localhost"]):not([href*="127.0.0.1"]):hover {
-  @apply bg-black/[0.03] dark:bg-white/[0.03];
-  @apply px-1 -mx-1 rounded;
-}
-
-html.christmas .markdown-body a[href^="http"]:not([href*="localhost"]):not([href*="127.0.0.1"]):hover {
-  background-color: rgba(196, 30, 58, 0.08);
-}
-
-html.christmas.dark .markdown-body a[href^="http"]:not([href*="localhost"]):not([href*="127.0.0.1"]):hover {
-  background-color: rgba(212, 175, 55, 0.08);
-}
+.markdown-body h1:hover .heading-anchor,
+.markdown-body h2:hover .heading-anchor,
+.markdown-body h3:hover .heading-anchor { opacity: 1; }

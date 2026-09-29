@@ -166,7 +166,7 @@ export default function SearchPage() {
                     >
                       <Link
                         href={`/post/${result.slug}`}
-                        className="group grid grid-cols-[80px_1fr] md:grid-cols-[120px_1fr] gap-8 md:gap-12 py-10 border-b border-black/5 dark:border-white/5 last:border-0 hover:bg-black/[0.01] dark:hover:bg-white/[0.01] -mx-4 px-4 transition-colors"
+                        className="group grid grid-cols-[80px_1fr] md:grid-cols-[120px_1fr] gap-8 md:gap-12 py-10 border-b border-black/5 dark:border-white/5 last:border-0 hover:bg-black/1 dark:hover:bg-white/1 -mx-4 px-4 transition-colors"
                       >
                         {/* 日期 */}
                         <time className="text-sm font-mono text-black/40 dark:text-white/40 pt-1">

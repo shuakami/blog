@@ -119,17 +119,17 @@ export function PlaylistModal({
           <div className={clsx(
             "absolute inset-0",
             isDark 
-              ? "bg-gradient-to-b from-black/30 via-black/50 to-black/80" 
-              : "bg-gradient-to-b from-white/60 via-white/80 to-white/90"
+              ? "bg-linear-to-b from-black/30 via-black/50 to-black/80" 
+              : "bg-linear-to-b from-white/60 via-white/80 to-white/90"
           )} />
           {/* 毛玻璃效果 */}
           <div className="absolute inset-0 backdrop-blur-2xl backdrop-saturate-150" />
           {/* 微光效果 */}
           <div className={clsx(
-            "absolute inset-0 bg-gradient-to-tr",
+            "absolute inset-0 bg-linear-to-tr",
             isDark 
-              ? "from-white/[0.05] to-transparent" 
-              : "from-black/[0.02] to-transparent"
+              ? "from-white/5 to-transparent" 
+              : "from-black/2 to-transparent"
           )} />
         </div>
 
@@ -147,7 +147,7 @@ export function PlaylistModal({
               />
               {/* 封面光效 */}
               <div className={clsx(
-                "absolute inset-0 bg-gradient-to-t",
+                "absolute inset-0 bg-linear-to-t",
                 isDark ? "from-black/20" : "from-black/10",
                 "to-transparent"
               )} />
@@ -270,7 +270,7 @@ export function PlaylistModal({
           </div>
 
           {/* 右侧：播放列表 */}
-          <div className="bg-gradient-to-b from-transparent via-black/[0.02] to-black/[0.02] dark:from-transparent dark:via-white/[0.02] dark:to-white/[0.02]">
+          <div className="bg-linear-to-b from-transparent via-black/2 to-black/2 dark:from-transparent dark:via-white/2 dark:to-white/2">
             <div className="px-8 py-6">
               <h3 className={clsx(
                 "text-lg font-medium",
@@ -296,11 +296,11 @@ export function PlaylistModal({
                       isDark 
                         ? [
                             'hover:bg-white/5',
-                            currentTrackIndex === index && 'bg-white/[0.08]'
+                            currentTrackIndex === index && 'bg-white/8'
                           ]
                         : [
                             'hover:bg-black/5',
-                            currentTrackIndex === index && 'bg-black/[0.08]'
+                            currentTrackIndex === index && 'bg-black/8'
                           ]
                     )}
                     onClick={() => {
@@ -309,7 +309,7 @@ export function PlaylistModal({
                     }}
                   >
                     {/* 封面 */}
-                    <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+                    <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 transition-transform duration-200 group-hover:scale-105">
                       <Image
                         src={`${track.cover.split('?')[0]}?param=60y60`}
                         alt={track.name}
@@ -348,7 +348,7 @@ export function PlaylistModal({
                     
                     {/* 播放状态 */}
                     {currentTrackIndex === index && (
-                      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                      <div className="shrink-0 w-8 h-8 flex items-center justify-center">
                         {isPlaying ? (
                           <Pause className={clsx(
                             "w-5 h-5",
@@ -372,8 +372,8 @@ export function PlaylistModal({
                       className={clsx(
                         'w-full py-4 text-sm font-medium tracking-wide transition-colors duration-200 rounded-xl',
                         isDark
-                          ? ['text-white/50 hover:text-white/70 hover:bg-white/[0.02]']
-                          : ['text-black/50 hover:text-black/70 hover:bg-black/[0.02]'],
+                          ? ['text-white/50 hover:text-white/70 hover:bg-white/2']
+                          : ['text-black/50 hover:text-black/70 hover:bg-black/2'],
                         isLoadingMore && 'opacity-50 cursor-not-allowed'
                       )}
                       onClick={onLoadMore}

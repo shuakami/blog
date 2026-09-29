@@ -105,10 +105,10 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
           </p>
           <div className="w-12 sm:w-16 h-[2px] bg-black dark:bg-white" />
         </header>
-        <div className="h-12 w-48 bg-black/[0.04] dark:bg-white/[0.06] rounded-full mb-6" />
+        <div className="h-12 w-48 bg-black/4 dark:bg-white/6 rounded-full mb-6" />
         <div className="space-y-4">
-          <div className="h-32 bg-black/[0.02] dark:bg-white/[0.02] rounded-xl" />
-          <div className="h-32 bg-black/[0.02] dark:bg-white/[0.02] rounded-xl" />
+          <div className="h-32 bg-black/2 dark:bg-white/2 rounded-xl" />
+          <div className="h-32 bg-black/2 dark:bg-white/2 rounded-xl" />
         </div>
       </div>
     );
@@ -127,7 +127,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
       </header>
 
       {/* Tab 切换 */}
-      <div className="flex gap-1 p-1 mb-6 bg-black/[0.04] dark:bg-white/[0.06] rounded-full w-fit">
+      <div className="flex gap-1 p-1 mb-6 bg-black/4 dark:bg-white/6 rounded-full w-fit">
         <button
           onClick={() => setActiveTab('resources')}
           className={`px-5 py-2 text-sm font-medium rounded-full transition-all ${
@@ -175,7 +175,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
               {normalResources.map((resource, index) => (
                 <article
                   key={index}
-                  className="group py-6 border-b border-black/[0.06] dark:border-white/[0.06] last:border-0"
+                  className="group py-6 border-b border-black/6 dark:border-white/6 last:border-0"
                 >
                   <div className="space-y-4 sm:space-y-5">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
@@ -189,7 +189,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                           {resource.description}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0 sm:mt-1">
+                      <div className="flex items-center gap-2 shrink-0 sm:mt-1">
                         <span className="text-xs sm:text-sm text-black/40 dark:text-white/40">
                           {resource.type}
                         </span>
@@ -204,7 +204,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                       </div>
                     </div>
 
-                    <div className="rounded-lg sm:rounded-xl bg-black/[0.02] dark:bg-white/[0.02] px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6">
+                    <div className="rounded-lg sm:rounded-xl bg-black/2 dark:bg-white/2 px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-6">
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-5 md:gap-6">
                         <div className="flex items-center gap-6 sm:gap-8 md:gap-12">
                           {resource.size && (
@@ -229,10 +229,10 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                           )}
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-2 md:items-end md:flex-shrink-0 w-full sm:w-auto md:w-auto">
+                        <div className="flex flex-col sm:flex-row gap-2 md:items-end md:shrink-0 w-full sm:w-auto md:w-auto">
                           <Link
                             href={`/resources/${resource.slug}` as any}
-                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2.5 md:py-2 rounded-full bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white text-sm font-medium hover:bg-black/[0.10] dark:hover:bg-white/[0.12] transition-colors whitespace-nowrap w-full sm:w-auto"
+                            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2.5 md:py-2 rounded-full bg-black/6 dark:bg-white/8 text-black dark:text-white text-sm font-medium hover:bg-black/10 dark:hover:bg-white/12 transition-colors whitespace-nowrap w-full sm:w-auto"
                           >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -264,7 +264,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                         {resource.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 sm:px-2.5 py-1 text-xs rounded-md bg-black/[0.04] dark:bg-white/[0.06] text-black/50 dark:text-white/50"
+                            className="px-2 sm:px-2.5 py-1 text-xs rounded-md bg-black/4 dark:bg-white/6 text-black/50 dark:text-white/50"
                           >
                             {tag}
                           </span>
@@ -293,7 +293,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
               return (
                 <div
                   key={cmd.slug}
-                  className="group rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] overflow-hidden"
+                  className="group rounded-xl bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6 overflow-hidden"
                 >
                   <div className="px-5 py-4 flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
@@ -310,10 +310,10 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                     </div>
                     <button
                       onClick={() => copyToClipboard(code, cmd.slug)}
-                      className={`flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      className={`shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                         copiedId === cmd.slug
-                          ? 'bg-black/[0.06] dark:bg-white/[0.08] text-black/60 dark:text-white/60'
-                          : 'bg-black/[0.06] dark:bg-white/[0.08] text-black dark:text-white hover:bg-black/[0.10] dark:hover:bg-white/[0.12]'
+                          ? 'bg-black/6 dark:bg-white/8 text-black/60 dark:text-white/60'
+                          : 'bg-black/6 dark:bg-white/8 text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/12'
                       }`}
                     >
                       {copiedId === cmd.slug ? (
@@ -334,7 +334,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                       )}
                     </button>
                   </div>
-                  <div className="px-5 py-3 bg-black/[0.03] dark:bg-white/[0.03] border-t border-black/[0.06] dark:border-white/[0.06] overflow-x-auto">
+                  <div className="px-5 py-3 bg-black/3 dark:bg-white/3 border-t border-black/6 dark:border-white/6 overflow-x-auto">
                     <pre className="text-sm text-black/80 dark:text-white/80 font-mono whitespace-pre-wrap break-all">
                       <code>{code}</code>
                     </pre>
@@ -366,7 +366,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                       className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
                         designFilter === null
                           ? 'bg-black dark:bg-white text-white dark:text-black'
-                          : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
+                          : 'bg-black/4 dark:bg-white/6 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
                       }`}
                     >
                       全部
@@ -378,7 +378,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                         className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
                           designFilter === tag
                             ? 'bg-black dark:bg-white text-white dark:text-black'
-                            : 'bg-black/[0.04] dark:bg-white/[0.06] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
+                            : 'bg-black/4 dark:bg-white/6 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white'
                         }`}
                       >
                         {tag}
@@ -398,7 +398,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                     return (
                       <div
                         key={component.slug}
-                        className="rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] overflow-hidden"
+                        className="rounded-2xl bg-black/2 dark:bg-white/2 border border-black/6 dark:border-white/6 overflow-hidden"
                       >
                         {/* 预览区域 - 可点击跳转 */}
                         <Link
@@ -408,7 +408,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                               e.preventDefault();
                             }
                           }}
-                          className="aspect-square flex items-center justify-center p-6 text-black dark:text-white hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors block"
+                          className="aspect-square flex items-center justify-center p-6 text-black dark:text-white hover:bg-black/2 dark:hover:bg-white/2 transition-colors block"
                         >
                           {code ? (
                             <LiveCodeRenderer code={code} />
@@ -417,7 +417,7 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                           )}
                         </Link>
                         {/* 底部信息栏 */}
-                        <div className="px-4 py-3 border-t border-black/[0.06] dark:border-white/[0.06] flex items-center justify-between">
+                        <div className="px-4 py-3 border-t border-black/6 dark:border-white/6 flex items-center justify-between">
                           <Link href={`/resources/${component.slug}` as any} className="min-w-0 flex-1">
                             <h3 className="text-sm font-medium text-black dark:text-white truncate hover:text-black/70 dark:hover:text-white/70 transition-colors">
                               {component.title}
@@ -430,10 +430,10 @@ export default function ResourcesClient({ resources }: ResourcesClientProps) {
                           </Link>
                           <button
                             onClick={() => copyToClipboard(code, component.slug)}
-                            className={`p-2 rounded-full transition-colors flex-shrink-0 ml-2 ${
+                            className={`p-2 rounded-full transition-colors shrink-0 ml-2 ${
                               copiedId === component.slug
                                 ? 'text-black/40 dark:text-white/40'
-                                : 'text-black/50 dark:text-white/50 hover:bg-black/[0.06] dark:hover:bg-white/[0.08]'
+                                : 'text-black/50 dark:text-white/50 hover:bg-black/6 dark:hover:bg-white/8'
                             }`}
                             title={copiedId === component.slug ? '已复制' : '复制代码'}
                           >
