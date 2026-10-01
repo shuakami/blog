@@ -847,3 +847,73 @@ html.dark-scrollbar {
   width: 16px;
   background: var(--ink);
 }
+
+/* Mobile menu. The sheet is clipped open from the toggle; each name is set from below its own baseline. */
+.menu-sheet {
+  background: var(--bg);
+  will-change: clip-path;
+}
+.menu-line {
+  display: block;
+  overflow: hidden;
+  padding: 0.04em 0.12em 0.14em 0;
+  margin: -0.04em 0 -0.14em;
+}
+.menu-word {
+  display: block;
+  transform-origin: 0% 100%;
+}
+.menu-link {
+  -webkit-tap-highlight-color: transparent;
+}
+.menu-link:active .menu-line {
+  transform: translateX(6px);
+  transition: transform 120ms var(--ease-out-quint);
+}
+.menu-link .menu-line {
+  transition: transform 420ms var(--ease-out-quint);
+}
+.menu-toggle-word {
+  position: relative;
+  display: inline-grid;
+  overflow: hidden;
+  height: 1.25em;
+  line-height: 1.25em;
+}
+.menu-toggle-word > span {
+  grid-area: 1 / 1;
+  text-align: center;
+  transition:
+    transform 520ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.menu-toggle-word > span:last-child {
+  transform: translateY(110%);
+  opacity: 0;
+}
+.menu-toggle-word[data-open='true'] > span:first-child {
+  transform: translateY(-110%);
+  opacity: 0;
+}
+.menu-toggle-word[data-open='true'] > span:last-child {
+  transform: none;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu-toggle-word > span {
+    transition: opacity 120ms linear;
+  }
+  .menu-toggle-word > span:last-child,
+  .menu-toggle-word[data-open='true'] > span:first-child {
+    transform: none;
+  }
+}
+
+.menu-mark {
+  display: flex;
+  margin-left: -2.1rem;
+  transform-origin: 100% 50%;
+}
+.menu-mark .hedera {
+  margin-left: 0;
+}
