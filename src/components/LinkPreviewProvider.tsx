@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, Globe } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { ArrowUpRight, Globe } from 'lucide-react';
 
 interface LinkMetadata {
   page_url: string;
@@ -18,23 +19,24 @@ interface LinkPreviewProviderProps {
   children: React.ReactNode;
 }
 
-// 客户端缓存
+interface Anchor {
+  id: number;
+  url: string;
+  rect: DOMRect;
+}
+
 const previewCache = new Map<string, LinkMetadata | null>();
 const pendingRequests = new Map<string, Promise<LinkMetadata | null>>();
 
 async function fetchMetadata(url: string): Promise<LinkMetadata | null> {
-  if (previewCache.has(url)) {
-    return previewCache.get(url) || null;
-  }
-
-  if (pendingRequests.has(url)) {
-    return pendingRequests.get(url)!;
-  }
+  if (previewCache.has(url)) return previewCache.get(url) ?? null;
+  const pending = pendingRequests.get(url);
+  if (pending) return pending;
 
   const request = fetch(`/api/link-preview?url=${encodeURIComponent(url)}`)
-    .then(res => res.ok ? res.json() : null)
+    .then((res) => (res.ok ? res.json() : null))
     .catch(() => null)
-    .then(data => {
+    .then((data: LinkMetadata | null) => {
       previewCache.set(url, data);
       pendingRequests.delete(url);
       return data;
@@ -44,293 +46,325 @@ async function fetchMetadata(url: string): Promise<LinkMetadata | null> {
   return request;
 }
 
-function isExternalLink(url: string): boolean {
+function previewable(link: HTMLAnchorElement) {
+  if (link.closest('.project-card-link') || link.querySelector('img')) return false;
   try {
-    const urlObj = new URL(url, window.location.href);
-    return urlObj.hostname !== window.location.hostname && 
-           (urlObj.protocol === 'http:' || urlObj.protocol === 'https:');
+    const url = new URL(link.href);
+    return (url.protocol === 'http:' || url.protocol === 'https:') && url.hostname !== window.location.hostname;
   } catch {
     return false;
   }
 }
 
+function hostOf(url: string) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return url;
+  }
+}
+
+function pathOf(url: string) {
+  try {
+    const { pathname, search } = new URL(url);
+    const path = decodeURIComponent(pathname + search).replace(/\/$/, '');
+    return path || '/';
+  } catch {
+    return url;
+  }
+}
+
+function lineRect(link: HTMLAnchorElement, x?: number, y?: number) {
+  const rects = Array.from(link.getClientRects());
+  if (rects.length === 0) return link.getBoundingClientRect();
+  if (x === undefined || y === undefined) return rects[0];
+  return rects.reduce((best, r) => {
+    const d = (r: DOMRect) => Math.abs(y - (r.top + r.height / 2)) + (x < r.left ? r.left - x : x > r.right ? x - r.right : 0);
+    return d(r) < d(best) ? r : best;
+  });
+}
+
+const SHOW_DELAY = 260;
+const WARM_DELAY = 40;
+const WAIT_FOR_DATA = 360;
+const HIDE_DELAY = 160;
+const GAP = 10;
+const MARGIN = 12;
+const WIDTH = 320;
+const ROOM_NEEDED = 280;
+
+const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
 export function LinkPreviewProvider({ children }: LinkPreviewProviderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [hoveredLink, setHoveredLink] = useState<{ url: string; rect: DOMRect } | null>(null);
-  const [metadata, setMetadata] = useState<LinkMetadata | null>(null);
-  const [loading, setLoading] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const [position, setPosition] = useState<{ x: number; y: number; showAbove?: boolean }>({ x: 0, y: 0 });
-  const isOverTooltipRef = useRef(false); // 追踪鼠标是否在 tooltip 上
-  const currentUrlRef = useRef<string | null>(null); // 追踪当前显示的 URL
+  const [mounted, setMounted] = useState(false);
+  const [anchor, setAnchor] = useState<Anchor | null>(null);
+  const [data, setData] = useState<LinkMetadata | null | undefined>(undefined);
+  const anchorRef = useRef<Anchor | null>(null);
+  const activeLink = useRef<HTMLAnchorElement | null>(null);
+  const token = useRef(0);
+  const showTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const reduce = useReducedMotion();
+
+  useEffect(() => setMounted(true), []);
+
+  const cancelHide = useCallback(() => clearTimeout(hideTimer.current), []);
+
+  const hide = useCallback(() => {
+    clearTimeout(showTimer.current);
+    clearTimeout(hideTimer.current);
+    token.current++;
+    activeLink.current = null;
+    anchorRef.current = null;
+    setAnchor(null);
+  }, []);
+
+  const scheduleHide = useCallback(() => {
+    clearTimeout(showTimer.current);
+    clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(hide, HIDE_DELAY);
+  }, [hide]);
+
+  const open = useCallback(
+    (link: HTMLAnchorElement, x?: number, y?: number) => {
+      if (activeLink.current === link) {
+        cancelHide();
+        return;
+      }
+      cancelHide();
+      clearTimeout(showTimer.current);
+      activeLink.current = link;
+
+      const id = ++token.current;
+      const live = () => token.current === id;
+      const url = link.href;
+      const request = fetchMetadata(url);
+      let delayPassed = false;
+      let revealed = false;
+
+      const reveal = () => {
+        if (!live() || revealed) return;
+        revealed = true;
+        const next = { id, url, rect: lineRect(link, x, y) };
+        anchorRef.current = next;
+        setData(previewCache.has(url) ? previewCache.get(url) ?? null : undefined);
+        setAnchor(next);
+      };
+
+      showTimer.current = setTimeout(
+        () => {
+          delayPassed = true;
+          if (previewCache.has(url)) reveal();
+          else showTimer.current = setTimeout(reveal, WAIT_FOR_DATA);
+        },
+        anchorRef.current ? WARM_DELAY : SHOW_DELAY
+      );
+
+      request.then((result) => {
+        if (!live() || !delayPassed) return;
+        if (revealed) setData(result);
+        else {
+          clearTimeout(showTimer.current);
+          reveal();
+        }
+      });
+    },
+    [cancelHide]
+  );
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    let currentLink: HTMLAnchorElement | null = null;
-
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const link = target.closest('a');
-      
-      // 如果没有链接，清除当前状态
-      if (!link) {
-        if (currentLink && timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-          currentLink = null;
-          currentUrlRef.current = null;
-        }
-        return;
-      }
-      
-      // 如果鼠标已经在同一个链接上，只清除定时器，保持显示
-      if (link === currentLink) {
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-        }
-        return;
-      }
-      
-      // 清除之前的链接
-      if (currentLink) {
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-        }
-        currentLink = null;
-      }
-      
-      const href = link.getAttribute('href');
-      // 只处理外部链接
-      if (!href || !isExternalLink(href)) return;
-
-      currentLink = link;
-
-      // 延迟显示预览
-      timeoutRef.current = setTimeout(() => {
-        // 如果已经显示了同一个链接，不重新设置状态（避免重复触发动画）
-        if (currentUrlRef.current === href) {
-          return;
-        }
-        
-        const rect = link.getBoundingClientRect();
-        currentUrlRef.current = href;
-        setHoveredLink({ url: href, rect });
-        
-        // 智能定位：检测下方空间，决定显示在上方还是下方
-        const CARD_HEIGHT = 200; // 预估卡片高度
-        const SPACING = 12;
-        const viewportHeight = window.innerHeight;
-        
-        // 计算视口中的可用空间
-        const spaceBelow = viewportHeight - rect.bottom;
-        const spaceAbove = rect.top;
-        
-        // 如果下方空间不足，优先显示在上方
-        const showAbove = spaceBelow < CARD_HEIGHT && spaceAbove > 100;
-        
-        const leftOffset = -120; // 往左偏移像素
-        
-        const finalX = rect.left + rect.width / 2 + leftOffset;
-        const finalY = showAbove ? rect.top - 145 : rect.bottom + SPACING;
-
-        setPosition({
-          x: finalX,
-          y: finalY,
-          showAbove,
-        });
-
-        // 获取元数据
-        setLoading(true);
-        fetchMetadata(href).then(data => {
-          setMetadata(data);
-          setLoading(false);
-        });
-      }, 300);
+    const linkFrom = (target: EventTarget | null) => {
+      const link = target instanceof Element ? target.closest('a') : null;
+      return link && previewable(link) ? link : null;
     };
 
-    const handleMouseOut = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const link = target.closest('a');
-      
-      if (link !== currentLink) return;
-
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-
-      // 延迟隐藏，给用户时间移动鼠标到 tooltip
-      timeoutRef.current = setTimeout(() => {
-        // 只有在不在 tooltip 上时才隐藏
-        if (!isOverTooltipRef.current) {
-          currentLink = null;
-          currentUrlRef.current = null;
-          setHoveredLink(null);
-          setMetadata(null);
-        }
-      }, 200);
+    const onOver = (e: MouseEvent) => {
+      if (!canHover()) return;
+      const link = linkFrom(e.target);
+      if (link) open(link, e.clientX, e.clientY);
+    };
+    const onOut = (e: MouseEvent) => {
+      const link = linkFrom(e.target);
+      if (!link || link !== activeLink.current) return;
+      if (e.relatedTarget instanceof Node && link.contains(e.relatedTarget)) return;
+      scheduleHide();
+    };
+    const onFocusIn = (e: FocusEvent) => {
+      const link = linkFrom(e.target);
+      if (link && link.matches(':focus-visible')) open(link);
+    };
+    const onFocusOut = (e: FocusEvent) => {
+      if (linkFrom(e.target) === activeLink.current) scheduleHide();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && anchorRef.current) hide();
     };
 
-    // 滚动时隐藏 tooltip
-    const handleScroll = () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      currentLink = null;
-      currentUrlRef.current = null;
-      setHoveredLink(null);
-      setMetadata(null);
-    };
-
-    // 使用 mouseover/mouseout 事件（会冒泡）
-    container.addEventListener('mouseover', handleMouseOver);
-    container.addEventListener('mouseout', handleMouseOut);
-    window.addEventListener('scroll', handleScroll, true); // 捕获阶段监听所有滚动
+    container.addEventListener('mouseover', onOver);
+    container.addEventListener('mouseout', onOut);
+    container.addEventListener('focusin', onFocusIn);
+    container.addEventListener('focusout', onFocusOut);
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('scroll', hide, { capture: true, passive: true });
+    window.addEventListener('resize', hide);
 
     return () => {
-      container.removeEventListener('mouseover', handleMouseOver);
-      container.removeEventListener('mouseout', handleMouseOut);
-      window.removeEventListener('scroll', handleScroll, true);
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      container.removeEventListener('mouseover', onOver);
+      container.removeEventListener('mouseout', onOut);
+      container.removeEventListener('focusin', onFocusIn);
+      container.removeEventListener('focusout', onFocusOut);
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('scroll', hide, { capture: true });
+      window.removeEventListener('resize', hide);
+      clearTimeout(showTimer.current);
+      clearTimeout(hideTimer.current);
     };
-  }, []);
+  }, [open, hide, scheduleHide]);
 
   return (
     <>
       <div ref={containerRef} className="link-preview-container">
         {children}
       </div>
-
-      <AnimatePresence>
-        {hoveredLink && (
-          <motion.div
-            initial={{ 
-              opacity: 0, 
-              scale: 0.96 
-            }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ 
-              opacity: 0, 
-              scale: 0.96 
-            }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-            style={{
-              position: 'fixed',
-              left: position.x,
-              top: position.y,
-              transform: 'translateX(-50%)',
-              zIndex: 9999,
-            }}
-            className="cursor-pointer"
-            onMouseEnter={() => {
-              // 鼠标进入 tooltip
-              isOverTooltipRef.current = true;
-              if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-              }
-            }}
-            onMouseLeave={() => {
-              // 鼠标离开 tooltip
-              isOverTooltipRef.current = false;
-              
-              if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-              }
-              
-              // 延迟隐藏
-              timeoutRef.current = setTimeout(() => {
-                currentUrlRef.current = null;
-                setHoveredLink(null);
-                setMetadata(null);
-              }, 150);
-            }}
-            onClick={() => {
-              // 点击 tooltip 跳转到链接
-              if (hoveredLink) {
-                window.open(hoveredLink.url, '_blank', 'noopener,noreferrer');
-              }
-            }}
-          >
-            <div className="w-[340px] max-w-[90vw] bg-white dark:bg-neutral-900 rounded-xl shadow-2xl border border-black/8 dark:border-white/8 overflow-hidden backdrop-blur-xl transition-colors duration-200 hover:bg-black/2 dark:hover:bg-white/2">
-              {loading ? (
-                <div className="p-4">
-                  <div className="flex items-start gap-3 mb-2">
-                    <div className="w-5 h-5 rounded bg-black/4 dark:bg-white/4 animate-pulse shrink-0 mt-0.5" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-black/4 dark:bg-white/4 rounded animate-pulse w-3/4" />
-                      <div className="h-3 bg-black/4 dark:bg-white/4 rounded animate-pulse w-full" />
-                      <div className="h-3 bg-black/4 dark:bg-white/4 rounded animate-pulse w-4/5" />
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-black/6 dark:border-white/6">
-                    <div className="h-3 bg-black/4 dark:bg-white/4 rounded animate-pulse w-32" />
-                  </div>
-                </div>
-              ) : metadata ? (
-                <div className="p-4">
-                    {/* 网站图标和标题 */}
-                    <div className="flex items-start gap-3 mb-2">
-                      {metadata.favicon_url ? (
-                        <img
-                          src={metadata.favicon_url}
-                          alt=""
-                          className="w-5 h-5 rounded shrink-0 mt-0.5"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
-                          }}
-                        />
-                      ) : (
-                        <Globe className="w-5 h-5 text-black/40 dark:text-white/40 shrink-0 mt-0.5" />
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-medium text-black dark:text-white line-clamp-2 leading-snug mb-1">
-                          {metadata.title}
-                        </h3>
-                        {metadata.description && (
-                          <p className="text-xs text-black/60 dark:text-white/60 line-clamp-2 leading-relaxed">
-                            {metadata.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                  {/* 域名 */}
-                  <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-black/6 dark:border-white/6">
-                    <ExternalLink className="w-3 h-3 text-black/40 dark:text-white/40" />
-                    <span className="text-xs text-black/40 dark:text-white/40 truncate">
-                      {new URL(metadata.page_url).hostname}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-4">
-                    <div className="flex items-start gap-3 mb-2">
-                      <Globe className="w-5 h-5 text-black/40 dark:text-white/40 shrink-0 mt-0.5" />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-medium text-black/60 dark:text-white/60 leading-snug mb-1">
-                          无法加载预览
-                        </h3>
-                        <p className="text-xs text-black/40 dark:text-white/40 leading-relaxed">
-                          可能是网络问题或该网站不支持预览
-                        </p>
-                      </div>
-                    </div>
-                  <div className="mt-3 pt-3 border-t border-black/6 dark:border-white/6">
-                    <div className="flex items-center gap-1.5">
-                      <ExternalLink className="w-3 h-3 text-black/40 dark:text-white/40" />
-                      <span className="text-xs text-black/40 dark:text-white/40 truncate">
-                        {hoveredLink ? new URL(hoveredLink.url).hostname : ''}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {anchor && (
+              <PreviewCard
+                key={anchor.id}
+                anchor={anchor}
+                data={data}
+                reduce={!!reduce}
+                onEnter={cancelHide}
+                onLeave={scheduleHide}
+              />
+            )}
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </>
+  );
+}
+
+interface PreviewCardProps {
+  anchor: Anchor;
+  data: LinkMetadata | null | undefined;
+  reduce: boolean;
+  onEnter: () => void;
+  onLeave: () => void;
+}
+
+function PreviewCard({ anchor, data, reduce, onEnter, onLeave }: PreviewCardProps) {
+  const [vw, vh] = [window.innerWidth, window.innerHeight];
+  const { rect, url } = anchor;
+  const width = Math.min(WIDTH, vw - MARGIN * 2);
+  const center = rect.left + rect.width / 2;
+  const left = Math.min(Math.max(center - width / 2, MARGIN), vw - width - MARGIN);
+  const below = vh - rect.bottom - GAP - MARGIN;
+  const above = rect.top - GAP - MARGIN;
+  const flip = below < ROOM_NEEDED && above > below;
+  const room = flip ? above : below;
+  const originX = Math.min(Math.max(center - left, 16), width - 16);
+  const lift = flip ? 6 : -6;
+
+  return (
+    <motion.a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      tabIndex={-1}
+      className="link-card"
+      style={{
+        left,
+        width,
+        maxHeight: room,
+        ...(flip ? { bottom: vh - rect.top + GAP } : { top: rect.bottom + GAP }),
+        transformOrigin: `${originX}px ${flip ? '100%' : '0%'}`,
+      }}
+      initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.92, y: lift, filter: 'blur(6px)' }}
+      animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+      exit={
+        reduce
+          ? { opacity: 0, transition: { duration: 0.1 } }
+          : { opacity: 0, scale: 0.97, y: lift / 2, filter: 'blur(3px)', transition: { duration: 0.14, ease: [0.4, 0, 1, 1] } }
+      }
+      transition={{ type: 'spring', stiffness: 560, damping: 36, mass: 0.7 }}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+    >
+      {data === undefined ? <CardSkeleton url={url} /> : <CardBody url={url} data={data} />}
+    </motion.a>
+  );
+}
+
+function Favicon({ src }: { src?: string }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) return <Globe className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt="" className="h-3.5 w-3.5 shrink-0 rounded-[4px]" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
+  );
+}
+
+function SourceRow({ url, favicon }: { url: string; favicon?: string }) {
+  return (
+    <div className="link-card-source">
+      <Favicon src={favicon} />
+      <span className="truncate">{hostOf(url)}</span>
+      <ArrowUpRight className="link-card-arrow ml-auto h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
+    </div>
+  );
+}
+
+function CardBody({ url, data }: { url: string; data: LinkMetadata | null }) {
+  const [imageState, setImageState] = useState<'loading' | 'ready' | 'failed'>('loading');
+  const image = data?.open_graph?.image;
+  const title = data?.title?.trim();
+  const description = data?.description?.trim();
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.18 }}>
+      {image && imageState !== 'failed' && (
+        <div className="link-card-media">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={image}
+            alt=""
+            referrerPolicy="no-referrer"
+            data-ready={imageState === 'ready'}
+            onLoad={() => setImageState('ready')}
+            onError={() => setImageState('failed')}
+          />
+        </div>
+      )}
+      <div className="link-card-text">
+        <SourceRow url={url} favicon={data?.favicon_url} />
+        {title ? (
+          <p className="link-card-title">{title}</p>
+        ) : (
+          <p className="link-card-title link-card-title-quiet">{pathOf(url)}</p>
+        )}
+        {description ? (
+          <p className="link-card-desc">{description}</p>
+        ) : (
+          !data && <p className="link-card-desc italic">This page sends no word of itself.</p>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function CardSkeleton({ url }: { url: string }) {
+  return (
+    <div className="link-card-text" aria-busy>
+      <SourceRow url={url} />
+      <span className="link-card-bone mt-3 w-4/5" />
+      <span className="link-card-bone mt-2 w-full" />
+      <span className="link-card-bone mt-2 w-3/5" />
+    </div>
   );
 }

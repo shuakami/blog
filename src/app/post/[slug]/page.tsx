@@ -10,6 +10,7 @@ import { ArrowLeft } from 'lucide-react';
 import { CodeCopyButton } from '@/components/CodeCopyButton';
 import { CopyUrlButton } from '@/components/CopyUrlButton';
 import PostNavigator from '@/components/PostNavigator';
+import { PostBackLink } from '@/components/PostBackLink';
 import { ImagePreview } from '@/components/ImagePreview';
 import { LinkPreviewProvider } from '@/components/LinkPreviewProvider';
 import { resolveAuthorProfile } from '@/utils/author-profile';
@@ -106,10 +107,7 @@ export default async function PostPage({ params, searchParams }: PageProps) {
   return (
     <article className="mx-auto w-full max-w-(--column-w) px-6 pb-8 pt-8 md:px-0 md:pt-14">
       <nav className="flex items-center justify-between">
-        <Link href="/" className="pill" aria-label="Back to index">
-          <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
-          <span>Index</span>
-        </Link>
+        <PostBackLink />
         <CopyUrlButton />
       </nav>
 

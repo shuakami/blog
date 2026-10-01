@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Rail } from '@/components/shell/Rail';
 import { TopBar } from '@/components/shell/TopBar';
 import Footer from '@/components/Footer';
 import type { NavItem } from '@/lib/types';
+import { recordVisit } from '@/lib/nav-trail';
 
 interface LayoutClientProps {
   children: React.ReactNode;
@@ -24,6 +26,10 @@ export function LayoutClient({ children, navItems, siteName = 'Shuakami' }: Layo
   const isFullscreen = matches(pathname, FULLSCREEN);
   const isWide = matches(pathname, WIDE);
   const showFooter = !matches(pathname, NO_FOOTER);
+
+  useEffect(() => {
+    recordVisit(window.location.pathname + window.location.search);
+  }, [pathname]);
 
   if (isFullscreen) {
     return <main className="relative min-h-dvh w-full">{children}</main>;

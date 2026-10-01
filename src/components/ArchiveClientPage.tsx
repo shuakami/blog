@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { formatShortDate, toOldWords } from '@/lib/format';
 import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
+import { replaceVisit } from '@/lib/nav-trail';
 
 interface ArchivePostLite {
   slug: string;
@@ -54,6 +55,9 @@ export default function ArchiveClientPage({ posts }: ArchiveClientPageProps) {
   const pick = (c: string | null) => {
     triggerHaptic(HapticFeedback.Light);
     setSelected(c);
+    const url = c ? `/archive?category=${encodeURIComponent(c)}` : '/archive';
+    window.history.replaceState(window.history.state, '', url);
+    replaceVisit(url);
   };
 
   return (
