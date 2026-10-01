@@ -849,9 +849,11 @@ html.dark-scrollbar {
 }
 
 /* Mobile menu. The sheet is clipped open from the toggle; each name is set from below its own baseline. */
-.menu-sheet {
+.menu-disc {
+  position: absolute;
+  border-radius: 9999px;
   background: var(--bg);
-  will-change: clip-path;
+  will-change: transform;
 }
 .menu-line {
   display: block;
@@ -913,6 +915,18 @@ html.dark-scrollbar {
   display: flex;
   margin-left: -2.1rem;
   transform-origin: 100% 50%;
+  animation: menu-mark-in 640ms cubic-bezier(0.34, 1.56, 0.64, 1) 380ms both;
+}
+@keyframes menu-mark-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px) scale(0.6);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu-mark {
+    animation: none;
+  }
 }
 .menu-mark .hedera {
   margin-left: 0;
