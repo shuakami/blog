@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { getBlogPosts } from '@/utils/posts';
+import { getAllBlogPosts } from '@/utils/posts';
 import ArchiveClientPage from '@/components/ArchiveClientPage';
 
 export const metadata: Metadata = {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function ArchivePage() {
-  const { posts } = await getBlogPosts(1);
+  const posts = await getAllBlogPosts();
 
   return (
     <Suspense fallback={null}>

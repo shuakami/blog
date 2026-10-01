@@ -74,6 +74,20 @@ export const getBlogPosts = cache(async (page = 1) => {
 });
 
 /**
+ * 获取全部博客文章（归档页使用，不分页）
+ */
+export const getAllBlogPosts = cache(async () => {
+  const first = await getBlogPosts(1);
+  if (!first.hasMore) return first.posts;
+
+  const pages = Math.ceil(first.total / PER_PAGE);
+  const rest = await Promise.all(
+    Array.from({ length: pages - 1 }, (_, i) => getBlogPosts(i + 2))
+  );
+  return [first, ...rest].flatMap((r) => r.posts);
+});
+
+/**
  * 获取归档文章列表（从 Redis/Obsidian）
  */
 export const getArchivePosts = cache(async (page = 1) => {
