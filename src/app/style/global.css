@@ -917,6 +917,15 @@ html.dark-scrollbar {
   transform-origin: 100% 50%;
   animation: menu-mark-in 640ms cubic-bezier(0.34, 1.56, 0.64, 1) 380ms both;
 }
+[data-leaving] .menu-mark {
+  animation: menu-mark-out 180ms cubic-bezier(0.7, 0, 0.84, 0) both;
+}
+@keyframes menu-mark-out {
+  to {
+    opacity: 0;
+    transform: translateX(-10px) scale(0.6);
+  }
+}
 @keyframes menu-mark-in {
   from {
     opacity: 0;

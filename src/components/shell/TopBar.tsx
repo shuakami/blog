@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
@@ -75,6 +75,10 @@ export function TopBar({ navItems, siteName }: TopBarProps) {
   };
 
   useEffect(() => setOpen(false), [pathname]);
+
+  useLayoutEffect(() => {
+    if (!open) sheetRef.current?.setAttribute('data-leaving', 'true');
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
