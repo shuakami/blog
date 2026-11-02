@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://musicd2-git-main-shuakamis-projects.vercel.app';
+const BASE_URL = 'https://msapi.awup.cn';
 
 // API响应接口
 interface PlaylistDetail {

@@ -40,15 +40,9 @@ export async function GET(request: NextRequest) {
     }
 
     // 请求播放地址 API
-    const url = `${MUSIC_CONFIG.wyapiBaseUrl}/api/music/url`
-    
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id, level }),
-    })
+    const url = `https://msapi.awup.cn/song/url/v1?id=${encodeURIComponent(id)}&level=${encodeURIComponent(level)}`
+
+    const response = await fetch(url)
 
     if (!response.ok) {
       const errorText = await response.text()
