@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      detail: data.songs || data.data,
+      detail: data.songs?.[0] || data.data,
     })
   } catch (error) {
     console.error('[!] 获取歌曲详情失败:', error)

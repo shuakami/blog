@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
       success: true,
       url: {
         id: musicData.id,
-        url: musicData.url,
+        url: musicData.url?.replace(/^http:\/\//i, 'https://'),
         br: musicData.br,
         level: musicData.level,
       },
