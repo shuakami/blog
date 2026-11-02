@@ -39,15 +39,9 @@ export async function GET(request: NextRequest) {
     }
 
     // 请求歌词 API
-    const url = `${MUSIC_CONFIG.wyapiBaseUrl}/api/music/lyric`
-    
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id }),
-    })
+    const url = `https://msapi.awup.cn/lyric?id=${encodeURIComponent(id)}`
+
+    const response = await fetch(url)
 
     if (!response.ok) {
       const errorText = await response.text()
@@ -68,8 +62,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       lyric: {
-        lrc: data.data?.lrc || '',
-        tlyric: data.data?.tlyric || '',
+        lrc: data.lrc?.lyric || data.data?.lrc || '',
+        tlyric: data.tlyric?.lyric || data.data?.tlyric || '',
       },
     })
   } catch (error) {

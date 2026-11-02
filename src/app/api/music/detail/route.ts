@@ -39,15 +39,9 @@ export async function GET(request: NextRequest) {
     }
 
     // 请求详情 API
-    const url = `${MUSIC_CONFIG.wyapiBaseUrl}/api/music/detail`
-    
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id }),
-    })
+    const url = `https://msapi.awup.cn/song/detail?ids=${encodeURIComponent(id)}`
+
+    const response = await fetch(url)
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
@@ -64,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      detail: data.data,
+      detail: data.songs || data.data,
     })
   } catch (error) {
     console.error('[!] 获取歌曲详情失败:', error)

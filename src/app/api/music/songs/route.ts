@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 // 硬编码音乐配置
 const MUSIC_CONFIG = {
   playlistId: '8308939217',
-  neteaseBaseUrl: 'https://music-api.sdjz.wiki',
+  neteaseBaseUrl: 'https://msapi.awup.cn',
   wyapiBaseUrl: 'https://wyapi-1.toubiec.cn',
   isEnabled: true,
 }
