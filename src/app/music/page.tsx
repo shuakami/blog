@@ -8,7 +8,6 @@ import type { UnifiedSong } from '@/lib/types';
 import { Arc } from 'loading-dev';
 import { useMusicPlayer } from '@/hooks/use-music-player';
 import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
-import LyricsView from '@/components/music/LyricsView';
 
 const BIG = 240;
 const SMALL = 132;
@@ -34,8 +33,6 @@ export default function MusicPage() {
     handleTogglePlay,
     loadMoreSongsForUI,
     audioRef,
-    parsedLyrics,
-    currentLyricIndex,
   } = useMusicPlayer();
 
   const [mounted, setMounted] = useState(false);
@@ -191,59 +188,44 @@ export default function MusicPage() {
           <h1 className="line-clamp-2 min-h-[2.5em] text-[20px] font-medium leading-[1.25] tracking-[-0.4px] text-ink">{currentSong.title}</h1>
         </div>
 
-        <div className="mt-6 md:grid md:grid-cols-2 md:gap-12">
-          <div>
-            <dl className="flex flex-col">
-              {rows.map(([k, v]) => (
-                <div key={k} className="grid grid-cols-[88px_1fr] gap-4 border-b border-line-soft py-2.5 last:border-0">
-                  <dt className="text-[13px] text-ink-3">{k}</dt>
-                  <dd className="truncate text-[13px] text-ink">{v}</dd>
-                </div>
-              ))}
-            </dl>
-
-            <div className="mt-8">
-              <div className="group relative h-4 cursor-pointer" onClick={seek} role="slider" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100} tabIndex={0}>
-                <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-line" />
-                <div
-                  className="absolute left-0 top-1/2 h-px -translate-y-1/2"
-                  style={{ width: `${progress * 100}%`, background: 'var(--ink)' }}
-                />
-                <div
-                  className="absolute top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 transition-opacity duration-300 ease-quint group-hover:opacity-100"
-                  style={{ left: `${progress * 100}%`, background: 'var(--ink)' }}
-                />
-              </div>
-              <div className="mono flex justify-between text-[11px] text-ink-3">
-                <span>{fmt(elapsed)}</span>
-                <span>{fmt(currentSong.duration)}</span>
-              </div>
+        <dl className="mt-6 flex flex-col">
+          {rows.map(([k, v]) => (
+            <div key={k} className="grid grid-cols-[88px_1fr] gap-4 border-b border-line-soft py-2.5 last:border-0">
+              <dt className="text-[13px] text-ink-3">{k}</dt>
+              <dd className="truncate text-[13px] text-ink">{v}</dd>
             </div>
+          ))}
+        </dl>
 
-            <div className="mt-6 flex items-center justify-center gap-2">
-              <button type="button" className="pill pill-icon" onClick={handlePrevSong} aria-label="Previous">
-                <SkipBack className="h-3.5 w-3.5" strokeWidth={1.75} />
-              </button>
-              <button type="button" className="pill" onClick={handleTogglePlay} aria-label={isPlaying ? 'Pause' : 'Play'} style={{ minWidth: 88 }}>
-                {isPlaying ? <Pause className="h-3.5 w-3.5" strokeWidth={1.75} /> : <Play className="h-3.5 w-3.5" strokeWidth={1.75} />}
-                <span>{isPlaying ? 'Pause' : 'Play'}</span>
-              </button>
-              <button type="button" className="pill pill-icon" onClick={handleNextSong} aria-label="Next">
-                <SkipForward className="h-3.5 w-3.5" strokeWidth={1.75} />
-              </button>
-            </div>
+        <div className="mt-8">
+          <div className="group relative h-4 cursor-pointer" onClick={seek} role="slider" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100} tabIndex={0}>
+            <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-line" />
+            <div
+              className="absolute left-0 top-1/2 h-px -translate-y-1/2"
+              style={{ width: `${progress * 100}%`, background: 'var(--ink)' }}
+            />
+            <div
+              className="absolute top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-0 transition-opacity duration-300 ease-quint group-hover:opacity-100"
+              style={{ left: `${progress * 100}%`, background: 'var(--ink)' }}
+            />
           </div>
+          <div className="mono flex justify-between text-[11px] text-ink-3">
+            <span>{fmt(elapsed)}</span>
+            <span>{fmt(currentSong.duration)}</span>
+          </div>
+        </div>
 
-          {parsedLyrics.length > 0 && (
-            <div className="mt-8 h-72 md:mt-0 md:h-auto md:min-h-0">
-              <LyricsView
-                lyrics={parsedLyrics}
-                activeIndex={currentLyricIndex}
-                elapsed={elapsed}
-                audioRef={audioRef}
-              />
-            </div>
-          )}
+        <div className="mt-6 flex items-center justify-center gap-2">
+          <button type="button" className="pill pill-icon" onClick={handlePrevSong} aria-label="Previous">
+            <SkipBack className="h-3.5 w-3.5" strokeWidth={1.75} />
+          </button>
+          <button type="button" className="pill" onClick={handleTogglePlay} aria-label={isPlaying ? 'Pause' : 'Play'} style={{ minWidth: 88 }}>
+            {isPlaying ? <Pause className="h-3.5 w-3.5" strokeWidth={1.75} /> : <Play className="h-3.5 w-3.5" strokeWidth={1.75} />}
+            <span>{isPlaying ? 'Pause' : 'Play'}</span>
+          </button>
+          <button type="button" className="pill pill-icon" onClick={handleNextSong} aria-label="Next">
+            <SkipForward className="h-3.5 w-3.5" strokeWidth={1.75} />
+          </button>
         </div>
       </div>
     </div>
