@@ -8,6 +8,7 @@ import type { UnifiedSong } from '@/lib/types';
 import { Arc } from 'loading-dev';
 import { useMusicPlayer } from '@/hooks/use-music-player';
 import { triggerHaptic, HapticFeedback } from '@/utils/haptics';
+import LyricsView from '@/components/music/LyricsView';
 
 const BIG = 240;
 const SMALL = 132;
@@ -33,6 +34,8 @@ export default function MusicPage() {
     handleTogglePlay,
     loadMoreSongsForUI,
     audioRef,
+    parsedLyrics,
+    currentLyricIndex,
   } = useMusicPlayer();
 
   const [mounted, setMounted] = useState(false);
@@ -227,6 +230,15 @@ export default function MusicPage() {
             <SkipForward className="h-3.5 w-3.5" strokeWidth={1.75} />
           </button>
         </div>
+
+        {parsedLyrics.length > 0 && (
+          <LyricsView
+            lyrics={parsedLyrics}
+            activeIndex={currentLyricIndex}
+            elapsed={elapsed}
+            audioRef={audioRef}
+          />
+        )}
       </div>
     </div>
   );
