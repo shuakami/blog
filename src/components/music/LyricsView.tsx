@@ -15,13 +15,10 @@ interface Props {
   audioRef: RefObject<HTMLAudioElement | null>;
 }
 
-const INTERLUDE_GAP = 6;
-
 export default function LyricsView({ lyrics, activeIndex, elapsed, audioRef }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const userScrolledAt = useRef(0);
 
-  // 用户手动滚动后暂停自动跟随 4s
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -35,13 +32,13 @@ export default function LyricsView({ lyrics, activeIndex, elapsed, audioRef }: P
   }, []);
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el || activeIndex < 0) return;
+    const container = containerRef.current;
+    if (!container || activeIndex < 0) return;
     if (Date.now() - userScrolledAt.current < 4000) return;
-    const target = el.querySelector<HTMLElement>(`[data-lyr="${activeIndex}"]`);
+    const target = container.querySelector<HTMLElement>(`[data-lyr="${activeIndex}"]`);
     if (!target) return;
-    el.scrollTo({
-      top: target.offsetTop - el.clientHeight / 2 + target.clientHeight / 2,
+    container.scrollTo({
+      top: target.offsetTop - container.clientHeight / 2 + target.clientHeight / 2,
       behavior: 'smooth',
     });
   }, [activeIndex]);
@@ -52,64 +49,50 @@ export default function LyricsView({ lyrics, activeIndex, elapsed, audioRef }: P
   };
 
   return (
-    <div className="relative mt-14 select-none" aria-label="Lyrics">
-      {/* 顶部渐隐 */}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-16"
-        style={{ background: 'linear-gradient(to bottom, var(--bg), transparent)' }}
-      />
+    <div className="relative h-full select-none" aria-label="Lyrics">
       <div
         ref={containerRef}
-        className="h-64 overflow-y-auto py-28 md:h-80 [&::-webkit-scrollbar]:hidden"
+        className="relative h-full overflow-y-auto [&::-webkit-scrollbar]:hidden"
         style={{ scrollbarWidth: 'none' }}
       >
+        <div style={{ height: '50%' }} aria-hidden />
         {lyrics.map((line, i) => {
           const active = i === activeIndex;
-          const dist = Math.abs(i - Math.max(activeIndex, 0));
           const next = lyrics[i + 1];
-          // 行内卡拉OK填色进度
           let fill = 0;
           if (active && next) fill = Math.min(1, Math.max(0, (elapsed - line.time) / (next.time - line.time)));
           else if (active) fill = 1;
           const pct = `${(fill * 100).toFixed(1)}%`;
-          const showDots = active && next && next.time - line.time > INTERLUDE_GAP;
+          const showDots = active && next && next.time - line.time > 8;
 
           return (
             <div key={i} data-lyr={i}>
               <p
                 onClick={() => seekTo(line.time)}
-                className="cursor-pointer py-2 text-center leading-snug transition-all duration-500 ease-out"
+                className="cursor-pointer rounded-xl px-3 py-2.5 text-[15px] font-semibold leading-relaxed transition-all duration-300 ease-out hover:bg-[rgba(var(--ink-rgb),0.06)]"
                 style={{
-                  fontSize: active ? 22 : dist === 1 ? 16 : 14,
-                  fontWeight: active ? 600 : 400,
-                  letterSpacing: active ? '0.02em' : 0,
-                  opacity: activeIndex < 0 ? 0.5 : active ? 1 : Math.max(0.15, 0.45 - dist * 0.12),
-                  filter: active ? 'none' : `blur(${Math.min(dist * 0.6, 2.5)}px)`,
-                  transform: `scale(${active ? 1 : 0.97})`,
+                  transformOrigin: 'left center',
+                  transform: `scale(${active ? 1 : 0.95})`,
                   ...(active
                     ? {
-                        backgroundImage: `linear-gradient(90deg, var(--ink) ${pct}, var(--ink-4, var(--ink-3)) ${pct})`,
+                        backgroundImage: `linear-gradient(90deg, var(--ink) ${pct}, rgba(var(--ink-rgb),0.28) ${pct})`,
                         WebkitBackgroundClip: 'text',
                         backgroundClip: 'text',
                         color: 'transparent',
                       }
-                    : { color: 'var(--ink-3)' }),
+                    : { color: 'rgba(var(--ink-rgb),0.28)' }),
                 }}
               >
                 {line.text || '·'}
               </p>
               {showDots && (
-                <p className="animate-pulse py-1 text-center text-[13px] tracking-[0.4em] text-ink-3">···</p>
+                <p className="animate-pulse px-3 py-1 text-[13px] tracking-[0.4em] text-ink-3">···</p>
               )}
             </div>
           );
         })}
+        <div style={{ height: '50%' }} aria-hidden />
       </div>
-      {/* 底部渐隐 */}
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16"
-        style={{ background: 'linear-gradient(to top, var(--bg), transparent)' }}
-      />
     </div>
   );
 }
